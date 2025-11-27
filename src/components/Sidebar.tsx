@@ -105,6 +105,10 @@ export default function Sidebar() {
             <span className="font-bold text-gray-900">1,234</span>
           </div>
           <div className="flex items-center justify-between">
+            <span className="text-gray-600">مغازه ها</span>
+            <span className="font-bold text-gray-900">89</span>
+          </div>
+          <div className="flex items-center justify-between">
             <span className="text-gray-600">امروز</span>
             <span className="font-bold text-gray-900">+45</span>
           </div>

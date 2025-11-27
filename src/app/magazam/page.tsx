@@ -145,9 +145,14 @@ export default function MagazamPage() {
               <div className="flex items-start gap-8">
                 {/* Logo */}
                 <div className="flex-shrink-0">
-                  <div className="w-32 h-32 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
+                  <div className="w-32 h-32 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden relative">
                     {magazaBilgileri.logo ? (
-                      <Image src={magazaBilgileri.logo} alt="Logo" fill className="object-cover" />
+                      <img 
+                        src={magazaBilgileri.logo} 
+                        alt="Logo" 
+                        className="w-full h-full object-contain p-2"
+                        style={{ objectPosition: 'center' }}
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Store className="h-16 w-16 text-gray-300" />

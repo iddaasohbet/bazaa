@@ -225,12 +225,19 @@ export default function MagazaAcPage() {
                   <div className="flex justify-center">
                     <div className="text-center">
                       <label className="block text-sm font-bold text-gray-700 mb-4">
-                        عکس پروفایل *
+                        عکس پروفایل * (توصیه: ۴۰۰×۴۰۰ پیکسل)
                       </label>
                       <div className="relative inline-block">
                         <div className="w-32 h-32 rounded-full border-4 border-blue-200 overflow-hidden bg-gray-100 cursor-pointer hover:border-blue-400 transition-all">
                           {profilPreview ? (
-                            <img src={profilPreview} alt="Profile" className="w-full h-full object-cover" />
+                            <div className="w-full h-full relative">
+                              <img 
+                                src={profilPreview} 
+                                alt="Profile" 
+                                className="w-full h-full object-cover"
+                                style={{ objectPosition: 'center' }}
+                              />
+                            </div>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
                               <User className="h-16 w-16 text-gray-400" />
@@ -251,7 +258,7 @@ export default function MagazaAcPage() {
                           <Upload className="h-5 w-5 text-white" />
                         </label>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">کلیک کنید تا عکس انتخاب کنید</p>
+                      <p className="text-xs text-gray-500 mt-2">Kare resim önerilir (400×400px)</p>
                     </div>
                   </div>
 
@@ -342,15 +349,16 @@ export default function MagazaAcPage() {
                   {/* Kapak Resmi */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-4 text-center">
-                      تصویر کاور مغازه
+                      تصویر کاور مغازه (توصیه: ۱۲۰۰×۳۰۰ پیکسل)
                     </label>
-                    <div className="relative h-40 rounded-2xl border-4 border-dashed border-gray-300 overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 hover:border-purple-400 transition-all cursor-pointer group">
+                    <div className="relative aspect-[4/1] max-h-48 rounded-2xl border-4 border-dashed border-gray-300 overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 hover:border-purple-400 transition-all cursor-pointer group">
                       {kapakPreview ? (
                         <img src={kapakPreview} alt="Cover" className="w-full h-full object-cover" />
                       ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <Upload className="h-12 w-12 text-gray-400 group-hover:text-purple-500 transition-all mb-2" />
                           <span className="text-sm text-gray-500">کلیک کنید تا کاور آپلود کنید</span>
+                          <span className="text-xs text-gray-400 mt-1">۱۲۰۰×۳۰۰ پیکسل</span>
                         </div>
                       )}
                       <input
@@ -366,12 +374,19 @@ export default function MagazaAcPage() {
                   <div className="flex justify-center">
                     <div className="text-center">
                       <label className="block text-sm font-bold text-gray-700 mb-4">
-                        لوگوی مغازه
+                        لوگوی مغازه (توصیه: ۴۰۰×۴۰۰ پیکسل)
                       </label>
                       <div className="relative inline-block">
                         <div className="w-24 h-24 rounded-2xl border-4 border-purple-200 overflow-hidden bg-white cursor-pointer hover:border-purple-400 transition-all shadow-lg">
                           {logoPreview ? (
-                            <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                            <div className="w-full h-full relative">
+                              <img 
+                                src={logoPreview} 
+                                alt="Logo" 
+                                className="w-full h-full object-contain p-1"
+                                style={{ objectPosition: 'center' }}
+                              />
+                            </div>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
                               <Store className="h-10 w-10 text-gray-400" />
@@ -392,6 +407,7 @@ export default function MagazaAcPage() {
                           <Upload className="h-5 w-5 text-white" />
                         </label>
                       </div>
+                      <p className="text-xs text-gray-500 mt-2">Kare logo önerilir</p>
                     </div>
                   </div>
 

@@ -117,15 +117,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
             <>
               {/* Kapak Bölgesi */}
               <div className="relative mb-8 mt-8 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-                {/* Kapak Resmi */}
-                <div className={`relative ${isPremium ? 'h-80' : 'h-60'} bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600`}>
+                {/* Kapak Resmi - Fixed Aspect Ratio */}
+                <div className={`relative ${isPremium ? 'aspect-[4/1]' : 'aspect-[5/1]'} max-h-80 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600`}>
                   {magaza.kapak_resmi ? (
-                    <Image
+                    <img
                       src={getImageUrl(magaza.kapak_resmi)}
                       alt={magaza.ad}
-                      fill
-                      className="object-cover"
-                      priority
+                      className="w-full h-full object-cover"
+                      style={{ objectPosition: 'center' }}
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -141,11 +140,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     {/* Logo */}
                     <div className={`relative ${isPremium ? 'w-40 h-40' : 'w-32 h-32'} rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-white flex-shrink-0 ring-4 ring-purple-200`}>
                       {magaza.logo ? (
-                        <Image
+                        <img
                           src={getImageUrl(magaza.logo)}
                           alt={magaza.ad}
-                          fill
-                          className="object-cover"
+                          className="w-full h-full object-contain p-2"
+                          style={{ objectPosition: 'center' }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600">

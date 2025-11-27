@@ -7,26 +7,37 @@ export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200 mt-16">
       {/* Android App Download Section */}
-      <div className="border-b border-gray-200 bg-gray-50">
+      <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-right">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <div className="text-center md:text-right" dir="rtl">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
                 اپلیکیشن موبایل ما را دانلود کنید
               </h3>
               <p className="text-gray-600">
                 آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
+              {/* QR Code */}
+              <div className="bg-white p-2 rounded-lg border border-gray-300 shadow-md">
+                <img 
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://cihatcengiz.com" 
+                  alt="QR Code"
+                  className="w-20 h-20"
+                />
+                <p className="text-center text-[10px] text-gray-500 mt-1">اسکن کنید</p>
+              </div>
+              
+              {/* Download Button */}
               <a
                 href="#"
-                className="flex items-center gap-3 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg transition-colors"
+                className="flex items-center gap-3 bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900 text-white px-8 py-4 rounded-xl transition-all shadow-lg border-2 border-gray-700"
               >
-                <Download className="h-5 w-5" />
+                <Download className="h-6 w-6" />
                 <div className="text-right">
-                  <div className="text-xs text-gray-300">برای اندروید</div>
-                  <div className="text-sm font-semibold">Google Play</div>
+                  <div className="text-xs text-gray-300">دانلود برای اندروید</div>
+                  <div className="text-base font-bold">Google Play</div>
                 </div>
               </a>
             </div>
