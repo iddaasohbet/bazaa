@@ -43,7 +43,7 @@ export default function Header() {
           const userData = JSON.parse(user);
           if (userData && userData.email) {
             setIsAuthenticated(true);
-            setUserName(userData.name || 'Kullanıcı');
+            setUserName(userData.ad || userData.name || 'Kullanıcı');
           } else {
             setIsAuthenticated(false);
           }
@@ -68,32 +68,59 @@ export default function Header() {
       setFavoriSayisi(favoriler.length);
     };
     
-    // Mağaza kontrolü
-    const checkMagaza = () => {
-      const magazaBilgileri = localStorage.getItem('magazaBilgileri');
-      setHasMagaza(!!magazaBilgileri);
-    };
-    
     checkUser();
     updateMesajSayisi();
     updateFavoriSayisi();
-    checkMagaza();
     
     // Storage değişikliklerini dinle
     window.addEventListener('storage', checkUser);
     window.addEventListener('userLogin', checkUser);
     window.addEventListener('mesajGuncelle', updateMesajSayisi);
     window.addEventListener('favoriGuncelle', updateFavoriSayisi);
-    window.addEventListener('magazaGuncelle', checkMagaza);
     
     return () => {
       window.removeEventListener('storage', checkUser);
       window.removeEventListener('userLogin', checkUser);
       window.removeEventListener('mesajGuncelle', updateMesajSayisi);
       window.removeEventListener('favoriGuncelle', updateFavoriSayisi);
-      window.removeEventListener('magazaGuncelle', checkMagaza);
     };
   }, []);
+
+  // Mağaza kontrolü - isAuthenticated değiştiğinde çalış
+  useEffect(() => {
+    const checkMagaza = async () => {
+      if (isAuthenticated) {
+        try {
+          const user = localStorage.getItem('user');
+          if (user) {
+            const userData = JSON.parse(user);
+            // Kullanıcının mağazasını API'den kontrol et
+            const response = await fetch(`/api/magazalar?kullanici_id=${userData.id}`);
+            const data = await response.json();
+            if (data.success && data.data && data.data.length > 0) {
+              setHasMagaza(true);
+            } else {
+              setHasMagaza(false);
+            }
+          }
+        } catch (error) {
+          console.error('Mağaza kontrolü hatası:', error);
+          setHasMagaza(false);
+        }
+      } else {
+        setHasMagaza(false);
+      }
+    };
+
+    checkMagaza();
+
+    // magazaGuncelle event'ini dinle
+    window.addEventListener('magazaGuncelle', checkMagaza);
+    
+    return () => {
+      window.removeEventListener('magazaGuncelle', checkMagaza);
+    };
+  }, [isAuthenticated]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
