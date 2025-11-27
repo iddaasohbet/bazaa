@@ -32,12 +32,12 @@ export default function EliteIlanlar() {
 
   const fetchEliteIlanlar = async () => {
     try {
-      const response = await fetch('/api/ilanlar?store_level=elite&limit=6');
+      const response = await fetch('/api/ilanlar?limit=24');
       const data = await response.json();
       if (data.success) {
-        // Elite ilanları filtrele
+        // Elite ilanları filtrele - store_level === 'elite' olanlar
         const eliteIlanlar = data.data.filter((i: any) => i.store_level === 'elite');
-        setIlanlar(eliteIlanlar);
+        setIlanlar(eliteIlanlar.slice(0, 6)); // İlk 6 Elite ilan
       }
     } catch (error) {
       console.error('Elite ilanlar yüklenirken hata:', error);

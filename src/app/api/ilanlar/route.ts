@@ -132,28 +132,43 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const kategori = searchParams.get('kategori');
     const aramaSorgusu = searchParams.get('q');
+    const storeLevel = searchParams.get('store_level');
 
-    let filteredIlanlar = [...mockIlanlar];
+    // Development: Mock data kullan
+    if (process.env.NODE_ENV === 'development') {
+      let filteredIlanlar = [...mockIlanlar];
 
-    if (kategori) {
-      filteredIlanlar = filteredIlanlar.filter(i => i.kategori_slug === kategori);
+      if (kategori) {
+        filteredIlanlar = filteredIlanlar.filter(i => i.kategori_slug === kategori);
+      }
+
+      if (aramaSorgusu) {
+        const query = aramaSorgusu.toLowerCase();
+        filteredIlanlar = filteredIlanlar.filter(i => 
+          i.baslik.toLowerCase().includes(query) || 
+          i.aciklama.toLowerCase().includes(query)
+        );
+      }
+
+      if (storeLevel) {
+        filteredIlanlar = filteredIlanlar.filter(i => i.store_level === storeLevel);
+      }
+
+      filteredIlanlar = filteredIlanlar.slice(0, limit);
+
+      return NextResponse.json({
+        success: true,
+        data: filteredIlanlar,
+      });
     }
 
-    if (aramaSorgusu) {
-      const query = aramaSorgusu.toLowerCase();
-      filteredIlanlar = filteredIlanlar.filter(i => 
-        i.baslik.toLowerCase().includes(query) || 
-        i.aciklama.toLowerCase().includes(query)
-      );
-    }
-
-    // Limit uygula
-    filteredIlanlar = filteredIlanlar.slice(0, limit);
-
+    // Production: Database'den çek (henüz veri yoksa mock data dön)
+    // TODO: Database implementation
     return NextResponse.json({
       success: true,
-      data: filteredIlanlar,
+      data: mockIlanlar.slice(0, limit),
     });
+
   } catch (error: any) {
     console.error('İlanlar yüklenirken hata:', error);
     return NextResponse.json(
