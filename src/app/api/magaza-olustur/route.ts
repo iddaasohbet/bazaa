@@ -51,30 +51,27 @@ export async function POST(request: NextRequest) {
       .replace(/[^\w\-]+/g, '')
       .replace(/\-\-+/g, '-');
 
-    // Paket tarihleri
-    let paket_baslangic = null;
-    let paket_bitis = null;
+    // Paket tarihleri ve onay durumu
+    let paket_baslangic = new Date(); // Hemen başlat
+    let paket_bitis = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 yıl
     let finalStoreLevel = store_level || 'basic';
+    let onay_durumu = 'onaylandi'; // Otomatik onaylı
 
     if (paket) {
       finalStoreLevel = paket.store_level;
-      if (paket.fiyat > 0) {
-        // Ücretli paket - admin onayından sonra aktif olacak
-        paket_baslangic = null;
-        paket_bitis = null;
-      } else {
-        // Ücretsiz paket - hemen aktif
-        paket_baslangic = new Date();
-        paket_bitis = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 yıl
+      
+      // Paket süresini belirle
+      if (paket.sure_gun) {
+        paket_bitis = new Date(Date.now() + paket.sure_gun * 24 * 60 * 60 * 1000);
       }
     }
 
-    // Mağaza oluştur
+    // Mağaza oluştur - HER PAKET OTOMATIK AKTİF
     const result = await query(
       `INSERT INTO magazalar 
        (kullanici_id, ad, ad_dari, slug, aciklama, adres, telefon, il_id, 
         logo, kapak_resmi, store_level, paket_baslangic, paket_bitis, aktif, onay_durumu) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 'beklemede')`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?)`,
       [
         kullaniciId,
         magaza_ad,
@@ -88,7 +85,8 @@ export async function POST(request: NextRequest) {
         kapak_resmi || null,
         finalStoreLevel,
         paket_baslangic,
-        paket_bitis
+        paket_bitis,
+        onay_durumu
       ]
     );
 
@@ -128,7 +126,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'مغازه با موفقیت ایجاد شد و در انتظار تأیید است',
+      message: 'مغازه شما با موفقیت ایجاد و فعال شد!',
       data: { id: magazaId, slug }
     });
   } catch (error: any) {

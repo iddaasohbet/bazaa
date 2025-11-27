@@ -112,7 +112,7 @@ function OdemeContent() {
         // Header'ı güncelle
         window.dispatchEvent(new Event('magazaGuncelle'));
         
-        alert('✅ پرداخت ثبت شد! مغازه شما پس از تأیید فعال می‌شود.');
+        alert('✅ پرداخت ثبت شد! مغازه شما فعال شد.');
         router.push('/magazam');
       } else {
         alert('خطا: ' + (data.message || 'مشکل در ثبت پرداخت'));

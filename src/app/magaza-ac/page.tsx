@@ -136,7 +136,7 @@ export default function MagazaAcPage() {
           // Header'ı güncelle
           window.dispatchEvent(new Event('magazaGuncelle'));
           
-          alert('✅ مغازه شما با موفقیت ایجاد شد و در انتظار تأیید است!');
+          alert('✅ مغازه شما با موفقیت ایجاد و فعال شد!');
           router.push('/magazam');
         } else {
           alert('خطا در ایجاد مغازه: ' + (data.message || ''));
