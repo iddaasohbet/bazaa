@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 
 // Mock data - veritabanı olmadan çalışması için
 const baseIlanlar = [

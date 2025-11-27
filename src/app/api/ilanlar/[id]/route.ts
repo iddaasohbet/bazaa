@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 
 // Base ilan detayları
 const baseIlanDetay = [
