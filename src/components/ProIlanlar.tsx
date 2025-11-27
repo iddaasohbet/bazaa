@@ -35,10 +35,9 @@ export default function ProIlanlar() {
       const response = await fetch('/api/ilanlar?store_level=pro&limit=20');
       const data = await response.json();
       if (data.success) {
-        // Pro ilanları filtrele ve %25'ini al
+        // Pro ilanları filtrele ve 6 tanesini al
         const proIlanlar = data.data.filter((i: any) => i.store_level === 'pro');
-        const yuzde25 = Math.ceil(proIlanlar.length * 0.25);
-        setIlanlar(proIlanlar.slice(0, yuzde25));
+        setIlanlar(proIlanlar.slice(0, 6));
       }
     } catch (error) {
       console.error('Pro ilanlar yüklenirken hata:', error);

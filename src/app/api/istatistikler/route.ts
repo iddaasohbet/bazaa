@@ -5,25 +5,25 @@ export async function GET() {
   try {
     // Aktif ilan sayısı
     const ilanlarResult: any = await query(
-      'SELECT COUNT(*) as toplam FROM ilanlar WHERE aktif = TRUE'
+      'SELECT COUNT(*) as toplam FROM ilanlar WHERE aktif = 1'
     );
     const aktifIlanlar = ilanlarResult[0]?.toplam || 0;
 
     // Mağaza sayısı
     const magazalarResult: any = await query(
-      'SELECT COUNT(*) as toplam FROM magazalar WHERE aktif = TRUE'
+      'SELECT COUNT(*) as toplam FROM magazalar WHERE aktif = 1'
     );
     const aktifMagazalar = magazalarResult[0]?.toplam || 0;
 
     // Bugün eklenen ilan sayısı
     const bugunResult: any = await query(
-      'SELECT COUNT(*) as toplam FROM ilanlar WHERE DATE(olusturma_tarihi) = CURDATE() AND aktif = TRUE'
+      'SELECT COUNT(*) as toplam FROM ilanlar WHERE DATE(created_at) = CURDATE() AND aktif = 1'
     );
     const bugunEklenen = bugunResult[0]?.toplam || 0;
 
     // Kullanıcı sayısı
     const kullanicilarResult: any = await query(
-      'SELECT COUNT(*) as toplam FROM kullanicilar WHERE aktif = TRUE'
+      'SELECT COUNT(*) as toplam FROM kullanicilar WHERE aktif = 1'
     );
     const toplamKullanicilar = kullanicilarResult[0]?.toplam || 0;
 
