@@ -19,7 +19,9 @@ import {
   AlertTriangle,
   User,
   Copy,
-  Check
+  Check,
+  Store,
+  Package
 } from "lucide-react";
 import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
 
@@ -28,6 +30,8 @@ interface Ilan {
   baslik: string;
   aciklama: string;
   fiyat: number;
+  eski_fiyat?: number;
+  indirim_yuzdesi?: number;
   fiyat_tipi: string;
   kategori_ad: string;
   kategori_slug: string;
@@ -37,6 +41,9 @@ interface Ilan {
   created_at: string;
   kullanici_ad: string;
   kullanici_telefon: string;
+  kullanici_id: number;
+  magaza_id?: number;
+  store_level?: string;
   resimler: string[];
 }
 
@@ -320,38 +327,89 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
             <div className="lg:col-span-1">
               <div className="sticky top-4 space-y-4">
                 {/* Price */}
-                <div className="border border-gray-300 rounded-lg p-6">
-                  <div className="text-sm text-gray-600 mb-2">قیمت</div>
-                  <div className="text-4xl font-bold text-gray-900 mb-2">
-                    {formatPrice(ilan.fiyat)}
-                  </div>
+                <div className="border-2 border-gray-300 rounded-xl p-6">
+                  <div className="text-sm text-gray-600 mb-3">قیمت</div>
+                  
+                  {/* İndirim Gösterimi - Sadece Pro ve Elite için */}
+                  {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 && (ilan.store_level === 'pro' || ilan.store_level === 'elite') ? (
+                    <div className="space-y-3">
+                      {/* İndirim Badge */}
+                      <div className="inline-flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-lg">
+                        <span className="text-2xl">🔥</span>
+                        <span>{ilan.indirim_yuzdesi}% تخفیف ویژه</span>
+                      </div>
+                      
+                      {/* Eski Fiyat */}
+                      {ilan.eski_fiyat && (
+                        <div className="text-xl text-gray-500 line-through">
+                          {formatPrice(ilan.eski_fiyat)}
+                        </div>
+                      )}
+                      
+                      {/* Yeni Fiyat */}
+                      <div className="text-5xl font-bold text-red-600">
+                        {formatPrice(ilan.fiyat)}
+                      </div>
+                      
+                      {/* Tasarruf */}
+                      {ilan.eski_fiyat && (
+                        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3 text-center">
+                          <div className="text-sm text-green-700 font-medium">
+                            شما صرفه‌جویی می‌کنید:
+                          </div>
+                          <div className="text-xl font-bold text-green-600">
+                            {formatPrice(ilan.eski_fiyat - ilan.fiyat)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-4xl font-bold text-gray-900 mb-2">
+                      {formatPrice(ilan.fiyat)}
+                    </div>
+                  )}
+                  
                   {ilan.fiyat_tipi === 'negotiable' && (
-                    <div className="text-sm text-green-600 font-medium">قابل چانه زنی</div>
+                    <div className="text-sm text-green-600 font-medium mt-3">قابل چانه زنی</div>
                   )}
                 </div>
 
                 {/* Seller */}
-                <div className="border border-gray-200 rounded-lg p-6">
-                  <h3 className="text-sm font-bold text-gray-900 mb-4">صاحب آگهی</h3>
-                  <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
-                    <div className="w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center">
-                      <User className="h-6 w-6 text-gray-600" />
+                <div className="border-2 border-gray-200 rounded-xl p-6 bg-gradient-to-br from-white to-gray-50">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <User className="h-5 w-5 text-gray-600" />
+                    صاحب آگهی
+                  </h3>
+                  <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-gray-200">
+                    <div className="w-14 h-14 rounded-full border-2 border-gray-300 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <User className="h-7 w-7 text-gray-600" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-gray-900 mb-1">
+                      <div className="font-bold text-gray-900 mb-1 text-lg">
                         {ilan.kullanici_ad}
                       </div>
-                      <Link 
-                        href={`/kullanici/1`}
-                        className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-                      >
-                        مشاهده سایر آگهی ها
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </Link>
+                      <div className="text-xs text-gray-500">فروشنده</div>
                     </div>
                   </div>
+                  
+                  {/* Mağaza varsa Mağaza Butonu, yoksa Diğer İlanlar */}
+                  {ilan.magaza_id ? (
+                    <Link 
+                      href={`/magaza/${ilan.magaza_id}`}
+                      className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg mb-3"
+                    >
+                      <Store className="h-5 w-5" />
+                      مشاهده مغازه و سایر محصولات
+                    </Link>
+                  ) : (
+                    <Link 
+                      href={`/kullanici/${ilan.kullanici_id}`}
+                      className="flex items-center justify-center gap-2 w-full bg-gray-700 hover:bg-gray-800 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg mb-3"
+                    >
+                      <Package className="h-5 w-5" />
+                      سایر آگهی‌های این کاربر
+                    </Link>
+                  )}
                   
                   <div className="space-y-3">
                     {showPhone ? (

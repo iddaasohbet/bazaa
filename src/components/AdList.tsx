@@ -11,6 +11,8 @@ interface Ilan {
   id: number;
   baslik: string;
   fiyat: number;
+  eski_fiyat?: number;
+  indirim_yuzdesi?: number;
   fiyat_tipi: string;
   ana_resim: string;
   kategori_ad: string;
@@ -21,6 +23,7 @@ interface Ilan {
   created_at: string;
   resimler?: string[];
   resim_sayisi: number;
+  store_level?: string;
 }
 
 export default function AdList() {
@@ -202,10 +205,32 @@ export default function AdList() {
                       {ilan.baslik}
                     </h3>
                     
-                    <div className="flex items-baseline gap-1 mb-3">
-                      <span className="text-lg font-bold text-blue-600">
-                        {formatPrice(ilan.fiyat)}
-                      </span>
+                    {/* Fiyat Bölümü - İndirim Gösterimi */}
+                    <div className="mb-3">
+                      {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 && (ilan.store_level === 'pro' || ilan.store_level === 'elite') ? (
+                        <div className="space-y-1">
+                          {/* İndirim Badge */}
+                          <div className="flex items-center gap-2">
+                            <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+                              {ilan.indirim_yuzdesi}% تخفیف
+                            </span>
+                          </div>
+                          {/* Eski Fiyat (Üstü Çizili) */}
+                          {ilan.eski_fiyat && (
+                            <div className="text-sm text-gray-500 line-through">
+                              {formatPrice(ilan.eski_fiyat)}
+                            </div>
+                          )}
+                          {/* Yeni İndirimli Fiyat */}
+                          <div className="text-lg font-bold text-red-600">
+                            {formatPrice(ilan.fiyat)}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-lg font-bold text-blue-600">
+                          {formatPrice(ilan.fiyat)}
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-auto space-y-2 text-xs text-gray-600">

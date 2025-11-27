@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Search, Menu, X, Plus, User, Heart, MessageSquare, ChevronDown, MapPin } from "lucide-react";
+import { Search, Menu, X, Plus, User, Heart, MessageSquare, ChevronDown, MapPin, Store } from "lucide-react";
 
 const kategoriler = [
   { href: "/kategori/araclar", label: "خودرو", icon: "🚗" },
@@ -24,6 +24,7 @@ export default function Header() {
   const [userName, setUserName] = useState("");
   const [mesajSayisi, setMesajSayisi] = useState(0);
   const [favoriSayisi, setFavoriSayisi] = useState(0);
+  const [hasMagaza, setHasMagaza] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,21 +68,30 @@ export default function Header() {
       setFavoriSayisi(favoriler.length);
     };
     
+    // Mağaza kontrolü
+    const checkMagaza = () => {
+      const magazaBilgileri = localStorage.getItem('magazaBilgileri');
+      setHasMagaza(!!magazaBilgileri);
+    };
+    
     checkUser();
     updateMesajSayisi();
     updateFavoriSayisi();
+    checkMagaza();
     
     // Storage değişikliklerini dinle
     window.addEventListener('storage', checkUser);
     window.addEventListener('userLogin', checkUser);
     window.addEventListener('mesajGuncelle', updateMesajSayisi);
     window.addEventListener('favoriGuncelle', updateFavoriSayisi);
+    window.addEventListener('magazaGuncelle', checkMagaza);
     
     return () => {
       window.removeEventListener('storage', checkUser);
       window.removeEventListener('userLogin', checkUser);
       window.removeEventListener('mesajGuncelle', updateMesajSayisi);
       window.removeEventListener('favoriGuncelle', updateFavoriSayisi);
+      window.removeEventListener('magazaGuncelle', checkMagaza);
     };
   }, []);
 
@@ -151,13 +161,23 @@ export default function Header() {
             {/* Right Actions */}
             <div className="flex items-center gap-2">
               {/* Mağaza Aç - NEW! */}
-              <Link
-                href="/magaza-paket"
-                className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-colors shadow-sm"
-              >
-                <Plus className="h-5 w-5" />
-                <span className="text-sm font-medium">افتتاح مغازه</span>
-              </Link>
+              {hasMagaza ? (
+                <Link
+                  href="/magazam"
+                  className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition-colors shadow-sm"
+                >
+                  <Store className="h-5 w-5" />
+                  <span className="text-sm font-medium">مغازه من</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/magaza-ac"
+                  className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-colors shadow-sm"
+                >
+                  <Plus className="h-5 w-5" />
+                  <span className="text-sm font-medium">افتتاح مغازه</span>
+                </Link>
+              )}
 
               {/* İlan Ver */}
               <Link

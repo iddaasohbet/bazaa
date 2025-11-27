@@ -15,7 +15,9 @@ const baseIlanDetay = [
     goruntulenme: 245,
     created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     kullanici_ad: 'Ahmet Yılmaz',
+    kullanici_id: 1,
     kullanici_telefon: '+93 700 123 456',
+    magaza_id: undefined, // Mağazası yok
     resimler: [
       'https://bazaarewatan.com/images/691e1a347a648_1763580468_4652.jpg',
       'https://bazaarewatan.com/images/691e14d188e11_1763579089_6711.jpg',
@@ -26,7 +28,9 @@ const baseIlanDetay = [
     id: 2,
     baslik: 'iPhone 13 Pro 256GB Mavi',
     aciklama: 'Az kullanılmış, hiç çizik yok. Tüm aksesuarlar mevcut. Kutusunda, faturalı. Garantisi devam ediyor.',
-    fiyat: 25000,
+    fiyat: 21250,
+    eski_fiyat: 25000,
+    indirim_yuzdesi: 15,
     fiyat_tipi: 'negotiable',
     kategori_ad: 'Elektronik',
     kategori_slug: 'elektronik',
@@ -35,7 +39,10 @@ const baseIlanDetay = [
     goruntulenme: 189,
     created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     kullanici_ad: 'Mehmet Demir',
+    kullanici_id: 2,
     kullanici_telefon: '+93 700 234 567',
+    magaza_id: 1, // Mağazası var
+    store_level: 'pro',
     resimler: [
       'https://bazaarewatan.com/images/691e14d188e11_1763579089_6711.jpg',
       'https://bazaarewatan.com/images/691e1a347a648_1763580468_4652.jpg',
@@ -45,7 +52,9 @@ const baseIlanDetay = [
     id: 3,
     baslik: 'Samsung Smart TV 55"',
     aciklama: 'Sıfır kutusunda, faturalı. 4K Ultra HD. HDR destekli. Smart özellikler ile Youtube, Netflix izleyin.',
-    fiyat: 30000,
+    fiyat: 24000,
+    eski_fiyat: 30000,
+    indirim_yuzdesi: 20,
     fiyat_tipi: 'fixed',
     kategori_ad: 'Elektronik',
     kategori_slug: 'elektronik',
@@ -54,7 +63,10 @@ const baseIlanDetay = [
     goruntulenme: 312,
     created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     kullanici_ad: 'Ali Kaya',
+    kullanici_id: 3,
     kullanici_telefon: '+93 700 345 678',
+    magaza_id: 1, // Mağazası var
+    store_level: 'elite',
     resimler: [
       'https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg',
       'https://bazaarewatan.com/images/691e1a347a648_1763580468_4652.jpg',
@@ -74,7 +86,9 @@ const baseIlanDetay = [
     goruntulenme: 456,
     created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     kullanici_ad: 'Ayşe Demir',
+    kullanici_id: 4,
     kullanici_telefon: '+93 700 456 789',
+    magaza_id: 1, // Mağazası var
     resimler: ['https://bazaarewatan.com/images/691e1a347a648_1763580468_4652.jpg'],
   },
   {
@@ -90,14 +104,18 @@ const baseIlanDetay = [
     goruntulenme: 178,
     created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     kullanici_ad: 'Fatma Kaya',
+    kullanici_id: 5,
     kullanici_telefon: '+93 700 567 890',
+    magaza_id: undefined, // Mağazası yok
     resimler: ['https://bazaarewatan.com/images/691e14d188e11_1763579089_6711.jpg'],
   },
   {
     id: 6,
     baslik: 'MacBook Pro M1 2021',
     aciklama: '16GB RAM, 512GB SSD. Çok temiz. Hiç sorun yok, garantili. Faturalı.',
-    fiyat: 45000,
+    fiyat: 36000,
+    eski_fiyat: 45000,
+    indirim_yuzdesi: 20,
     fiyat_tipi: 'negotiable',
     kategori_ad: 'Elektronik',
     kategori_slug: 'elektronik',
@@ -106,7 +124,10 @@ const baseIlanDetay = [
     goruntulenme: 523,
     created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     kullanici_ad: 'Hasan Çelik',
+    kullanici_id: 6,
     kullanici_telefon: '+93 700 678 901',
+    magaza_id: 1, // Mağazası var
+    store_level: 'elite',
     resimler: ['https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg'],
   },
 ];

@@ -52,7 +52,7 @@ export default function PaketCard({ paket, onay = false }: { paket: PaketProps; 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`relative rounded-2xl border-2 ${borderColor} bg-gradient-to-br ${bgGradient} p-6 shadow-lg hover:shadow-2xl transition-all ${
+      className={`relative rounded-2xl border-2 ${borderColor} bg-gradient-to-br ${bgGradient} p-6 shadow-lg hover:shadow-2xl transition-all h-full flex flex-col ${
         isElite ? "ring-4 ring-yellow-200 transform scale-105" : ""
       }`}
     >
@@ -65,7 +65,7 @@ export default function PaketCard({ paket, onay = false }: { paket: PaketProps; 
         </div>
       )}
 
-      <div className="text-center" dir="rtl">
+      <div className="text-center flex-1 flex flex-col" dir="rtl">
         {/* Paket Adı */}
         <h3 className="mb-2 text-2xl font-bold text-gray-900">{paket.ad_dari}</h3>
         <p className="mb-4 text-sm text-gray-600">{paket.ad}</p>
@@ -108,7 +108,7 @@ export default function PaketCard({ paket, onay = false }: { paket: PaketProps; 
         </div>
 
         {/* Özellikler */}
-        <ul className="mb-8 space-y-3 text-right">
+        <ul className="mb-8 space-y-3 text-right flex-1">
           {paket.ozellikler.ozellikler.map((ozellik, index) => (
             <li key={index} className="flex items-start gap-2">
               <Check className="h-5 w-5 flex-shrink-0 text-green-600 mt-0.5" />
@@ -117,11 +117,11 @@ export default function PaketCard({ paket, onay = false }: { paket: PaketProps; 
           ))}
         </ul>
 
-        {/* Buton */}
+        {/* Buton - En alta sabitlendi */}
         {!onay && (
           <Link
             href={`/odeme?paket=${paket.id}`}
-            className={`block w-full rounded-xl ${buttonColor} px-6 py-3 text-center font-bold text-white transition-all shadow-lg hover:shadow-xl`}
+            className={`block w-full rounded-xl ${buttonColor} px-6 py-3 text-center font-bold text-white transition-all shadow-lg hover:shadow-xl mt-auto`}
           >
             {isBasic ? "شروع رایگان" : paket.sure_ay === 3 ? "خرید با ۳۰٪ تخفیف" : "خرید پکیج"}
           </Link>

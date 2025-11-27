@@ -7,7 +7,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Store, MapPin, Eye, Phone, Star, Package, Crown } from "lucide-react";
+import { Store, MapPin, Eye, Phone, Star, Package, Crown, ShoppingBag } from "lucide-react";
 import { formatPrice, getImageUrl } from "@/lib/utils";
 
 interface Magaza {
@@ -82,7 +82,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
   const isPro = magaza?.paket_turu === "pro";
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-purple-50">
       <Header />
       
       <main className="flex-1 pb-16">
@@ -116,9 +116,9 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
           ) : (
             <>
               {/* Kapak Bölgesi */}
-              <div className="relative mb-8 mt-8 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative mb-8 mt-8 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                 {/* Kapak Resmi */}
-                <div className={`relative ${isPremium ? 'h-80' : 'h-60'} bg-gradient-to-r from-blue-500 to-indigo-600`}>
+                <div className={`relative ${isPremium ? 'h-80' : 'h-60'} bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600`}>
                   {magaza.kapak_resmi ? (
                     <Image
                       src={getImageUrl(magaza.kapak_resmi)}
@@ -139,7 +139,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 <div className="relative px-8 pb-8 -mt-20" dir="rtl">
                   <div className="flex flex-col md:flex-row gap-6 items-start">
                     {/* Logo */}
-                    <div className={`relative ${isPremium ? 'w-40 h-40' : 'w-32 h-32'} rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-white flex-shrink-0`}>
+                    <div className={`relative ${isPremium ? 'w-40 h-40' : 'w-32 h-32'} rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-white flex-shrink-0 ring-4 ring-purple-200`}>
                       {magaza.logo ? (
                         <Image
                           src={getImageUrl(magaza.logo)}
@@ -155,7 +155,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     </div>
 
                     {/* Bilgiler */}
-                    <div className="flex-1 bg-white rounded-2xl p-6 shadow-lg">
+                    <div className="flex-1 bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-200">
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <div className="flex items-center gap-3 mb-2">
@@ -203,7 +203,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       {magaza.telefon && (
                         <a
                           href={`tel:${magaza.telefon}`}
-                          className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg transition-colors"
+                          className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg border-2 border-green-500"
                         >
                           <Phone className="h-5 w-5" />
                           <span>تماس با مغازه</span>
@@ -216,7 +216,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
               {/* Vitrin İlanları */}
               {vitrinIlanlar.length > 0 && (
-                <section className="mb-12" dir="rtl">
+                <section className="mb-12 bg-white rounded-2xl border-2 border-yellow-200 p-8 shadow-lg" dir="rtl">
                   <div className="flex items-center gap-3 mb-6">
                     <Star className="h-8 w-8 text-yellow-500 fill-yellow-500" />
                     <h2 className="text-3xl font-bold text-gray-900">ویترین مغازه</h2>
@@ -230,7 +230,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         transition={{ delay: index * 0.05 }}
                       >
                         <Link href={`/ilan/${ilan.id}`} className="group block">
-                          <div className="bg-white rounded-xl shadow-lg border-2 border-yellow-200 overflow-hidden hover:shadow-2xl hover:border-yellow-400 transition-all">
+                          <div className="bg-white rounded-xl shadow-xl border-3 border-yellow-300 overflow-hidden hover:shadow-2xl hover:border-yellow-500 transition-all ring-2 ring-yellow-100">
                             <div className="relative aspect-square bg-gray-100">
                               <Image
                                 src={getImageUrl(ilan.ana_resim)}
@@ -261,20 +261,23 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               )}
 
               {/* Tüm İlanlar */}
-              <section dir="rtl">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">همه محصولات</h2>
+              <section className="bg-white rounded-2xl border-2 border-gray-200 p-8 shadow-lg" dir="rtl">
+                <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                  <ShoppingBag className="h-8 w-8 text-blue-600" />
+                  همه محصولات
+                </h2>
                 {ilanlar.length === 0 ? (
-                  <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200 p-16 text-center">
                     <div className="max-w-md mx-auto">
                       <div className="mb-6">
                         <svg className="w-20 h-20 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3">
                         هنوز محصولی اضافه نشده است
                       </h3>
-                      <p className="text-gray-500">
+                      <p className="text-gray-600">
                         به زودی محصولات در این مغازه قرار می‌گیرند
                       </p>
                     </div>
@@ -283,7 +286,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     {ilanlar.map((ilan) => (
                       <Link key={ilan.id} href={`/ilan/${ilan.id}`} className="group">
-                        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all">
+                        <div className="bg-white rounded-xl shadow-md border-2 border-gray-200 overflow-hidden hover:shadow-2xl hover:border-purple-300 transition-all">
                           <div className="relative aspect-square bg-gray-100">
                             <Image
                               src={getImageUrl(ilan.ana_resim)}

@@ -5,121 +5,85 @@ import { query } from '@/lib/db';
 const mockPaketler = [
   {
     id: 1,
-    ad: 'Normal Mağaza',
-    ad_dari: 'مغازه عادی',
-    tip: 'normal',
+    ad: 'Basic Store',
+    ad_dari: 'بسته عادی',
+    store_level: 'basic',
     sure_ay: 1,
     fiyat: 0,
-    vitrin_limiti: 0,
-    anasayfa_vitrini: false,
-    kategori_vitrini: false,
-    arama_oncelik: false,
-    buyuk_logo: false,
-    ozel_tema: false,
+    product_limit: 50,
+    category_limit: 1,
     aktif: true,
     ozellikler: {
+      aciklama: 'بسته عادی برای فروشندگان تازه‌کار و شروع سریع در بازار وطن طراحی شده است. با امکانات ضروری، محدودیت مناسب و مدیریت آسان، می‌توانید محصولات خود را بدون هزینه بالا به خریداران معرفی کنید.',
       ozellikler: [
-        'رایگان',
-        'ترتیب معمولی',
-        'محصول نامحدود'
+        'رایگان - بدون هزینه',
+        'محدودیت ۵۰ محصول',
+        'فقط ۱ دسته‌بندی',
+        'لیست استاندارد',
+        'تم پیش‌فرض',
+        'آمار پایه',
+        'پیام‌رسانی عادی'
       ]
     }
   },
   {
     id: 2,
-    ad: 'Pro Mağaza - Aylık',
-    ad_dari: 'مغازه حرفه‌ای - ماهانه',
-    tip: 'pro',
-    sure_ay: 1,
-    fiyat: 350,
-    vitrin_limiti: 1,
-    anasayfa_vitrini: false,
-    kategori_vitrini: true,
-    arama_oncelik: true,
-    buyuk_logo: false,
-    ozel_tema: true,
+    ad: 'Pro Store - 3 Months',
+    ad_dari: 'بسته پرو - ۳ ماهه',
+    store_level: 'pro',
+    sure_ay: 3,
+    fiyat: 735,
+    product_limit: 200,
+    category_limit: 3,
     aktif: true,
     ozellikler: {
+      aciklama: 'بسته پرو مخصوص فروشندگان حرفه‌ای است که می‌خواهند دیده‌شدن بیشتری داشته باشند. با محدودیت‌های بالاتر، ابزارهای تحلیل پیشرفته، طراحی قابل شخصی‌سازی و اولویت در نمایش محصولات، فروش شما به‌طور قابل توجهی افزایش می‌یابد.',
       ozellikler: [
-        'ویترین دسته‌بندی',
-        'اولویت جستجو',
-        'قالب اختصاصی',
-        '۱ محصول ویترین'
+        'حداکثر ۲۰۰ محصول',
+        'تا ۳ دسته‌بندی',
+        'اولویت Pro در جستجو',
+        '+۵۰٪ افزایش دیده شدن',
+        'گزارشات پیشرفته',
+        'سفارشی‌سازی قالب (کاور، بنر، رنگ)',
+        '۲۵٪ تخفیف تبلیغات',
+        'بارگذاری دسته‌ای (CSV/Excel)',
+        'سیستم نظرات و امتیاز فعال',
+        'نمایش تخفیف محصولات',
+        'پشتیبانی سریع (۱۲ ساعت)',
+        '۳۰٪ تخفیف (قیمت عادی: ۱٬۰۵۰ افغانی)'
       ]
     }
   },
   {
     id: 3,
-    ad: 'Pro Mağaza - 3 Aylık',
-    ad_dari: 'مغازه حرفه‌ای - ۳ ماهه',
-    tip: 'pro',
-    sure_ay: 3,
-    fiyat: 735,
-    vitrin_limiti: 1,
-    anasayfa_vitrini: false,
-    kategori_vitrini: true,
-    arama_oncelik: true,
-    buyuk_logo: false,
-    ozel_tema: true,
-    aktif: true,
-    ozellikler: {
-      ozellikler: [
-        'ویترین دسته‌بندی',
-        'اولویت جستجو',
-        'قالب اختصاصی',
-        '۱ محصول ویترین',
-        '%۳۰ تخفیف'
-      ]
-    }
-  },
-  {
-    id: 4,
-    ad: 'Premium Mağaza - Aylık',
-    ad_dari: 'مغازه ممتاز - ماهانه',
-    tip: 'premium',
-    sure_ay: 1,
-    fiyat: 570,
-    vitrin_limiti: 5,
-    anasayfa_vitrini: true,
-    kategori_vitrini: true,
-    arama_oncelik: true,
-    buyuk_logo: true,
-    ozel_tema: true,
-    aktif: true,
-    ozellikler: {
-      ozellikler: [
-        'ویترین صفحه اصلی',
-        'ویترین دسته‌بندی',
-        'جستجو در بالا',
-        'لوگوی بزرگ',
-        'قالب اختصاصی',
-        '۵ محصول ویترین'
-      ]
-    }
-  },
-  {
-    id: 5,
-    ad: 'Premium Mağaza - 3 Aylık',
-    ad_dari: 'مغازه ممتاز - ۳ ماهه',
-    tip: 'premium',
+    ad: 'Elite Store - 3 Months',
+    ad_dari: 'بسته پریمیوم - ۳ ماهه',
+    store_level: 'elite',
     sure_ay: 3,
     fiyat: 1197,
-    vitrin_limiti: 5,
-    anasayfa_vitrini: true,
-    kategori_vitrini: true,
-    arama_oncelik: true,
-    buyuk_logo: true,
-    ozel_tema: true,
+    product_limit: 999999,
+    category_limit: 999,
     aktif: true,
     ozellikler: {
+      aciklama: 'بسته پریمیوم سطحی ویژه برای فروشندگان بزرگ و برندها است. با امکانات نامحدود، ویترین اختصاصی، تحلیل‌های پیشرفته، پشتیبانی VIP و ابزارهای حرفه‌ای، فروشگاه شما به یک فروشگاه واقعی و قدرتمند آنلاین تبدیل می‌شود.',
       ozellikler: [
-        'ویترین صفحه اصلی',
-        'ویترین دسته‌بندی',
-        'جستجو در بالا',
-        'لوگوی بزرگ',
-        'قالب اختصاصی',
-        '۵ محصول ویترین',
-        '%۳۰ تخفیف'
+        'محصول نامحدود',
+        'دسته‌بندی نامحدود',
+        'ویترین ثابت صفحه اصلی',
+        'بالاترین اولویت جستجو (x۲)',
+        'تبلیغ هفتگی رایگان',
+        '۱٬۵۰۰ افغانی اعتبار تبلیغاتی',
+        'قالب اختصاصی Premium',
+        'آدرس اختصاصی مغازه',
+        'تحلیل‌های حرفه‌ای (Heatmap)',
+        'ارسال پیام دسته‌ای',
+        'اتوماسیون کامل (موجودی، قیمت)',
+        'لوگو و برندینگ کامل',
+        'نشان تأیید کسب‌وکار',
+        'ویدیو نامحدود',
+        'نمایش تخفیف محصولات',
+        'پشتیبانی VIP (۲۴/۷)',
+        '۳۰٪ تخفیف (قیمت عادی: ۱٬۷۱۰ افغانی)'
       ]
     }
   }
@@ -127,6 +91,14 @@ const mockPaketler = [
 
 export async function GET(request: NextRequest) {
   try {
+    // Localhost için mock data kullan
+    if (process.env.NODE_ENV === 'development' || !process.env.DB_HOST) {
+      return NextResponse.json({
+        success: true,
+        data: mockPaketler
+      });
+    }
+
     const paketler = await query(`
       SELECT 
         id,
