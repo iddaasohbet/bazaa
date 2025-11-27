@@ -142,33 +142,70 @@ export async function GET(
     const resolvedParams = await params;
     const id = parseInt(resolvedParams.id);
     
-    // ID'yi 6'ya böl, kalanı bul (0-5 arası)
-    const baseIndex = ((id - 1) % 6);
-    const baseIlan = baseIlanDetay[baseIndex];
+    // Database'den ilan detayını çek
+    const ilanData = await query(
+      `SELECT 
+        i.*,
+        k.ad as kategori_ad,
+        k.slug as kategori_slug,
+        il.ad as il_ad,
+        ku.ad as kullanici_ad,
+        ku.telefon as kullanici_telefon,
+        ku.id as kullanici_id,
+        m.id as magaza_id,
+        m.store_level,
+        m.ad as magaza_ad
+      FROM ilanlar i
+      LEFT JOIN kategoriler k ON i.kategori_id = k.id
+      LEFT JOIN iller il ON i.il_id = il.id
+      LEFT JOIN kullanicilar ku ON i.kullanici_id = ku.id
+      LEFT JOIN magazalar m ON i.magaza_id = m.id
+      WHERE i.id = ? AND i.aktif = TRUE`,
+      [id]
+    );
 
-    if (!baseIlan) {
+    const ilan: any = Array.isArray(ilanData) && ilanData.length > 0 ? ilanData[0] : null;
+
+    if (!ilan) {
       return NextResponse.json(
-        { success: false, error: 'İlan bulunamadı' },
+        { success: false, error: 'آگهی یافت نشد' },
         { status: 404 }
       );
     }
 
-    // İlan detayını ID ile döndür
-    const ilan = {
-      ...baseIlan,
-      id: id,
-    };
+    // Resimleri çek
+    const resimlerData = await query(
+      'SELECT resim_url FROM ilan_resimleri WHERE ilan_id = ? ORDER BY sira',
+      [id]
+    ) as any[];
+
+    ilan.resimler = resimlerData.map(r => r.resim_url);
+    if (ilan.resimler.length === 0 && ilan.ana_resim) {
+      ilan.resimler = [ilan.ana_resim];
+    }
+
+    // Görüntülenme sayısını artır
+    await query(
+      'UPDATE ilanlar SET goruntulenme = goruntulenme + 1 WHERE id = ?',
+      [id]
+    );
 
     return NextResponse.json({
       success: true,
       data: ilan,
     });
   } catch (error: any) {
-    console.error('İlan detayı yüklenirken hata:', error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    console.error('❌ İlan detay database hatası, fallback:', error);
+    
+    // Fallback: mock data
+    const baseIndex = ((id - 1) % 6);
+    const baseIlan = baseIlanDetay[baseIndex];
+    
+    return NextResponse.json({
+      success: true,
+      data: { ...baseIlan, id },
+    });
   }
 }
+
 

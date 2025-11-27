@@ -69,7 +69,8 @@ export default function EliteIlanlar() {
     );
   }
 
-  if (ilanlar.length === 0) {
+  // Elite ilanları yoksa gösterme
+  if (loading || ilanlar.length === 0) {
     return null;
   }
 

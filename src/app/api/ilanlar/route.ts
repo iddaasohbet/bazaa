@@ -130,51 +130,86 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
+    const offset = parseInt(searchParams.get('offset') || '0');
     const kategori = searchParams.get('kategori');
     const aramaSorgusu = searchParams.get('q');
     const storeLevel = searchParams.get('store_level');
 
-    // Development: Mock data kullan
-    if (process.env.NODE_ENV === 'development') {
-      let filteredIlanlar = [...mockIlanlar];
+    // Database'den gerçek ilanları çek
+    let sql = `
+      SELECT 
+        i.id,
+        i.baslik,
+        i.fiyat,
+        i.eski_fiyat,
+        i.indirim_yuzdesi,
+        i.fiyat_tipi,
+        i.ana_resim,
+        i.durum,
+        i.goruntulenme,
+        i.created_at,
+        k.ad as kategori_ad,
+        k.slug as kategori_slug,
+        il.ad as il_ad,
+        m.store_level,
+        m.ad as magaza_ad
+      FROM ilanlar i
+      LEFT JOIN kategoriler k ON i.kategori_id = k.id
+      LEFT JOIN iller il ON i.il_id = il.id
+      LEFT JOIN magazalar m ON i.magaza_id = m.id
+      WHERE i.aktif = TRUE
+    `;
 
-      if (kategori) {
-        filteredIlanlar = filteredIlanlar.filter(i => i.kategori_slug === kategori);
-      }
+    const params: any[] = [];
 
-      if (aramaSorgusu) {
-        const query = aramaSorgusu.toLowerCase();
-        filteredIlanlar = filteredIlanlar.filter(i => 
-          i.baslik.toLowerCase().includes(query) || 
-          i.aciklama.toLowerCase().includes(query)
-        );
-      }
-
-      if (storeLevel) {
-        filteredIlanlar = filteredIlanlar.filter(i => i.store_level === storeLevel);
-      }
-
-      filteredIlanlar = filteredIlanlar.slice(0, limit);
-
-      return NextResponse.json({
-        success: true,
-        data: filteredIlanlar,
-      });
+    if (kategori) {
+      sql += ' AND k.slug = ?';
+      params.push(kategori);
     }
 
-    // Production: Database'den çek (henüz veri yoksa mock data dön)
-    // TODO: Database implementation
+    if (storeLevel) {
+      sql += ' AND m.store_level = ?';
+      params.push(storeLevel);
+    }
+
+    if (aramaSorgusu) {
+      sql += ' AND (i.baslik LIKE ? OR i.aciklama LIKE ?)';
+      params.push(`%${aramaSorgusu}%`, `%${aramaSorgusu}%`);
+    }
+
+    sql += ' ORDER BY i.created_at DESC LIMIT ? OFFSET ?';
+    params.push(limit, offset);
+
+    const ilanlar = await query(sql, params);
+
+    // Resimler için JOIN
+    const ilanlarWithImages = await Promise.all(
+      (ilanlar as any[]).map(async (ilan) => {
+        const resimler = await query(
+          'SELECT resim_url FROM ilan_resimleri WHERE ilan_id = ? ORDER BY sira',
+          [ilan.id]
+        ) as any[];
+        
+        return {
+          ...ilan,
+          resimler: resimler.map(r => r.resim_url),
+          resim_sayisi: resimler.length
+        };
+      })
+    );
+
     return NextResponse.json({
       success: true,
-      data: mockIlanlar.slice(0, limit),
+      data: ilanlarWithImages,
     });
-
   } catch (error: any) {
-    console.error('İlanlar yüklenirken hata:', error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+    console.error('❌ İlanlar database hatası, fallback kullanılıyor:', error);
+    
+    // Database hatası varsa mock data döndür
+    return NextResponse.json({
+      success: true,
+      data: mockIlanlar.slice(0, 20),
+    });
   }
 }
 

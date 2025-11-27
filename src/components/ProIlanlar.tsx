@@ -47,11 +47,8 @@ export default function ProIlanlar() {
     }
   };
 
-  if (loading) {
-    return null;
-  }
-
-  if (ilanlar.length === 0) {
+  // Pro ilanları yoksa gösterme
+  if (loading || ilanlar.length === 0) {
     return null;
   }
 
