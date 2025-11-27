@@ -139,9 +139,10 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let id = 0;
   try {
     const resolvedParams = await params;
-    const id = parseInt(resolvedParams.id);
+    id = parseInt(resolvedParams.id);
     
     // Database'den ilan detayını çek
     const ilanData = await query(
