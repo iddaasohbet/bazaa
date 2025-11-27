@@ -99,18 +99,18 @@ async function aktivasyonYap(odeme: any) {
       case 'paket':
         // Mağaza paketini aktifleştir
         const paketData = await query('SELECT * FROM paketler WHERE id = ?', [odeme.iliskili_id]);
-        const paket = Array.isArray(paketData) && paketData.length > 0 ? paketData[0] : null;
+        const paket: any = Array.isArray(paketData) && paketData.length > 0 ? paketData[0] : null;
         
         if (paket) {
           const baslangic = new Date();
           const bitis = new Date();
-          bitis.setMonth(bitis.getMonth() + paket.sure_ay);
+          bitis.setMonth(bitis.getMonth() + (paket.sure_ay || 1));
 
           await query(
             `UPDATE magazalar 
-             SET paket_turu = ?, paket_baslangic = ?, paket_bitis = ? 
+             SET store_level = ?, paket_baslangic = ?, paket_bitis = ? 
              WHERE kullanici_id = ?`,
-            [paket.tip, baslangic, bitis, odeme.kullanici_id]
+            [paket.store_level, baslangic, bitis, odeme.kullanici_id]
           );
         }
         break;
