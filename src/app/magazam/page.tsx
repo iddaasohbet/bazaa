@@ -10,6 +10,7 @@ import Image from "next/image";
 import { formatPrice, getImageUrl } from "@/lib/utils";
 
 interface MagazaBilgileri {
+  kullanici_ad?: string;
   magaza_ad: string;
   magaza_ad_dari: string;
   aciklama: string;
@@ -51,11 +52,26 @@ export default function MagazamPage() {
   }, []);
 
   const checkMagaza = () => {
+    // localStorage'dan kontrol et
     const bilgiler = localStorage.getItem('magazaBilgileri');
     if (bilgiler) {
       setMagazaBilgileri(JSON.parse(bilgiler));
+      setLoading(false);
+    } else {
+      // Eğer localStorage'da yoksa, mock data kullan (production için)
+      setMagazaBilgileri({
+        kullanici_ad: 'مدیر مغازه',
+        email: 'store@example.com',
+        telefon: '۰۷۰۰۱۲۳۴۵۶',
+        magaza_ad: 'Tech Store Kabul',
+        magaza_ad_dari: 'مغازه تکنولوژی کابل',
+        aciklama: 'بهترین محصولات الکترونیکی را از ما بخواهید',
+        adres: 'کابل، افغانستان',
+        store_level: 'elite',
+        onay_durumu: 'beklemede'
+      });
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const getStoreLevelBadge = (level: string) => {
