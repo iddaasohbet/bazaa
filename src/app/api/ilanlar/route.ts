@@ -218,7 +218,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, kullanici_id, magaza_id, resimler } = body;
+    const { baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, kullanici_id, resimler } = body;
 
     console.log('📝 Yeni ilan oluşturuluyor:', { baslik, kullanici_id, resim_sayisi: resimler?.length || 0 });
 
@@ -230,6 +230,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // Kullanıcının mağazasını kontrol et
+    let magazaId = null;
+    const magazalar = await query(
+      'SELECT id FROM magazalar WHERE kullanici_id = ? AND aktif = TRUE LIMIT 1',
+      [kullanici_id]
+    );
+    
+    if (Array.isArray(magazalar) && magazalar.length > 0) {
+      magazaId = (magazalar[0] as any).id;
+      console.log('✅ Kullanıcının mağazası bulundu, ID:', magazaId);
+    }
+
     // İlk resmi ana_resim olarak kullan
     const anaResim = resimler && resimler.length > 0 ? resimler[0] : null;
 
@@ -239,7 +251,7 @@ export async function POST(request: Request) {
         baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, 
         kullanici_id, magaza_id, ana_resim, aktif, goruntulenme
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
-      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', kategori_id, il_id, durum || 'kullanilmis', kullanici_id, magaza_id || null, anaResim]
+      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', kategori_id, il_id, durum || 'kullanilmis', kullanici_id, magazaId, anaResim]
     );
 
     const ilanId = (result as any).insertId;

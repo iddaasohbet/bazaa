@@ -10,17 +10,23 @@ import Image from "next/image";
 import { formatPrice, getImageUrl } from "@/lib/utils";
 
 interface MagazaBilgileri {
-  kullanici_ad?: string;
-  magaza_ad: string;
-  magaza_ad_dari: string;
-  aciklama: string;
-  adres: string;
+  id: number;
+  kullanici_id: number;
+  ad: string;
+  ad_dari: string;
+  slug: string;
+  aciklama?: string;
+  adres?: string;
   telefon?: string;
-  email?: string;
-  store_level: string;
-  onay_durumu: string;
+  il_ad?: string;
   logo?: string;
   kapak_resmi?: string;
+  store_level: string;
+  onay_durumu: string;
+  paket_baslangic?: string;
+  paket_bitis?: string;
+  goruntulenme?: number;
+  created_at?: string;
 }
 
 export default function MagazamPage() {
@@ -188,13 +194,13 @@ export default function MagazamPage() {
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <h1 className="text-3xl font-bold text-gray-900">
-                          {magazaBilgileri.magaza_ad_dari}
+                          {magazaBilgileri.ad_dari}
                         </h1>
                         <span className={`px-3 py-1 rounded-md text-xs font-bold border ${levelBadge.color}`}>
                           {levelBadge.text}
                         </span>
                       </div>
-                      <p className="text-gray-600 text-lg mb-1">{magazaBilgileri.magaza_ad}</p>
+                      <p className="text-gray-600 text-lg mb-1">{magazaBilgileri.ad}</p>
                       
                       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium border ${statusBadge.color} mt-2`}>
                         <div className={`w-2 h-2 rounded-full ${
@@ -248,12 +254,12 @@ export default function MagazamPage() {
 
                     <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                        <Mail className="h-5 w-5 text-purple-600" />
+                        <MapPin className="h-5 w-5 text-purple-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs text-gray-500 mb-0.5">ایمیل</div>
-                        <div className="text-sm font-semibold text-gray-900 truncate" dir="ltr">
-                          {magazaBilgileri.email || 'ایمیل ثبت نشده'}
+                        <div className="text-xs text-gray-500 mb-0.5">شهر</div>
+                        <div className="text-sm font-semibold text-gray-900 truncate">
+                          {magazaBilgileri.il_ad || '-'}
                         </div>
                       </div>
                     </div>
