@@ -26,14 +26,6 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // Development için mock data
-    if (process.env.NODE_ENV === 'development') {
-      return NextResponse.json({
-        success: true,
-        data: mockMagaza
-      });
-    }
-
     const magazaData = await query(
       `
       SELECT 

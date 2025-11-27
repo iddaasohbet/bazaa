@@ -91,14 +91,6 @@ const mockPaketler = [
 
 export async function GET(request: NextRequest) {
   try {
-    // Localhost için mock data kullan
-    if (process.env.NODE_ENV === 'development' || !process.env.DB_HOST) {
-      return NextResponse.json({
-        success: true,
-        data: mockPaketler
-      });
-    }
-
     const paketler = await query(`
       SELECT 
         id,
