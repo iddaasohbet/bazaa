@@ -1,24 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
-// Mock mağaza data
-const mockMagaza = {
-  id: 1,
-  ad: 'Tech Store Kabul',
-  ad_dari: 'مغازه تکنولوژی کابل',
-  slug: 'tech-store-kabul',
-  logo: '',
-  kapak_resmi: '',
-  aciklama: 'بهترین محصولات الکترونیکی را از ما بخواهید',
-  telefon: '+93 700 123 456',
-  adres: 'کابل، افغانستان',
-  paket_turu: 'premium',
-  store_level: 'elite',
-  goruntulenme: 1234,
-  il_ad: 'Kabil',
-  ilan_sayisi: 45
-};
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -26,10 +8,13 @@ export async function GET(
   try {
     const { id } = await params;
 
+    console.log('🔍 API /magazalar/[id] - Mağaza ID:', id);
+    
     const magazaData = await query(
       `
       SELECT 
         m.id,
+        m.kullanici_id,
         m.ad,
         m.ad_dari,
         m.slug,
@@ -42,24 +27,33 @@ export async function GET(
         m.store_level,
         m.goruntulenme,
         il.ad as il_ad,
-        COUNT(DISTINCT i.id) as ilan_sayisi
+        (SELECT COUNT(*) FROM ilanlar i WHERE i.kullanici_id = m.kullanici_id AND i.aktif = TRUE) as ilan_sayisi
       FROM magazalar m
       LEFT JOIN iller il ON m.il_id = il.id
-      LEFT JOIN ilanlar i ON m.kullanici_id = i.kullanici_id AND i.aktif = TRUE
-      WHERE m.id = ? AND m.aktif = TRUE AND m.onay_durumu = 'onaylandi'
-      GROUP BY m.id
+      WHERE m.id = ? AND m.aktif = TRUE
       `,
       [parseInt(id)]
     );
+    
+    console.log('📦 API /magazalar/[id] - Query sonucu:', magazaData);
 
     const magaza: any = Array.isArray(magazaData) && magazaData.length > 0 ? magazaData[0] : null;
 
+    console.log('✅ API /magazalar/[id] - Mağaza bulundu:', magaza ? 'Evet' : 'Hayır');
+    
     if (!magaza) {
+      console.log('❌ API /magazalar/[id] - Mağaza bulunamadı!');
       return NextResponse.json(
         { success: false, message: 'Mağaza bulunamadı' },
         { status: 404 }
       );
     }
+
+    console.log('📊 API /magazalar/[id] - İstatistikler:', {
+      ilan_sayisi: magaza.ilan_sayisi,
+      goruntulenme: magaza.goruntulenme,
+      il_ad: magaza.il_ad
+    });
 
     // Görüntülenme sayısını artır
     await query(
@@ -72,12 +66,12 @@ export async function GET(
       data: magaza
     });
   } catch (error: any) {
-    console.error('Mağaza yükleme hatası (fallback):', error);
-    // Fallback
+    console.error('❌ API /magazalar/[id] - HATA:', error);
+    // Artık mock döndürme, hata döndür
     return NextResponse.json({
-      success: true,
-      data: mockMagaza
-    });
+      success: false,
+      message: 'Mağaza yüklenirken hata oluştu: ' + error.message
+    }, { status: 500 });
   }
 }
 
