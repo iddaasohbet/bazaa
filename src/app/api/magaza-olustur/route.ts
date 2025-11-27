@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
       paket_id,
       logo,
       kapak_resmi,
-      store_level
+      store_level,
+      odeme_bilgisi
     } = body;
 
     console.log('🏪 Mağaza oluşturuluyor:', { kullaniciId, magaza_ad, magaza_ad_dari });
@@ -96,6 +97,20 @@ export async function POST(request: NextRequest) {
 
     // Eğer ücretli paket ise ödeme kaydı oluştur
     if (paket && paket.fiyat > 0) {
+      let odemeAciklama = `${paket.ad} - مغازه: ${magaza_ad_dari}`;
+      
+      // Ödeme bilgisi varsa ekle
+      if (odeme_bilgisi) {
+        odemeAciklama += `\n\nاطلاعات پرداخت:\n`;
+        odemeAciklama += `نام: ${odeme_bilgisi.ad_soyad || '-'}\n`;
+        odemeAciklama += `تلفن: ${odeme_bilgisi.telefon || '-'}\n`;
+        odemeAciklama += `زمان تراکنش: ${odeme_bilgisi.islem_saati || '-'}\n`;
+        odemeAciklama += `شماره رسید: ${odeme_bilgisi.dekont_no || '-'}\n`;
+        if (odeme_bilgisi.notlar) {
+          odemeAciklama += `یادداشت: ${odeme_bilgisi.notlar}\n`;
+        }
+      }
+      
       await query(
         `INSERT INTO odemeler 
          (kullanici_id, odeme_turu, iliskili_id, tutar, odeme_durumu, aciklama) 
@@ -104,9 +119,11 @@ export async function POST(request: NextRequest) {
           kullaniciId,
           paket_id,
           paket.fiyat,
-          `${paket.ad} - مغازه: ${magaza_ad_dari}`
+          odemeAciklama
         ]
       );
+      
+      console.log('✅ Ödeme kaydı oluşturuldu');
     }
 
     return NextResponse.json({

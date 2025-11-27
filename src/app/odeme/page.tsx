@@ -53,12 +53,76 @@ function OdemeContent() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Ödeme bildirimi gönder
-    console.log('Ödeme bildirimi:', formData);
-    alert('✅ Ödeme bildirimi gönderildi! En kısa sürede incelenecektir.');
-    router.push('/');
+    setLoading(true);
+
+    try {
+      // localStorage'dan mağaza bilgilerini al
+      const magazaBilgileri = localStorage.getItem('magazaBilgileri');
+      if (!magazaBilgileri) {
+        alert('مشکل در دریافت اطلاعات مغازه');
+        router.push('/magaza-ac');
+        return;
+      }
+
+      const bilgiler = JSON.parse(magazaBilgileri);
+      const user = localStorage.getItem('user');
+      if (!user) {
+        alert('لطفاً وارد شوید');
+        router.push('/giris');
+        return;
+      }
+
+      const userData = JSON.parse(user);
+
+      // Mağazayı oluştur
+      const response = await fetch('/api/magaza-olustur', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': userData.id.toString()
+        },
+        body: JSON.stringify({
+          magaza_ad: bilgiler.magaza_ad,
+          magaza_ad_dari: bilgiler.magaza_ad_dari,
+          aciklama: bilgiler.aciklama,
+          adres: bilgiler.adres,
+          logo: bilgiler.logo,
+          kapak_resmi: bilgiler.kapak_resmi,
+          store_level: bilgiler.store_level,
+          paket_id: paketId,
+          odeme_bilgisi: {
+            ad_soyad: formData.ad_soyad,
+            telefon: formData.telefon,
+            email: formData.email,
+            islem_saati: formData.islem_saati,
+            dekont_no: formData.dekont_no,
+            notlar: formData.notlar
+          }
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // localStorage'ı temizle
+        localStorage.removeItem('magazaBilgileri');
+        
+        // Header'ı güncelle
+        window.dispatchEvent(new Event('magazaGuncelle'));
+        
+        alert('✅ پرداخت ثبت شد! مغازه شما پس از تأیید فعال می‌شود.');
+        router.push('/magazam');
+      } else {
+        alert('خطا: ' + (data.message || 'مشکل در ثبت پرداخت'));
+      }
+    } catch (error) {
+      console.error('Ödeme hatası:', error);
+      alert('خطا در ثبت پرداخت');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
