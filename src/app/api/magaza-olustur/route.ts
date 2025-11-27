@@ -3,20 +3,34 @@ import { query } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
+    // Kullanıcı ID'sini header'dan al
+    const kullaniciId = request.headers.get('x-user-id');
+    
+    if (!kullaniciId) {
+      return NextResponse.json(
+        { success: false, message: 'لطفاً وارد شوید' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const {
-      kullanici_id,
       magaza_ad,
       magaza_ad_dari,
       aciklama,
       adres,
       telefon,
       il_id,
-      paket_id
+      paket_id,
+      logo,
+      kapak_resmi,
+      store_level
     } = body;
 
+    console.log('🏪 Mağaza oluşturuluyor:', { kullaniciId, magaza_ad, magaza_ad_dari });
+
     // Validasyon
-    if (!kullanici_id || !magaza_ad || !magaza_ad_dari) {
+    if (!magaza_ad || !magaza_ad_dari) {
       return NextResponse.json(
         { success: false, message: 'نام مغازه الزامی است' },
         { status: 400 }
@@ -39,10 +53,10 @@ export async function POST(request: NextRequest) {
     // Paket tarihleri
     let paket_baslangic = null;
     let paket_bitis = null;
-    let store_level = 'basic';
+    let finalStoreLevel = store_level || 'basic';
 
     if (paket) {
-      store_level = paket.store_level;
+      finalStoreLevel = paket.store_level;
       if (paket.fiyat > 0) {
         // Ücretli paket - admin onayından sonra aktif olacak
         paket_baslangic = null;
@@ -58,24 +72,27 @@ export async function POST(request: NextRequest) {
     const result = await query(
       `INSERT INTO magazalar 
        (kullanici_id, ad, ad_dari, slug, aciklama, adres, telefon, il_id, 
-        store_level, paket_baslangic, paket_bitis, aktif, onay_durumu) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 'beklemede')`,
+        logo, kapak_resmi, store_level, paket_baslangic, paket_bitis, aktif, onay_durumu) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 'beklemede')`,
       [
-        kullanici_id,
+        kullaniciId,
         magaza_ad,
         magaza_ad_dari,
         slug,
-        aciklama,
-        adres,
-        telefon,
-        il_id,
-        store_level,
+        aciklama || '',
+        adres || '',
+        telefon || null,
+        il_id || null,
+        logo || null,
+        kapak_resmi || null,
+        finalStoreLevel,
         paket_baslangic,
         paket_bitis
       ]
     );
 
     const magazaId = (result as any).insertId;
+    console.log('✅ Mağaza oluşturuldu, ID:', magazaId);
 
     // Eğer ücretli paket ise ödeme kaydı oluştur
     if (paket && paket.fiyat > 0) {
@@ -84,7 +101,7 @@ export async function POST(request: NextRequest) {
          (kullanici_id, odeme_turu, iliskili_id, tutar, odeme_durumu, aciklama) 
          VALUES (?, 'paket', ?, ?, 'beklemede', ?)`,
         [
-          kullanici_id,
+          kullaniciId,
           paket_id,
           paket.fiyat,
           `${paket.ad} - مغازه: ${magaza_ad_dari}`

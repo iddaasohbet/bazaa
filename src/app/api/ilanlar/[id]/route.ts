@@ -210,4 +210,102 @@ export async function GET(
   }
 }
 
+// DELETE - İlan sil
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const ilanId = parseInt(resolvedParams.id);
+    
+    console.log('🗑️ İlan siliniyor, ID:', ilanId);
+
+    // İlan resimlerini sil
+    await query('DELETE FROM ilan_resimleri WHERE ilan_id = ?', [ilanId]);
+    
+    // İlanı sil (soft delete yerine hard delete)
+    await query('DELETE FROM ilanlar WHERE id = ?', [ilanId]);
+    
+    console.log('✅ İlan silindi');
+
+    return NextResponse.json({
+      success: true,
+      message: 'آگهی با موفقیت حذف شد'
+    });
+  } catch (error: any) {
+    console.error('❌ İlan silme hatası:', error);
+    return NextResponse.json(
+      { success: false, message: 'خطا در حذف آگهی: ' + error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - İlan düzenle
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const ilanId = parseInt(resolvedParams.id);
+    
+    const body = await request.json();
+    const { baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, resimler } = body;
+
+    console.log('✏️ İlan düzenleniyor, ID:', ilanId);
+
+    // İlan bilgilerini güncelle
+    const updates: string[] = [];
+    const values: any[] = [];
+
+    if (baslik) { updates.push('baslik = ?'); values.push(baslik); }
+    if (aciklama) { updates.push('aciklama = ?'); values.push(aciklama); }
+    if (fiyat) { updates.push('fiyat = ?'); values.push(fiyat); }
+    if (fiyat_tipi) { updates.push('fiyat_tipi = ?'); values.push(fiyat_tipi); }
+    if (kategori_id) { updates.push('kategori_id = ?'); values.push(kategori_id); }
+    if (il_id) { updates.push('il_id = ?'); values.push(il_id); }
+    if (durum) { updates.push('durum = ?'); values.push(durum); }
+
+    if (updates.length > 0) {
+      values.push(ilanId);
+      await query(
+        `UPDATE ilanlar SET ${updates.join(', ')} WHERE id = ?`,
+        values
+      );
+    }
+
+    // Resimler güncellenmişse
+    if (resimler && resimler.length > 0) {
+      // Eski resimleri sil
+      await query('DELETE FROM ilan_resimleri WHERE ilan_id = ?', [ilanId]);
+      
+      // İlk resmi ana_resim olarak güncelle
+      await query('UPDATE ilanlar SET ana_resim = ? WHERE id = ?', [resimler[0], ilanId]);
+      
+      // Yeni resimleri ekle
+      for (let i = 0; i < resimler.length; i++) {
+        await query(
+          'INSERT INTO ilan_resimleri (ilan_id, resim_url, sira) VALUES (?, ?, ?)',
+          [ilanId, resimler[i], i + 1]
+        );
+      }
+    }
+
+    console.log('✅ İlan güncellendi');
+
+    return NextResponse.json({
+      success: true,
+      message: 'آگهی با موفقیت به‌روزرسانی شد',
+      data: { id: ilanId }
+    });
+  } catch (error: any) {
+    console.error('❌ İlan güncelleme hatası:', error);
+    return NextResponse.json(
+      { success: false, message: 'خطا در به‌روزرسانی آگهی: ' + error.message },
+      { status: 500 }
+    );
+  }
+}
 
