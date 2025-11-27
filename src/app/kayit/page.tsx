@@ -40,20 +40,49 @@ export default function KayitOl() {
     
     setLoading(true);
     
-    setTimeout(() => {
-      // Kullanıcıyı kaydet
+    try {
+      // Backend API'ye kayıt isteği gönder
+      const response = await fetch('/api/auth/kayit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ad: formData.ad,
+          email: formData.email,
+          telefon: formData.telefon,
+          sifre: formData.sifre,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        alert(data.message || 'خطا در ثبت نام');
+        setLoading(false);
+        return;
+      }
+
+      // Başarılı kayıt - kullanıcı bilgilerini localStorage'a kaydet
       localStorage.setItem('user', JSON.stringify({
-        email: formData.email,
-        name: formData.ad,
-        telefon: formData.telefon,
+        id: data.data.id,
+        email: data.data.email,
+        ad: data.data.ad,
       }));
       
       // Event gönder (header'ı güncelle)
       window.dispatchEvent(new Event('userLogin'));
       
+      // Başarı mesajı
+      alert(data.message || 'ثبت نام با موفقیت انجام شد');
+      
       // Ana sayfaya yönlendir
       router.push('/');
-    }, 1000);
+    } catch (error) {
+      console.error('Kayıt hatası:', error);
+      alert('خطا در ثبت نام. لطفا دوباره تلاش کنید');
+      setLoading(false);
+    }
   };
 
   return (

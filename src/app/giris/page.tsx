@@ -21,19 +21,50 @@ function GirisContent() {
     e.preventDefault();
     setLoading(true);
     
-    setTimeout(() => {
-      // Mock giriş - localStorage'a user ekle
+    try {
+      // Backend API'ye giriş isteği gönder
+      const response = await fetch('/api/auth/giris', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          sifre: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        alert(data.message || 'ایمیل یا رمز عبور اشتباه است');
+        setLoading(false);
+        return;
+      }
+
+      // Başarılı giriş - kullanıcı bilgilerini localStorage'a kaydet
       localStorage.setItem('user', JSON.stringify({
-        email: email,
-        name: 'Kullanıcı',
+        id: data.user.id,
+        email: data.user.email,
+        ad: data.user.ad,
+        rol: data.user.rol,
       }));
+      
+      // Token'ı da kaydet
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
       
       // Event gönder (header'ı güncelle)
       window.dispatchEvent(new Event('userLogin'));
       
       // Yönlendir
       router.push(redirect);
-    }, 1000);
+    } catch (error) {
+      console.error('Giriş hatası:', error);
+      alert('خطا در ورود. لطفا دوباره تلاش کنید');
+      setLoading(false);
+    }
   };
 
   return (
