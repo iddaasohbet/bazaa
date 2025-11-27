@@ -25,18 +25,6 @@ export default function Home() {
           {/* Header Banner Reklam */}
           <BannerReklam konum="header" />
 
-          {/* Vitrin İlanları - Ana Sayfa */}
-          <div className="mb-10">
-            <VitrinAds 
-              vitrinTuru="anasayfa" 
-              title="آگهی های ویژه"
-              limit={12}
-            />
-          </div>
-
-          {/* Sponsorlu Mağazalar */}
-          <SponsorluMagazalar />
-
           {/* Main Layout with Sidebar */}
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Sidebar - Categories */}
