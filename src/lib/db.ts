@@ -2,17 +2,16 @@ import mysql from 'mysql2/promise';
 
 // Veritabanı bağlantı yapılandırması
 const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || '104.247.173.212', // Fallback IP
   port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'afganistan_ilanlar',
+  user: process.env.DB_USER || 'cihatcengiz_cihatcengiz', // Fallback User
+  password: process.env.DB_PASSWORD || 'Ciko5744**', // Fallback Pass
+  database: process.env.DB_NAME || 'cihatcengiz_baza', // Fallback DB
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  // SSL ayarını güncelle - bazı sunucular rejectUnauthorized: false gerektirir
   ssl: { rejectUnauthorized: false },
   connectTimeout: 30000,
   multipleStatements: false,
