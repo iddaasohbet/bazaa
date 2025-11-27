@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Store, MapPin, Phone, Mail, Eye, Package, Edit, Settings, TrendingUp, ShoppingBag } from "lucide-react";
+import { Store, MapPin, Phone, Mail, Eye, Package, Edit, Settings, TrendingUp, ShoppingBag, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatPrice, getImageUrl } from "@/lib/utils";
@@ -231,13 +231,23 @@ export default function MagazamPage() {
                       </div>
                     </div>
 
-                    <Link
-                      href="/magazam/duzenle"
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-medium"
-                    >
-                      <Edit className="h-4 w-4" />
-                      ویرایش مغازه
-                    </Link>
+                    <div className="flex gap-3">
+                      <Link
+                        href={`/magaza/${magazaBilgileri.id}`}
+                        className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all font-medium"
+                        target="_blank"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        مشاهده مغازه
+                      </Link>
+                      <Link
+                        href="/magazam/duzenle"
+                        className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-medium"
+                      >
+                        <Edit className="h-4 w-4" />
+                        ویرایش مغازه
+                      </Link>
+                    </div>
                   </div>
 
                   {magazaBilgileri.aciklama && (
