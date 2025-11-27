@@ -25,6 +25,7 @@ export default function Header() {
   const [mesajSayisi, setMesajSayisi] = useState(0);
   const [favoriSayisi, setFavoriSayisi] = useState(0);
   const [hasMagaza, setHasMagaza] = useState(false);
+  const [magazaId, setMagazaId] = useState<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -137,16 +138,20 @@ export default function Header() {
             const data = await response.json();
             if (data.success && data.data && data.data.length > 0) {
               setHasMagaza(true);
+              setMagazaId(data.data[0].id); // Mağaza ID'sini kaydet
             } else {
               setHasMagaza(false);
+              setMagazaId(null);
             }
           }
         } catch (error) {
           console.error('Mağaza kontrolü hatası:', error);
           setHasMagaza(false);
+          setMagazaId(null);
         }
       } else {
         setHasMagaza(false);
+        setMagazaId(null);
       }
     };
 
@@ -236,7 +241,7 @@ export default function Header() {
               {/* Mağaza Aç - NEW! */}
               {hasMagaza ? (
                 <Link
-                  href="/magazam"
+                  href={`/magaza/${magazaId}`}
                   className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition-colors shadow-sm"
                 >
                   <Store className="h-5 w-5" />
@@ -406,7 +411,7 @@ export default function Header() {
                 
                 {hasMagaza ? (
                   <Link
-                    href="/magazam"
+                    href={`/magaza/${magazaId}`}
                     className="flex items-center gap-3 w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-5 py-3.5 rounded-xl font-bold transition-all shadow-lg"
                     onClick={() => setMobileMenuOpen(false)}
                   >

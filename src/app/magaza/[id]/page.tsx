@@ -7,7 +7,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Store, MapPin, Eye, Phone, Star, Package, Crown, ShoppingBag, Sparkles, Zap, MessageCircle, Send, ThumbsUp, BadgeCheck, ShieldCheck, Video, Play, Upload, X, Clock } from "lucide-react";
+import { Store, MapPin, Eye, Phone, Star, Package, Crown, ShoppingBag, Sparkles, Zap, MessageCircle, Send, ThumbsUp, BadgeCheck, ShieldCheck, Video, Play, Upload, X, Clock, Settings, Edit } from "lucide-react";
 import { formatPrice, getImageUrl } from "@/lib/utils";
 
 interface Magaza {
@@ -397,6 +397,16 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       : 'bg-white border-2 border-gray-200'
                   }`}>
                       <div className="flex items-start justify-between mb-6">
+                        {/* Sadece mağaza sahibi için yönetim butonu */}
+                        {user && magaza && user.id === magaza.kullanici_id && (
+                          <Link
+                            href="/magazam"
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md font-semibold"
+                          >
+                            <Settings className="h-4 w-4" />
+                            <span className="text-sm">پنل مدیریت</span>
+                          </Link>
+                        )}
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3 flex-wrap">
                             <h1 className={`font-bold ${
@@ -746,15 +756,33 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       <X className="h-6 w-6 text-white" />
                     </button>
                     
-                    <video
-                      src={selectedVideo.video_url}
-                      controls
-                      autoPlay
-                      loop
-                      className="w-full h-full object-contain"
-                    >
-                      Tarayıcınız video oynatmayı desteklemiyor.
-                    </video>
+                    {/* YouTube/Vimeo vs iframe ile, diğerleri video tag ile */}
+                    {selectedVideo.video_url.includes('youtube.com') || selectedVideo.video_url.includes('youtu.be') ? (
+                      <iframe
+                        src={selectedVideo.video_url.includes('youtu.be') 
+                          ? `https://www.youtube.com/embed/${selectedVideo.video_url.split('/').pop()}`
+                          : selectedVideo.video_url.replace('watch?v=', 'embed/')}
+                        className="w-full h-full"
+                        allow="autoplay; encrypted-media"
+                        allowFullScreen
+                      />
+                    ) : selectedVideo.video_url.includes('instagram.com') ? (
+                      <iframe
+                        src={`${selectedVideo.video_url}embed/`}
+                        className="w-full h-full"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        src={selectedVideo.video_url}
+                        controls
+                        autoPlay
+                        loop
+                        className="w-full h-full object-contain"
+                      >
+                        Tarayıcınız video oynatmayı desteklemiyor.
+                      </video>
+                    )}
                     
                     {selectedVideo.baslik && (
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4" dir="rtl">
@@ -796,8 +824,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           value={videoForm.video_url}
                           onChange={(e) => setVideoForm({ ...videoForm, video_url: e.target.value })}
                           className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
-                          placeholder="https://example.com/video.mp4"
+                          placeholder="https://youtube.com/... یا لینک مستقیم ویدیو"
                         />
+                        <p className="text-xs text-gray-500 mt-2">
+                          ✅ YouTube, Instagram, یا لینک مستقیم ویدیو (.mp4, .webm)
+                        </p>
                       </div>
 
                       <div>
@@ -869,11 +900,16 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         </div>
                       </div>
 
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
                         <p className="text-sm text-blue-800">
-                          <strong>نکته:</strong> ویدیوها باید {isElite ? '10' : '5'} عدد یا کمتر باشند.
-                          حداکثر مدت زمان: ۳۰ ثانیه
+                          <strong>📌 راهنما:</strong>
                         </p>
+                        <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                          <li>YouTube لینک: https://youtube.com/shorts/...</li>
+                          <li>Instagram Reels: https://instagram.com/reel/...</li>
+                          <li>لینک مستقیم: https://example.com/video.mp4</li>
+                          <li>حداکثر {isElite ? '۱۰' : '۵'} ویدیو | مدت: ۱۰ یا ۳۰ ثانیه</li>
+                        </ul>
                       </div>
 
                       <button
