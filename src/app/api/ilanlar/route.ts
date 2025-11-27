@@ -214,3 +214,45 @@ export async function GET(request: Request) {
   }
 }
 
+// POST - Yeni ilan oluştur
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, kullanici_id, magaza_id } = body;
+
+    console.log('📝 Yeni ilan oluşturuluyor:', { baslik, kullanici_id });
+
+    // Validasyon
+    if (!baslik || !aciklama || !fiyat || !kategori_id || !il_id || !kullanici_id) {
+      return NextResponse.json(
+        { success: false, message: 'لطفاً تمام فیلدهای الزامی را پر کنید' },
+        { status: 400 }
+      );
+    }
+
+    // İlan oluştur
+    const result = await query(
+      `INSERT INTO ilanlar (
+        baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, 
+        kullanici_id, magaza_id, aktif, goruntulenme
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
+      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', kategori_id, il_id, durum || 'kullanilmis', kullanici_id, magaza_id || null]
+    );
+
+    const ilanId = (result as any).insertId;
+    console.log('✅ İlan oluşturuldu, ID:', ilanId);
+
+    return NextResponse.json({
+      success: true,
+      message: 'آگهی با موفقیت ایجاد شد',
+      data: { id: ilanId },
+    });
+  } catch (error: any) {
+    console.error('❌ İlan oluşturma hatası:', error);
+    return NextResponse.json(
+      { success: false, message: 'خطا در ایجاد آگهی: ' + error.message },
+      { status: 500 }
+    );
+  }
+}
+

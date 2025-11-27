@@ -23,6 +23,13 @@ interface Kategori {
   aktif: boolean;
 }
 
+interface Istatistikler {
+  aktifIlanlar: number;
+  aktifMagazalar: number;
+  bugunEklenen: number;
+  toplamKullanicilar: number;
+}
+
 const iconMap: { [key: string]: any } = {
   'car': Car,
   'home': Home,
@@ -36,10 +43,17 @@ const iconMap: { [key: string]: any } = {
 
 export default function Sidebar() {
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
+  const [istatistikler, setIstatistikler] = useState<Istatistikler>({
+    aktifIlanlar: 0,
+    aktifMagazalar: 0,
+    bugunEklenen: 0,
+    toplamKullanicilar: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchKategoriler();
+    fetchIstatistikler();
   }, []);
 
   const fetchKategoriler = async () => {
@@ -53,6 +67,18 @@ export default function Sidebar() {
       console.error('خطا در بارگذاری دسته بندی ها:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchIstatistikler = async () => {
+    try {
+      const response = await fetch('/api/istatistikler');
+      const data = await response.json();
+      if (data.success) {
+        setIstatistikler(data.data);
+      }
+    } catch (error) {
+      console.error('خطا در بارگذاری آمار:', error);
     }
   };
 
@@ -102,19 +128,19 @@ export default function Sidebar() {
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-gray-600">آگهی های فعال</span>
-            <span className="font-bold text-gray-900">1,234</span>
+            <span className="font-bold text-gray-900">{istatistikler.aktifIlanlar.toLocaleString('fa-IR')}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-gray-600">مغازه ها</span>
-            <span className="font-bold text-gray-900">89</span>
+            <span className="font-bold text-gray-900">{istatistikler.aktifMagazalar.toLocaleString('fa-IR')}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-gray-600">امروز</span>
-            <span className="font-bold text-gray-900">+45</span>
+            <span className="font-bold text-gray-900">+{istatistikler.bugunEklenen.toLocaleString('fa-IR')}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-gray-600">کاربران</span>
-            <span className="font-bold text-gray-900">5,678</span>
+            <span className="font-bold text-gray-900">{istatistikler.toplamKullanicilar.toLocaleString('fa-IR')}</span>
           </div>
         </div>
       </div>

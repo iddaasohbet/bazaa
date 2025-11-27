@@ -102,10 +102,53 @@ export default function IlanVer() {
     e.preventDefault();
     setLoading(true);
     
-    setTimeout(() => {
-      alert('İlan verme özelliği yakında aktif olacak');
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        alert('لطفاً ابتدا وارد شوید');
+        router.push('/giris?redirect=/ilan-ver');
+        return;
+      }
+
+      const userData = JSON.parse(userStr);
+      
+      // İlan verilerini hazırla
+      const ilanData = {
+        baslik: formData.baslik,
+        aciklama: formData.aciklama,
+        fiyat: parseFloat(formData.fiyat),
+        fiyat_tipi: formData.fiyat_tipi,
+        kategori_id: parseInt(formData.kategori_id),
+        il_id: parseInt(formData.il_id),
+        durum: formData.durum,
+        kullanici_id: userData.id,
+      };
+
+      // API'ye gönder
+      const response = await fetch('/api/ilanlar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ilanData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        alert(data.message || 'خطا در ایجاد آگهی');
+        setLoading(false);
+        return;
+      }
+
+      // Başarılı
+      alert('✅ آگهی شما با موفقیت ایجاد شد!');
+      router.push('/ilanlarim');
+    } catch (error) {
+      console.error('İlan verme hatası:', error);
+      alert('خطا در ایجاد آگهی. لطفاً دوباره تلاش کنید');
       setLoading(false);
-    }, 1000);
+    }
   };
 
   if (checking || !isAuthenticated) {

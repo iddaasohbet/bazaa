@@ -21,15 +21,10 @@ export default function MagazaAcPage() {
   const [selectedPaket, setSelectedPaket] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [user, setUser] = useState<any>(null);
 
   const [formData, setFormData] = useState({
-    // Kullanıcı bilgileri (eğer giriş yapmamışsa)
-    kullanici_ad: '',
-    email: '',
-    telefon: '',
-    sifre: '',
-    profil_resmi: null as File | null,
-    
     // Mağaza bilgileri
     magaza_ad: '',
     magaza_ad_dari: '',
@@ -40,19 +35,15 @@ export default function MagazaAcPage() {
     kapak_resmi: null as File | null,
   });
 
-  const [profilPreview, setProfilPreview] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [kapakPreview, setKapakPreview] = useState<string | null>(null);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'profil' | 'logo' | 'kapak') => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'kapak') => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (type === 'profil') {
-          setProfilPreview(reader.result as string);
-          setFormData({...formData, profil_resmi: file});
-        } else if (type === 'logo') {
+        if (type === 'logo') {
           setLogoPreview(reader.result as string);
           setFormData({...formData, logo: file});
         } else {
@@ -65,8 +56,24 @@ export default function MagazaAcPage() {
   };
 
   useEffect(() => {
+    // Giriş kontrolü
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      // Giriş yapmamış, giriş sayfasına yönlendir
+      router.push('/giris?redirect=/magaza-ac');
+      return;
+    }
+    try {
+      const userData = JSON.parse(userStr);
+      setUser(userData);
+    } catch (error) {
+      console.error('User parse error:', error);
+      router.push('/giris?redirect=/magaza-ac');
+      return;
+    }
+    setAuthChecking(false);
     fetchPaketler();
-  }, []);
+  }, [router]);
 
   const fetchPaketler = async () => {
     try {
@@ -87,13 +94,8 @@ export default function MagazaAcPage() {
       setStep(2);
       return;
     }
-    
-    if (step === 2) {
-      setStep(3);
-      return;
-    }
 
-    // Step 3 - Paket seçimi ve oluşturma
+    // Step 2 - Paket seçimi ve oluşturma
     if (!selectedPaket) {
       alert('لطفاً یک پکیج انتخاب کنید');
       return;
@@ -103,9 +105,7 @@ export default function MagazaAcPage() {
     
     // Mağaza bilgilerini localStorage'a kaydet (ödeme sonrası kullanmak için)
     localStorage.setItem('magazaBilgileri', JSON.stringify({
-      kullanici_ad: formData.kullanici_ad,
-      email: formData.email,
-      telefon: formData.telefon,
+      kullanici_id: user?.id,
       magaza_ad: formData.magaza_ad,
       magaza_ad_dari: formData.magaza_ad_dari,
       aciklama: formData.aciklama,
@@ -137,6 +137,18 @@ export default function MagazaAcPage() {
     }
   };
 
+  // Auth kontrolü devam ediyor
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">بارگذاری...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Yönlendirme Animasyonu */}
@@ -165,11 +177,11 @@ export default function MagazaAcPage() {
         </div>
       )}
 
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="min-h-screen flex flex-col bg-gray-50">
         <Header />
         
         <main className="flex-1 py-12">
-          <div className="container mx-auto px-4 max-w-5xl">
+          <div className="container mx-auto px-4 max-w-4xl">
           {/* Header */}
           <div className="text-center mb-12" dir="rtl">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
@@ -182,7 +194,7 @@ export default function MagazaAcPage() {
           {/* Progress Steps */}
           <div className="mb-12" dir="rtl">
             <div className="flex items-center justify-center gap-4">
-              {[1, 2, 3].map((s) => (
+              {[1, 2].map((s) => (
                 <div key={s} className="flex items-center">
                   <div className={`flex items-center justify-center w-12 h-12 rounded-full font-bold transition-all ${
                     step >= s 
@@ -191,7 +203,7 @@ export default function MagazaAcPage() {
                   }`}>
                     {s}
                   </div>
-                  {s < 3 && (
+                  {s < 2 && (
                     <div className={`w-24 h-1 mx-2 transition-all ${
                       step > s ? 'bg-blue-600' : 'bg-gray-200'
                     }`} />
@@ -200,150 +212,24 @@ export default function MagazaAcPage() {
               ))}
             </div>
             <div className="flex justify-center gap-32 mt-4 text-sm font-medium">
-              <span className={step >= 1 ? 'text-blue-600' : 'text-gray-400'}>اطلاعات کاربری</span>
-              <span className={step >= 2 ? 'text-blue-600' : 'text-gray-400'}>اطلاعات مغازه</span>
-              <span className={step >= 3 ? 'text-blue-600' : 'text-gray-400'}>انتخاب پکیج</span>
+              <span className={step >= 1 ? 'text-blue-600' : 'text-gray-400'}>اطلاعات مغازه</span>
+              <span className={step >= 2 ? 'text-blue-600' : 'text-gray-400'}>انتخاب پکیج</span>
             </div>
           </div>
 
           {/* Form */}
-          <div className="bg-white rounded-3xl border-2 border-gray-300 shadow-2xl overflow-hidden">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <form onSubmit={handleSubmit} dir="rtl">
-              {/* Step 1: Kullanıcı Bilgileri */}
+              {/* Step 1: Mağaza Bilgileri */}
               {step === 1 && (
                 <div className="space-y-8 p-8">
                   {/* Header */}
-                  <div className="text-center bg-gradient-to-r from-blue-600 to-indigo-600 -m-8 mb-8 p-8 text-white">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-4">
-                      <User className="h-8 w-8" />
+                  <div className="text-center border-b border-gray-200 -m-8 mb-8 p-8 bg-gray-50">
+                    <div className="inline-flex items-center justify-center w-14 h-14 bg-purple-100 rounded-full mb-3">
+                      <Store className="h-7 w-7 text-purple-600" />
                     </div>
-                    <h2 className="text-3xl font-bold mb-2">اطلاعات کاربری</h2>
-                    <p className="text-blue-100">پروفایل مالک مغازه را ایجاد کنید</p>
-                  </div>
-
-                  {/* Profil Resmi */}
-                  <div className="flex justify-center">
-                    <div className="text-center">
-                      <label className="block text-sm font-bold text-gray-700 mb-4">
-                        عکس پروفایل * (توصیه: ۴۰۰×۴۰۰ پیکسل)
-                      </label>
-                      <div className="relative inline-block">
-                        <div className="w-32 h-32 rounded-full border-4 border-blue-200 overflow-hidden bg-gray-100 cursor-pointer hover:border-blue-400 transition-all">
-                          {profilPreview ? (
-                            <div className="w-full h-full relative">
-                              <img 
-                                src={profilPreview} 
-                                alt="Profile" 
-                                className="w-full h-full object-cover"
-                                style={{ objectPosition: 'center' }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
-                              <User className="h-16 w-16 text-gray-400" />
-                            </div>
-                          )}
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload(e, 'profil')}
-                          className="hidden"
-                          id="profil-upload"
-                        />
-                        <label
-                          htmlFor="profil-upload"
-                          className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-all"
-                        >
-                          <Upload className="h-5 w-5 text-white" />
-                        </label>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-2">Kare resim önerilir (400×400px)</p>
-                    </div>
-                  </div>
-
-                  {/* Form Fields */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">
-                        <User className="inline h-4 w-4 ml-1" />
-                        نام و نام خانوادگی *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.kullanici_ad}
-                        onChange={(e) => setFormData({...formData, kullanici_ad: e.target.value})}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                        placeholder="نام کامل خود را وارد کنید"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">
-                        <Mail className="inline h-4 w-4 ml-1" />
-                        ایمیل *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                        placeholder="example@email.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">
-                        <Phone className="inline h-4 w-4 ml-1" />
-                        شماره تماس *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        value={formData.telefon}
-                        onChange={(e) => setFormData({...formData, telefon: e.target.value})}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                        placeholder="۰۷۰۰۰۰۰۰۰۰"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">
-                        رمز عبور *
-                      </label>
-                      <input
-                        type="password"
-                        required
-                        value={formData.sifre}
-                        onChange={(e) => setFormData({...formData, sifre: e.target.value})}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                        placeholder="حداقل ۶ کاراکتر"
-                        minLength={6}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Info Box */}
-                  <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-                    <p className="text-sm text-gray-700 text-center">
-                      <span className="font-bold text-blue-700">💡 نکته:</span> این اطلاعات برای مدیریت مغازه شما استفاده خواهد شد
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2: Mağaza Bilgileri */}
-              {step === 2 && (
-                <div className="space-y-8 p-8">
-                  {/* Header */}
-                  <div className="text-center bg-gradient-to-r from-purple-600 to-pink-600 -m-8 mb-8 p-8 text-white">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-4">
-                      <Store className="h-8 w-8" />
-                    </div>
-                    <h2 className="text-3xl font-bold mb-2">اطلاعات مغازه</h2>
-                    <p className="text-purple-100">مغازه آنلاین خود را شخصی‌سازی کنید</p>
+                    <h2 className="text-2xl font-bold mb-1 text-gray-900">اطلاعات مغازه</h2>
+                    <p className="text-sm text-gray-600">مغازه آنلاین خود را شخصی‌سازی کنید</p>
                   </div>
 
                   {/* Kapak Resmi */}
@@ -351,7 +237,7 @@ export default function MagazaAcPage() {
                     <label className="block text-sm font-bold text-gray-700 mb-4 text-center">
                       تصویر کاور مغازه (توصیه: ۱۲۰۰×۳۰۰ پیکسل)
                     </label>
-                    <div className="relative aspect-[4/1] max-h-48 rounded-2xl border-4 border-dashed border-gray-300 overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 hover:border-purple-400 transition-all cursor-pointer group">
+                    <div className="relative aspect-[4/1] max-h-48 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden bg-gray-50 hover:border-purple-400 transition-all cursor-pointer group">
                       {kapakPreview ? (
                         <img src={kapakPreview} alt="Cover" className="w-full h-full object-cover" />
                       ) : (
@@ -377,7 +263,7 @@ export default function MagazaAcPage() {
                         لوگوی مغازه (توصیه: ۴۰۰×۴۰۰ پیکسل)
                       </label>
                       <div className="relative inline-block">
-                        <div className="w-24 h-24 rounded-2xl border-4 border-purple-200 overflow-hidden bg-white cursor-pointer hover:border-purple-400 transition-all shadow-lg">
+                        <div className="w-24 h-24 rounded-lg border-2 border-gray-300 overflow-hidden bg-white cursor-pointer hover:border-purple-400 transition-all shadow-sm">
                           {logoPreview ? (
                             <div className="w-full h-full relative">
                               <img 
@@ -422,7 +308,7 @@ export default function MagazaAcPage() {
                         required
                         value={formData.magaza_ad}
                         onChange={(e) => setFormData({...formData, magaza_ad: e.target.value})}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
                         placeholder="مثال: فروشگاه الکترونیک احمد"
                       />
                     </div>
@@ -436,7 +322,7 @@ export default function MagazaAcPage() {
                         required
                         value={formData.magaza_ad_dari}
                         onChange={(e) => setFormData({...formData, magaza_ad_dari: e.target.value})}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
                         placeholder="مغازه الکترونیکی احمد"
                       />
                     </div>
@@ -451,7 +337,7 @@ export default function MagazaAcPage() {
                       value={formData.aciklama}
                       onChange={(e) => setFormData({...formData, aciklama: e.target.value})}
                       rows={4}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
                       placeholder="درباره مغازه و محصولات خود بنویسید..."
                     />
                   </div>
@@ -465,23 +351,23 @@ export default function MagazaAcPage() {
                       type="text"
                       value={formData.adres}
                       onChange={(e) => setFormData({...formData, adres: e.target.value})}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
                       placeholder="آدرس کامل مغازه"
                     />
                   </div>
                 </div>
               )}
 
-              {/* Step 3: Paket Seçimi */}
-              {step === 3 && (
+              {/* Step 2: Paket Seçimi */}
+              {step === 2 && (
                 <div className="space-y-8 p-8">
                   {/* Header */}
-                  <div className="text-center bg-gradient-to-r from-green-600 to-emerald-600 -m-8 mb-8 p-8 text-white">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-4">
-                      <Package className="h-8 w-8" />
+                  <div className="text-center border-b border-gray-200 -m-8 mb-8 p-8 bg-gray-50">
+                    <div className="inline-flex items-center justify-center w-14 h-14 bg-green-100 rounded-full mb-3">
+                      <Package className="h-7 w-7 text-green-600" />
                     </div>
-                    <h2 className="text-3xl font-bold mb-2">انتخاب پکیج</h2>
-                    <p className="text-green-100">بهترین پکیج را برای رشد کسب و کار خود انتخاب کنید</p>
+                    <h2 className="text-2xl font-bold mb-1 text-gray-900">انتخاب پکیج</h2>
+                    <p className="text-sm text-gray-600">بهترین پکیج را برای رشد کسب و کار خود انتخاب کنید</p>
                   </div>
 
                   <div className="grid md:grid-cols-3 gap-6">
@@ -489,10 +375,10 @@ export default function MagazaAcPage() {
                       <div
                         key={paket.id}
                         onClick={() => setSelectedPaket(paket.id)}
-                        className={`cursor-pointer rounded-2xl border-4 transition-all transform hover:scale-105 ${
+                        className={`cursor-pointer rounded-lg border-2 transition-all hover:scale-105 ${
                           selectedPaket === paket.id
-                            ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 shadow-2xl scale-105'
-                            : 'border-gray-300 bg-white hover:border-green-300 shadow-lg'
+                            ? 'border-green-500 bg-green-50 shadow-md scale-105'
+                            : 'border-gray-200 bg-white hover:border-green-300 shadow-sm'
                         }`}
                       >
                         <div className="p-6">
@@ -535,9 +421,9 @@ export default function MagazaAcPage() {
                           {/* Select Button */}
                           <button
                             type="button"
-                            className={`w-full py-3 rounded-xl font-bold transition-all ${
+                            className={`w-full py-2.5 rounded-lg font-semibold transition-all ${
                               selectedPaket === paket.id
-                                ? 'bg-green-600 text-white shadow-lg'
+                                ? 'bg-green-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                           >
@@ -549,18 +435,18 @@ export default function MagazaAcPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-4 pt-6 border-t-2 border-gray-200">
+                  <div className="flex gap-4 pt-6 border-t border-gray-200">
                     <button
                       type="button"
-                      onClick={() => setStep(2)}
-                      className="px-8 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all border-2 border-gray-300"
+                      onClick={() => setStep(1)}
+                      className="px-8 py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg transition-all border border-gray-300"
                     >
                       ← قبلی
                     </button>
                     <button
                       type="submit"
                       disabled={!selectedPaket || loading}
-                      className="flex-1 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-xl transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-green-500"
+                      className="flex-1 px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
                         <span className="flex items-center justify-center gap-2">
@@ -577,27 +463,12 @@ export default function MagazaAcPage() {
                 </div>
               )}
 
-              {/* Navigation Buttons - Step 1 ve 2 için */}
-              {step < 3 && (
-                <div className="flex justify-between gap-4 pt-6 px-8 pb-8 border-t-2 border-gray-200 -mx-8 -mb-8 bg-gray-50">
-                  {step > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setStep(step - 1)}
-                      className="px-8 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all border-2 border-gray-300"
-                    >
-                      ← قبلی
-                    </button>
-                  )}
+              {/* Navigation Buttons - Step 1 için */}
+              {step === 1 && (
+                <div className="flex justify-end gap-4 pt-6 px-8 pb-8 border-t border-gray-200 -mx-8 -mb-8 bg-gray-50">
                   <button
                     type="submit"
-                    className={`px-12 py-4 bg-gradient-to-r ${
-                      step === 1 
-                        ? 'from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700' 
-                        : 'from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
-                    } text-white font-bold rounded-xl transition-all shadow-xl border-2 border-white/30 ${
-                      step === 1 ? 'mr-auto' : ''
-                    }`}
+                    className="px-12 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all"
                   >
                     بعدی →
                   </button>
@@ -607,9 +478,9 @@ export default function MagazaAcPage() {
           </div>
 
           {/* Info Box */}
-          <div className="mt-8 bg-blue-50 border-2 border-blue-200 rounded-xl p-6 text-center" dir="rtl">
+          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-5 text-center" dir="rtl">
             <p className="text-sm text-gray-700">
-              <span className="font-bold text-blue-700">💡 نکته:</span> پکیج Basic کاملاً رایگان است و می‌توانید فوراً شروع کنید!
+              <span className="font-semibold text-blue-700">💡 نکته:</span> پکیج Basic کاملاً رایگان است و می‌توانید فوراً شروع کنید!
             </p>
           </div>
         </div>
