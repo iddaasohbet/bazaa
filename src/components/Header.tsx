@@ -56,16 +56,54 @@ export default function Header() {
     };
     
     // Mesaj sayısını güncelle
-    const updateMesajSayisi = () => {
-      const mesajlar = JSON.parse(localStorage.getItem('mesajlar') || '[]');
-      const okunmayanlar = mesajlar.filter((m: any) => !m.okundu);
-      setMesajSayisi(okunmayanlar.length);
+    const updateMesajSayisi = async () => {
+      try {
+        const user = localStorage.getItem('user');
+        if (!user) {
+          setMesajSayisi(0);
+          return;
+        }
+
+        const userData = JSON.parse(user);
+        const response = await fetch('/api/mesajlar', {
+          headers: {
+            'x-user-id': userData.id.toString()
+          }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          const okunmayanlar = (data.data || []).filter((m: any) => !m.okundu && m.alici_id === userData.id);
+          setMesajSayisi(okunmayanlar.length);
+        }
+      } catch (error) {
+        console.error('Mesaj sayısı yüklenirken hata:', error);
+      }
     };
     
     // Favori sayısını güncelle
-    const updateFavoriSayisi = () => {
-      const favoriler = JSON.parse(localStorage.getItem('favoriler') || '[]');
-      setFavoriSayisi(favoriler.length);
+    const updateFavoriSayisi = async () => {
+      try {
+        const user = localStorage.getItem('user');
+        if (!user) {
+          setFavoriSayisi(0);
+          return;
+        }
+
+        const userData = JSON.parse(user);
+        const response = await fetch('/api/favoriler', {
+          headers: {
+            'x-user-id': userData.id.toString()
+          }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setFavoriSayisi((data.data || []).length);
+        }
+      } catch (error) {
+        console.error('Favori sayısı yüklenirken hata:', error);
+      }
     };
     
     checkUser();

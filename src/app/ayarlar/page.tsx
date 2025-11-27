@@ -23,22 +23,49 @@ export default function Ayarlar() {
   });
 
   useEffect(() => {
-    // Kullanıcı kontrolü
-    const user = localStorage.getItem('user');
-    if (!user) {
-      router.replace('/giris?redirect=/ayarlar');
-      return;
-    }
-    
-    try {
-      const data = JSON.parse(user);
-      setUserData(data);
-      setEmailData({ yeniEmail: data.email });
-      setLoading(false);
-    } catch (error) {
-      router.replace('/giris?redirect=/ayarlar');
-    }
+    loadUserData();
   }, [router]);
+
+  const loadUserData = async () => {
+    try {
+      const user = localStorage.getItem('user');
+      if (!user) {
+        router.replace('/giris?redirect=/ayarlar');
+        return;
+      }
+      
+      const localUser = JSON.parse(user);
+      
+      // API'den güncel kullanıcı bilgilerini yükle
+      const response = await fetch('/api/kullanici', {
+        headers: {
+          'x-user-id': localUser.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setUserData(data.data);
+        setEmailData({ yeniEmail: data.data.email });
+      } else {
+        setUserData(localUser);
+        setEmailData({ yeniEmail: localUser.email });
+      }
+    } catch (error) {
+      console.error('Kullanıcı bilgileri yüklenirken hata:', error);
+      const user = localStorage.getItem('user');
+      if (user) {
+        const localUser = JSON.parse(user);
+        setUserData(localUser);
+        setEmailData({ yeniEmail: localUser.email });
+      } else {
+        router.replace('/giris?redirect=/ayarlar');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -46,7 +73,7 @@ export default function Ayarlar() {
     router.push('/');
   };
 
-  const handleSifreDegistir = (e: React.FormEvent) => {
+  const handleSifreDegistir = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (sifreData.yeniSifre !== sifreData.yeniSifreTekrar) {
@@ -59,19 +86,43 @@ export default function Ayarlar() {
       return;
     }
     
-    alert('Şifreniz başarıyla değiştirildi!');
-    setSifreData({ eskiSifre: "", yeniSifre: "", yeniSifreTekrar: "" });
+    try {
+      const user = localStorage.getItem('user');
+      if (!user) return;
+
+      const localUser = JSON.parse(user);
+      
+      const response = await fetch('/api/kullanici', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': localUser.id.toString()
+        },
+        body: JSON.stringify({
+          eskiSifre: sifreData.eskiSifre,
+          yeniSifre: sifreData.yeniSifre
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('Şifreniz başarıyla değiştirildi!');
+        setSifreData({ eskiSifre: "", yeniSifre: "", yeniSifreTekrar: "" });
+      } else {
+        alert(data.message || 'Şifre değiştirme başarısız!');
+      }
+    } catch (error) {
+      console.error('Şifre değiştirme hatası:', error);
+      alert('Şifre değiştirme başarısız oldu!');
+    }
   };
 
-  const handleEmailDegistir = (e: React.FormEvent) => {
+  const handleEmailDegistir = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const updatedData = { ...userData, email: emailData.yeniEmail };
-    setUserData(updatedData);
-    localStorage.setItem('user', JSON.stringify(updatedData));
-    window.dispatchEvent(new Event('userLogin'));
-    
-    alert('E-posta adresiniz başarıyla değiştirildi!');
+    alert('E-posta değiştirme özelliği şu anda güvenlik nedeniyle devre dışı. Lütfen yönetici ile iletişime geçin.');
+    // Email değiştirme işlemi genellikle doğrulama gerektirdiği için şimdilik devre dışı bırakıyoruz
   };
 
   if (loading || !userData) {

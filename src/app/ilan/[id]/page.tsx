@@ -43,6 +43,7 @@ interface Ilan {
   kullanici_telefon: string;
   kullanici_id: number;
   magaza_id?: number;
+  magaza_ad?: string;
   store_level?: string;
   resimler: string[];
 }
@@ -160,7 +161,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
     'hasarli': 'آسیب دیده',
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!messageText.trim()) {
       alert('لطفا پیام خود را بنویسید');
       return;
@@ -174,28 +175,38 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
       return;
     }
 
-    // Mesajı kaydet
-    const mesajlar = JSON.parse(localStorage.getItem('mesajlar') || '[]');
-    const yeniMesaj = {
-      id: Date.now(),
-      ilanId: ilan?.id,
-      ilanBaslik: ilan?.baslik,
-      alici: ilan?.kullanici_ad,
-      gonderen: JSON.parse(currentUser).name,
-      mesaj: messageText,
-      tarih: new Date().toISOString(),
-      okundu: false,
-    };
-    
-    mesajlar.push(yeniMesaj);
-    localStorage.setItem('mesajlar', JSON.stringify(mesajlar));
-    
-    // Header'ı güncelle
-    window.dispatchEvent(new Event('mesajGuncelle'));
-    
-    setMessageText("");
-    setShowMessageModal(false);
-    alert('پیام شما ارسال شد!');
+    try {
+      const user = JSON.parse(currentUser);
+      
+      const response = await fetch('/api/mesajlar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user.id.toString()
+        },
+        body: JSON.stringify({
+          aliciId: ilan?.kullanici_id,
+          mesaj: messageText,
+          ilanId: ilan?.id
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Header'ı güncelle
+        window.dispatchEvent(new Event('mesajGuncelle'));
+        
+        setMessageText("");
+        setShowMessageModal(false);
+        alert('پیام شما ارسال شد!');
+      } else {
+        alert('خطا در ارسال پیام');
+      }
+    } catch (error) {
+      console.error('Mesaj gönderme hatası:', error);
+      alert('خطا در ارسال پیام');
+    }
   };
 
   return (
@@ -392,15 +403,42 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                     </div>
                   </div>
                   
-                  {/* Mağaza varsa Mağaza Butonu, yoksa Diğer İlanlar */}
+                  {/* Mağaza Kartı */}
                   {ilan.magaza_id ? (
-                    <Link 
-                      href={`/magaza/${ilan.magaza_id}`}
-                      className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg mb-3"
-                    >
-                      <Store className="h-5 w-5" />
-                      مشاهده مغازه و سایر محصولات
-                    </Link>
+                    <div className="mb-3">
+                      {/* Mağaza Bilgileri */}
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4 mb-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Store className="h-5 w-5 text-purple-600" />
+                          <div className="font-bold text-purple-900">
+                            {ilan.magaza_ad || 'مغازه رسمی'}
+                          </div>
+                        </div>
+                        {ilan.store_level && (
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                              ilan.store_level === 'elite' 
+                                ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-md'
+                                : ilan.store_level === 'pro'
+                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+                                : 'bg-gray-200 text-gray-700'
+                            }`}>
+                              {ilan.store_level === 'elite' ? '⭐ پریمیوم' : ilan.store_level === 'pro' ? '💎 پرو' : 'عادی'}
+                            </span>
+                            <span className="text-xs text-purple-600">فروشنده تأیید شده</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Mağaza Butonu */}
+                      <Link 
+                        href={`/magaza/${ilan.magaza_id}`}
+                        className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg"
+                      >
+                        <Store className="h-5 w-5" />
+                        مشاهده مغازه و سایر محصولات
+                      </Link>
+                    </div>
                   ) : (
                     <Link 
                       href={`/kullanici/${ilan.kullanici_id}`}
@@ -444,30 +482,37 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="space-y-2">
                     <button 
-                      onClick={() => {
-                        const favoriler = JSON.parse(localStorage.getItem('favoriler') || '[]');
-                        const ilanIndex = favoriler.findIndex((f: any) => f.id === ilan.id);
-                        
-                        if (ilanIndex > -1) {
-                          favoriler.splice(ilanIndex, 1);
-                        } else {
-                          favoriler.push({
-                            id: ilan.id,
-                            baslik: ilan.baslik,
-                            fiyat: ilan.fiyat,
-                            ana_resim: ilan.resimler[0],
-                            kategori_ad: ilan.kategori_ad,
-                            il_ad: ilan.il_ad,
-                            goruntulenme: ilan.goruntulenme,
-                            created_at: ilan.created_at,
-                            resimler: ilan.resimler,
-                            resim_sayisi: ilan.resimler.length,
-                            fiyat_tipi: ilan.fiyat_tipi,
-                          });
+                      onClick={async () => {
+                        const currentUser = localStorage.getItem('user');
+                        if (!currentUser) {
+                          alert('برای افزودن به علاقه مندی ها باید وارد شوید');
+                          window.location.href = '/giris?redirect=/ilan/' + ilan?.id;
+                          return;
                         }
-                        
-                        localStorage.setItem('favoriler', JSON.stringify(favoriler));
-                        window.dispatchEvent(new Event('favoriGuncelle'));
+
+                        try {
+                          const user = JSON.parse(currentUser);
+                          
+                          // Favoriye ekle
+                          const response = await fetch('/api/favoriler', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'x-user-id': user.id.toString()
+                            },
+                            body: JSON.stringify({ ilanId: ilan?.id })
+                          });
+
+                          const data = await response.json();
+                          
+                          if (data.success) {
+                            window.dispatchEvent(new Event('favoriGuncelle'));
+                            alert('به علاقه مندی ها اضافه شد');
+                          }
+                        } catch (error) {
+                          console.error('Favori ekleme hatası:', error);
+                          alert('خطا در افزودن به علاقه مندی ها');
+                        }
                       }}
                       className="flex items-center justify-center gap-2 w-full border border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-4 py-2.5 rounded-lg transition-colors"
                     >

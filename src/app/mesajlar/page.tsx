@@ -9,10 +9,12 @@ import { MessageSquare, User, Send, Search, Settings, FileText, Heart, LogOut } 
 
 interface Mesaj {
   id: number;
-  ilanId: number;
-  ilanBaslik: string;
-  alici: string;
-  gonderen: string;
+  ilan_id: number;
+  ilan_baslik: string;
+  gonderici_id: number;
+  alici_id: number;
+  gonderici_ad: string;
+  alici_ad: string;
   mesaj: string;
   tarih: string;
   okundu: boolean;
@@ -36,59 +38,93 @@ export default function Mesajlar() {
     try {
       const userData = JSON.parse(user);
       setCurrentUser(userData);
-      loadMesajlar();
+      loadMesajlar(userData);
     } catch (error) {
       router.replace('/giris?redirect=/mesajlar');
     }
   }, [router]);
 
-  const loadMesajlar = () => {
-    const allMesajlar = JSON.parse(localStorage.getItem('mesajlar') || '[]');
-    setMesajlar(allMesajlar);
-    
-    // İlk mesajı seç
-    if (allMesajlar.length > 0 && !selectedMesaj) {
-      setSelectedMesaj(allMesajlar[0]);
-      // Mesajı okundu yap
-      markAsRead(allMesajlar[0].id);
+  const loadMesajlar = async (user: any) => {
+    try {
+      const response = await fetch('/api/mesajlar', {
+        headers: {
+          'x-user-id': user.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setMesajlar(data.data || []);
+        
+        // İlk mesajı seç
+        if (data.data && data.data.length > 0 && !selectedMesaj) {
+          setSelectedMesaj(data.data[0]);
+          markAsRead(data.data[0].id, user);
+        }
+      }
+    } catch (error) {
+      console.error('Mesajlar yüklenirken hata:', error);
     }
   };
 
-  const markAsRead = (mesajId: number) => {
-    const allMesajlar = JSON.parse(localStorage.getItem('mesajlar') || '[]');
-    const updated = allMesajlar.map((m: Mesaj) => 
-      m.id === mesajId ? { ...m, okundu: true } : m
-    );
-    localStorage.setItem('mesajlar', JSON.stringify(updated));
-    setMesajlar(updated);
-    window.dispatchEvent(new Event('mesajGuncelle'));
+  const markAsRead = async (mesajId: number, user?: any) => {
+    try {
+      const userData = user || currentUser;
+      if (!userData) return;
+
+      await fetch('/api/mesajlar', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': userData.id.toString()
+        },
+        body: JSON.stringify({ mesajId })
+      });
+
+      setMesajlar(prev => prev.map(m => 
+        m.id === mesajId ? { ...m, okundu: true } : m
+      ));
+      window.dispatchEvent(new Event('mesajGuncelle'));
+    } catch (error) {
+      console.error('Mesaj okundu işaretlenirken hata:', error);
+    }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!mesajText.trim() || !selectedMesaj || !currentUser) return;
 
-    const yeniMesaj = {
-      id: Date.now(),
-      ilanId: selectedMesaj.ilanId,
-      ilanBaslik: selectedMesaj.ilanBaslik,
-      alici: selectedMesaj.alici,
-      gonderen: currentUser.name,
-      mesaj: mesajText,
-      tarih: new Date().toISOString(),
-      okundu: true,
-    };
+    try {
+      const response = await fetch('/api/mesajlar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': currentUser.id.toString()
+        },
+        body: JSON.stringify({
+          aliciId: selectedMesaj.gonderici_id === currentUser.id ? selectedMesaj.alici_id : selectedMesaj.gonderici_id,
+          mesaj: mesajText,
+          ilanId: selectedMesaj.ilan_id
+        })
+      });
 
-    const allMesajlar = JSON.parse(localStorage.getItem('mesajlar') || '[]');
-    allMesajlar.push(yeniMesaj);
-    localStorage.setItem('mesajlar', JSON.stringify(allMesajlar));
-    
-    setMesajlar(allMesajlar);
-    setMesajText("");
+      const data = await response.json();
+      
+      if (data.success) {
+        // Mesajları yeniden yükle
+        loadMesajlar(currentUser);
+        setMesajText("");
+      }
+    } catch (error) {
+      console.error('Mesaj gönderilirken hata:', error);
+    }
   };
 
   const selectMesaj = (mesaj: Mesaj) => {
     setSelectedMesaj(mesaj);
-    markAsRead(mesaj.id);
+    if (!mesaj.okundu && mesaj.alici_id === currentUser?.id) {
+      markAsRead(mesaj.id);
+    }
   };
 
   const handleLogout = () => {
@@ -225,7 +261,9 @@ export default function Mesajlar() {
 
                       {/* Mesaj Listesi */}
                       <div className="overflow-y-auto h-[calc(600px-73px)]">
-                        {mesajlar.map((mesaj) => (
+                        {mesajlar.map((mesaj) => {
+                          const displayName = mesaj.gonderici_id === currentUser?.id ? mesaj.alici_ad : mesaj.gonderici_ad;
+                          return (
                           <button
                             key={mesaj.id}
                             onClick={() => selectMesaj(mesaj)}
@@ -239,12 +277,12 @@ export default function Mesajlar() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-1">
-                                  <span className="font-semibold text-gray-900 truncate">{mesaj.alici}</span>
-                                  {!mesaj.okundu && (
+                                  <span className="font-semibold text-gray-900 truncate">{displayName}</span>
+                                  {!mesaj.okundu && mesaj.alici_id === currentUser?.id && (
                                     <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
                                   )}
                                 </div>
-                                <p className="text-xs text-gray-500 mb-1 truncate">{mesaj.ilanBaslik}</p>
+                                <p className="text-xs text-gray-500 mb-1 truncate">{mesaj.ilan_baslik || 'Genel Mesaj'}</p>
                                 <p className="text-sm text-gray-600 truncate">{mesaj.mesaj}</p>
                                 <p className="text-xs text-gray-500 mt-1">
                                   {new Date(mesaj.tarih).toLocaleString('tr-TR', {
@@ -257,7 +295,8 @@ export default function Mesajlar() {
                               </div>
                             </div>
                           </button>
-                        ))}
+                        );
+                        })}
                       </div>
                     </div>
 
@@ -272,15 +311,19 @@ export default function Mesajlar() {
                                 <User className="h-5 w-5 text-gray-600" />
                               </div>
                               <div className="flex-1">
-                                <div className="font-semibold text-gray-900">{selectedMesaj.alici}</div>
-                                <div className="text-xs text-gray-600">{selectedMesaj.ilanBaslik}</div>
+                                <div className="font-semibold text-gray-900">
+                                  {selectedMesaj.gonderici_id === currentUser?.id ? selectedMesaj.alici_ad : selectedMesaj.gonderici_ad}
+                                </div>
+                                <div className="text-xs text-gray-600">{selectedMesaj.ilan_baslik || 'Genel Mesaj'}</div>
                               </div>
-                              <a 
-                                href={`/ilan/${selectedMesaj.ilanId}`}
-                                className="text-sm text-blue-600 hover:underline"
-                              >
-                                مشاهده آگهی
-                              </a>
+                              {selectedMesaj.ilan_id && (
+                                <a 
+                                  href={`/ilan/${selectedMesaj.ilan_id}`}
+                                  className="text-sm text-blue-600 hover:underline"
+                                >
+                                  مشاهده آگهی
+                                </a>
+                              )}
                             </div>
                           </div>
 
@@ -288,18 +331,22 @@ export default function Mesajlar() {
                           <div className="flex-1 p-4 overflow-y-auto">
                             <div className="space-y-4">
                               {mesajlar
-                                .filter(m => m.ilanId === selectedMesaj.ilanId && m.alici === selectedMesaj.alici)
+                                .filter(m => 
+                                  (m.ilan_id === selectedMesaj.ilan_id || (!m.ilan_id && !selectedMesaj.ilan_id)) &&
+                                  ((m.gonderici_id === selectedMesaj.gonderici_id && m.alici_id === selectedMesaj.alici_id) ||
+                                   (m.gonderici_id === selectedMesaj.alici_id && m.alici_id === selectedMesaj.gonderici_id))
+                                )
                                 .map((mesaj) => (
-                                  <div key={mesaj.id} className={`flex ${mesaj.gonderen === currentUser.name ? 'justify-end' : 'justify-start'}`}>
+                                  <div key={mesaj.id} className={`flex ${mesaj.gonderici_id === currentUser?.id ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-[70%] rounded-lg p-3 ${
-                                      mesaj.gonderen === currentUser.name 
+                                      mesaj.gonderici_id === currentUser?.id
                                         ? 'border border-blue-600 bg-blue-600 text-white' 
                                         : 'border border-gray-200'
                                     }`}>
-                                      <p className={`text-sm ${mesaj.gonderen === currentUser.name ? 'text-white' : 'text-gray-700'}`}>
+                                      <p className={`text-sm ${mesaj.gonderici_id === currentUser?.id ? 'text-white' : 'text-gray-700'}`}>
                                         {mesaj.mesaj}
                                       </p>
-                                      <p className={`text-xs mt-1 ${mesaj.gonderen === currentUser.name ? 'text-blue-200' : 'text-gray-500'}`}>
+                                      <p className={`text-xs mt-1 ${mesaj.gonderici_id === currentUser?.id ? 'text-blue-200' : 'text-gray-500'}`}>
                                         {new Date(mesaj.tarih).toLocaleTimeString('tr-TR', {
                                           hour: '2-digit',
                                           minute: '2-digit'

@@ -8,46 +8,82 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Heart, MapPin, Eye, Clock, X } from "lucide-react";
 import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface Ilan {
   id: number;
+  ilan_id: number;
   baslik: string;
   fiyat: number;
-  fiyat_tipi: string;
-  ana_resim: string;
+  fiyat_tipi?: string;
+  resimler?: string;
   kategori_ad: string;
-  il_ad: string;
-  goruntulenme: number;
-  created_at: string;
-  resimler?: string[];
-  resim_sayisi: number;
+  il: string;
+  ilce: string;
+  goruntulenme?: number;
+  tarih?: string;
 }
 
 export default function Favoriler() {
   const [favoriler, setFavoriler] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Favorileri localStorage'dan yükle
-    const loadFavoriler = () => {
-      const favoriData = JSON.parse(localStorage.getItem('favoriler') || '[]');
-      setFavoriler(favoriData);
-      setLoading(false);
-    };
-    
     loadFavoriler();
-    
-    // Favori güncellemelerini dinle
-    window.addEventListener('favoriGuncelle', loadFavoriler);
-    return () => window.removeEventListener('favoriGuncelle', loadFavoriler);
   }, []);
 
-  const removeFavorite = (id: number) => {
-    const favoriler = JSON.parse(localStorage.getItem('favoriler') || '[]');
-    const updated = favoriler.filter((f: any) => f.id !== id);
-    localStorage.setItem('favoriler', JSON.stringify(updated));
-    setFavoriler(updated);
-    window.dispatchEvent(new Event('favoriGuncelle'));
+  const loadFavoriler = async () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        router.push('/giris');
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      
+      const response = await fetch('/api/favoriler', {
+        headers: {
+          'x-user-id': user.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setFavoriler(data.data || []);
+      }
+    } catch (error) {
+      console.error('Favoriler yüklenirken hata:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeFavorite = async (ilanId: number) => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return;
+
+      const user = JSON.parse(userStr);
+      
+      const response = await fetch(`/api/favoriler?ilanId=${ilanId}`, {
+        method: 'DELETE',
+        headers: {
+          'x-user-id': user.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setFavoriler(prev => prev.filter(f => f.ilan_id !== ilanId));
+        window.dispatchEvent(new Event('favoriGuncelle'));
+      }
+    } catch (error) {
+      console.error('Favori silinirken hata:', error);
+    }
   };
 
   return (
@@ -86,21 +122,25 @@ export default function Favoriler() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {favoriler.map((ilan, index) => (
+              {favoriler.map((favori, index) => {
+                const resimler = favori.resimler ? (typeof favori.resimler === 'string' ? JSON.parse(favori.resimler) : favori.resimler) : [];
+                const firstImage = Array.isArray(resimler) && resimler.length > 0 ? resimler[0] : '';
+                
+                return (
                 <motion.div
-                  key={ilan.id}
+                  key={favori.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
                   <div className="group relative">
-                    <Link href={`/ilan/${ilan.id}`} className="block h-full">
+                    <Link href={`/ilan/${favori.ilan_id}`} className="block h-full">
                       <div className="overflow-hidden rounded-xl border border-gray-200 transition-all hover:shadow-xl hover:border-blue-300 h-full flex flex-col">
                         {/* Image */}
                         <div className="relative aspect-video bg-gray-100 overflow-hidden">
                           <Image
-                            src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
-                            alt={ilan.baslik}
+                            src={getImageUrl(firstImage)}
+                            alt={favori.baslik}
                             fill
                             className="object-cover group-hover:scale-110 transition-transform duration-500"
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
@@ -109,7 +149,7 @@ export default function Favoriler() {
                           {/* Badge */}
                           <div className="absolute top-2 left-2">
                             <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
-                              {ilan.kategori_ad}
+                              {favori.kategori_ad}
                             </span>
                           </div>
                         </div>
@@ -117,28 +157,28 @@ export default function Favoriler() {
                         {/* Content */}
                         <div className="p-3 flex-1 flex flex-col">
                           <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight group-hover:text-blue-600 transition-colors">
-                            {ilan.baslik}
+                            {favori.baslik}
                           </h3>
                           
                           <div className="flex items-baseline gap-1 mb-3">
                             <span className="text-lg font-bold text-blue-600">
-                              {formatPrice(ilan.fiyat)}
+                              {formatPrice(favori.fiyat)}
                             </span>
                           </div>
 
                           <div className="mt-auto space-y-2 text-xs text-gray-600">
                             <div className="flex items-center gap-1.5">
                               <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                              <span className="truncate">{ilan.il_ad}</span>
+                              <span className="truncate">{favori.il}</span>
                             </div>
                             <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                               <div className="flex items-center gap-1">
                                 <Eye className="h-3.5 w-3.5 text-gray-400" />
-                                <span>{ilan.goruntulenme}</span>
+                                <span>{favori.goruntulenme || 0}</span>
                               </div>
                               <div className="flex items-center gap-1">
                                 <Clock className="h-3.5 w-3.5 text-gray-400" />
-                                <span>{formatDate(ilan.created_at)}</span>
+                                <span>{formatDate(favori.tarih || '')}</span>
                               </div>
                             </div>
                           </div>
@@ -150,7 +190,7 @@ export default function Favoriler() {
                     <button
                       onClick={(e) => {
                         e.preventDefault();
-                        removeFavorite(ilan.id);
+                        removeFavorite(favori.ilan_id);
                       }}
                       className="absolute top-2 right-2 w-8 h-8 rounded-full border-2 border-white bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all shadow-sm z-10"
                       title="حذف از علاقه مندی ها"
@@ -159,7 +199,8 @@ export default function Favoriler() {
                     </button>
                   </div>
                 </motion.div>
-              ))}
+              );
+              })}
             </div>
           )}
         </div>

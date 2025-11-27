@@ -90,7 +90,18 @@ export default function IlanVer() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setImages(prev => [...prev, ...files].slice(0, 10));
+      
+      // Resim boyutu kontrolü (her biri max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const validFiles = files.filter(file => {
+        if (file.size > maxSize) {
+          alert(`${file.name} خیلی بزرگ است! حداکثر اندازه ۵ مگابایت است.`);
+          return false;
+        }
+        return true;
+      });
+      
+      setImages(prev => [...prev, ...validFiles].slice(0, 10));
     }
   };
 
@@ -112,6 +123,17 @@ export default function IlanVer() {
 
       const userData = JSON.parse(userStr);
       
+      // Resimleri base64'e çevir
+      const resimlerBase64: string[] = [];
+      for (const image of images) {
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(image);
+        });
+        resimlerBase64.push(base64);
+      }
+      
       // İlan verilerini hazırla
       const ilanData = {
         baslik: formData.baslik,
@@ -122,6 +144,7 @@ export default function IlanVer() {
         il_id: parseInt(formData.il_id),
         durum: formData.durum,
         kullanici_id: userData.id,
+        resimler: resimlerBase64, // Resimleri ekle
       };
 
       // API'ye gönder

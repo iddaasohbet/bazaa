@@ -218,9 +218,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, kullanici_id, magaza_id } = body;
+    const { baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, kullanici_id, magaza_id, resimler } = body;
 
-    console.log('📝 Yeni ilan oluşturuluyor:', { baslik, kullanici_id });
+    console.log('📝 Yeni ilan oluşturuluyor:', { baslik, kullanici_id, resim_sayisi: resimler?.length || 0 });
 
     // Validasyon
     if (!baslik || !aciklama || !fiyat || !kategori_id || !il_id || !kullanici_id) {
@@ -230,17 +230,31 @@ export async function POST(request: Request) {
       );
     }
 
+    // İlk resmi ana_resim olarak kullan
+    const anaResim = resimler && resimler.length > 0 ? resimler[0] : null;
+
     // İlan oluştur
     const result = await query(
       `INSERT INTO ilanlar (
         baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, 
-        kullanici_id, magaza_id, aktif, goruntulenme
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
-      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', kategori_id, il_id, durum || 'kullanilmis', kullanici_id, magaza_id || null]
+        kullanici_id, magaza_id, ana_resim, aktif, goruntulenme
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
+      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', kategori_id, il_id, durum || 'kullanilmis', kullanici_id, magaza_id || null, anaResim]
     );
 
     const ilanId = (result as any).insertId;
     console.log('✅ İlan oluşturuldu, ID:', ilanId);
+
+    // Resimleri kaydet
+    if (resimler && resimler.length > 0) {
+      for (let i = 0; i < resimler.length; i++) {
+        await query(
+          'INSERT INTO ilan_resimleri (ilan_id, resim_url, sira) VALUES (?, ?, ?)',
+          [ilanId, resimler[i], i + 1]
+        );
+      }
+      console.log(`✅ ${resimler.length} resim kaydedildi`);
+    }
 
     return NextResponse.json({
       success: true,

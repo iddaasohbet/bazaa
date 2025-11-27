@@ -51,25 +51,30 @@ export default function MagazamPage() {
     checkMagaza();
   }, []);
 
-  const checkMagaza = () => {
-    // localStorage'dan kontrol et
-    const bilgiler = localStorage.getItem('magazaBilgileri');
-    if (bilgiler) {
-      setMagazaBilgileri(JSON.parse(bilgiler));
-      setLoading(false);
-    } else {
-      // Eğer localStorage'da yoksa, mock data kullan (production için)
-      setMagazaBilgileri({
-        kullanici_ad: 'مدیر مغازه',
-        email: 'store@example.com',
-        telefon: '۰۷۰۰۱۲۳۴۵۶',
-        magaza_ad: 'Tech Store Kabul',
-        magaza_ad_dari: 'مغازه تکنولوژی کابل',
-        aciklama: 'بهترین محصولات الکترونیکی را از ما بخواهید',
-        adres: 'کابل، افغانستان',
-        store_level: 'elite',
-        onay_durumu: 'beklemede'
-      });
+  const checkMagaza = async () => {
+    try {
+      const user = localStorage.getItem('user');
+      if (!user) {
+        router.push('/giris');
+        return;
+      }
+
+      const userData = JSON.parse(user);
+      
+      // Kullanıcının mağazasını API'den yükle
+      const response = await fetch(`/api/magazalar?kullanici_id=${userData.id}`);
+      const data = await response.json();
+      
+      if (data.success && data.data && data.data.length > 0) {
+        setMagazaBilgileri(data.data[0]);
+      } else {
+        // Mağaza yoksa yönlendir
+        router.push('/magaza-ac');
+      }
+    } catch (error) {
+      console.error('Mağaza bilgileri yüklenirken hata:', error);
+      router.push('/magaza-ac');
+    } finally {
       setLoading(false);
     }
   };

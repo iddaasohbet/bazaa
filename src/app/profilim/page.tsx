@@ -24,31 +24,86 @@ export default function Profilim() {
     setEditValue("");
   };
 
-  const saveEdit = (field: string) => {
-    const updatedData = { ...userData, [field]: editValue };
-    setUserData(updatedData);
-    localStorage.setItem('user', JSON.stringify(updatedData));
-    window.dispatchEvent(new Event('userLogin'));
-    setEditing(null);
-    setEditValue("");
+  const saveEdit = async (field: string) => {
+    try {
+      const user = localStorage.getItem('user');
+      if (!user) return;
+
+      const localUser = JSON.parse(user);
+      
+      const response = await fetch('/api/kullanici', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': localUser.id.toString()
+        },
+        body: JSON.stringify({
+          [field]: editValue
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setUserData(data.data);
+        // LocalStorage'daki kullanıcı bilgilerini güncelle
+        localStorage.setItem('user', JSON.stringify({
+          ...localUser,
+          ...data.data
+        }));
+        window.dispatchEvent(new Event('userLogin'));
+      }
+      
+      setEditing(null);
+      setEditValue("");
+    } catch (error) {
+      console.error('Profil güncellenirken hata:', error);
+      alert('Güncelleme başarısız oldu');
+    }
   };
 
   useEffect(() => {
-    // Kullanıcı kontrolü
-    const user = localStorage.getItem('user');
-    if (!user) {
-      router.replace('/giris?redirect=/profilim');
-      return;
-    }
-    
-    try {
-      const data = JSON.parse(user);
-      setUserData(data);
-      setLoading(false);
-    } catch (error) {
-      router.replace('/giris?redirect=/profilim');
-    }
+    loadUserData();
   }, [router]);
+
+  const loadUserData = async () => {
+    try {
+      const user = localStorage.getItem('user');
+      if (!user) {
+        router.replace('/giris?redirect=/profilim');
+        return;
+      }
+      
+      const localUser = JSON.parse(user);
+      
+      // API'den güncel kullanıcı bilgilerini yükle
+      const response = await fetch('/api/kullanici', {
+        headers: {
+          'x-user-id': localUser.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setUserData(data.data);
+      } else {
+        // API'den yüklenemezse localStorage'dan yükle
+        setUserData(localUser);
+      }
+    } catch (error) {
+      console.error('Kullanıcı bilgileri yüklenirken hata:', error);
+      // Hata durumunda localStorage'dan yükle
+      const user = localStorage.getItem('user');
+      if (user) {
+        setUserData(JSON.parse(user));
+      } else {
+        router.replace('/giris?redirect=/profilim');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('user');

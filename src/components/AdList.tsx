@@ -47,10 +47,28 @@ export default function AdList() {
     return () => window.removeEventListener('favoriGuncelle', handleFavoriUpdate);
   }, []);
 
-  const loadFavoriler = () => {
-    const favoriData = JSON.parse(localStorage.getItem('favoriler') || '[]');
-    const favoriIds = favoriData.map((f: any) => f.id);
-    setFavoriler(favoriIds);
+  const loadFavoriler = async () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return;
+
+      const user = JSON.parse(userStr);
+      
+      const response = await fetch('/api/favoriler', {
+        headers: {
+          'x-user-id': user.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        const favoriIds = (data.data || []).map((f: any) => f.ilan_id);
+        setFavoriler(favoriIds);
+      }
+    } catch (error) {
+      console.error('Favoriler yüklenirken hata:', error);
+    }
   };
 
   const fetchIlanlar = async (loadMore = false) => {
@@ -164,36 +182,46 @@ export default function AdList() {
                     
                               {/* Favorite Button */}
                               <button 
-                                onClick={(e) => { 
+                                onClick={async (e) => { 
                                   e.preventDefault(); 
                                   e.stopPropagation();
                                   
-                                  // Favorilere ekle/çıkar
-                                  const storedFavoriler = JSON.parse(localStorage.getItem('favoriler') || '[]');
-                                  const ilanIndex = storedFavoriler.findIndex((f: any) => f.id === ilan.id);
-                                  
-                                  if (ilanIndex > -1) {
-                                    // Favoriden çıkar
-                                    storedFavoriler.splice(ilanIndex, 1);
-                                  } else {
-                                    // Favoriye ekle
-                                    storedFavoriler.push({
-                                      id: ilan.id,
-                                      baslik: ilan.baslik,
-                                      fiyat: ilan.fiyat,
-                                      ana_resim: ilan.ana_resim,
-                                      kategori_ad: ilan.kategori_ad,
-                                      il_ad: ilan.il_ad,
-                                      goruntulenme: ilan.goruntulenme,
-                                      created_at: ilan.created_at,
-                                      resimler: ilan.resimler,
-                                      resim_sayisi: ilan.resim_sayisi,
-                                      fiyat_tipi: ilan.fiyat_tipi,
-                                    });
+                                  const userStr = localStorage.getItem('user');
+                                  if (!userStr) {
+                                    alert('لطفاً ابتدا وارد شوید');
+                                    return;
                                   }
+
+                                  const user = JSON.parse(userStr);
+                                  const isFavorite = favoriler.includes(ilan.id);
                                   
-                                  localStorage.setItem('favoriler', JSON.stringify(storedFavoriler));
-                                  window.dispatchEvent(new Event('favoriGuncelle'));
+                                  try {
+                                    if (isFavorite) {
+                                      // Favoriden çıkar
+                                      await fetch(`/api/favoriler?ilanId=${ilan.id}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                          'x-user-id': user.id.toString()
+                                        }
+                                      });
+                                      setFavoriler(prev => prev.filter(id => id !== ilan.id));
+                                    } else {
+                                      // Favoriye ekle
+                                      await fetch('/api/favoriler', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          'x-user-id': user.id.toString()
+                                        },
+                                        body: JSON.stringify({ ilanId: ilan.id })
+                                      });
+                                      setFavoriler(prev => [...prev, ilan.id]);
+                                    }
+                                    
+                                    window.dispatchEvent(new Event('favoriGuncelle'));
+                                  } catch (error) {
+                                    console.error('Favori işlemi hatası:', error);
+                                  }
                                 }}
                                 className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
                               >

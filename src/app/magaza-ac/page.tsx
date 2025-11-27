@@ -103,32 +103,65 @@ export default function MagazaAcPage() {
 
     const selectedPaketData = paketler.find(p => p.id === selectedPaket);
     
-    // Mağaza bilgilerini localStorage'a kaydet (ödeme sonrası kullanmak için)
-    localStorage.setItem('magazaBilgileri', JSON.stringify({
-      kullanici_id: user?.id,
-      magaza_ad: formData.magaza_ad,
-      magaza_ad_dari: formData.magaza_ad_dari,
-      aciklama: formData.aciklama,
-      adres: formData.adres,
-      paket_id: selectedPaket,
-      store_level: selectedPaketData?.store_level,
-      onay_durumu: 'beklemede', // Admin onayı bekliyor
-      logo: logoPreview,
-      kapak_resmi: kapakPreview
-    }));
-    
-    // Header'ı güncelle
-    window.dispatchEvent(new Event('magazaGuncelle'));
-    
     // Basic paket ücretsiz, direkt oluştur
     if (selectedPaketData?.fiyat === 0) {
       setLoading(true);
-      // Burada mağaza oluşturma API'si çağrılacak
-      setTimeout(() => {
-        alert('✅ مغازه شما با موفقیت ایجاد شد و در انتظار تأیید است!');
-        router.push('/magazam');
-      }, 2000);
+      
+      try {
+        // Mağazayı API'ye kaydet
+        const response = await fetch('/api/magaza-olustur', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-user-id': user?.id.toString() || ''
+          },
+          body: JSON.stringify({
+            magaza_ad: formData.magaza_ad,
+            magaza_ad_dari: formData.magaza_ad_dari,
+            aciklama: formData.aciklama,
+            adres: formData.adres,
+            logo: logoPreview,
+            kapak_resmi: kapakPreview,
+            store_level: selectedPaketData?.store_level || 'basic',
+            paket_id: selectedPaket
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          // localStorage'ı temizle
+          localStorage.removeItem('magazaBilgileri');
+          
+          // Header'ı güncelle
+          window.dispatchEvent(new Event('magazaGuncelle'));
+          
+          alert('✅ مغازه شما با موفقیت ایجاد شد و در انتظار تأیید است!');
+          router.push('/magazam');
+        } else {
+          alert('خطا در ایجاد مغازه: ' + (data.message || ''));
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Mağaza oluşturma hatası:', error);
+        alert('خطا در ایجاد مغازه');
+        setLoading(false);
+      }
     } else {
+      // Ücretli paket için mağaza bilgilerini localStorage'a geçici kaydet
+      localStorage.setItem('magazaBilgileri', JSON.stringify({
+        kullanici_id: user?.id,
+        magaza_ad: formData.magaza_ad,
+        magaza_ad_dari: formData.magaza_ad_dari,
+        aciklama: formData.aciklama,
+        adres: formData.adres,
+        paket_id: selectedPaket,
+        store_level: selectedPaketData?.store_level,
+        onay_durumu: 'beklemede',
+        logo: logoPreview,
+        kapak_resmi: kapakPreview
+      }));
+      
       // Ücretli paket - Animasyonlu yönlendirme
       setRedirecting(true);
       setTimeout(() => {
