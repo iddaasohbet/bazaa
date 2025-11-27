@@ -71,6 +71,9 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
       const response = await fetch(`/api/ilanlar/${resolvedParams.id}`);
       const data = await response.json();
       if (data.success) {
+        console.log('🔍 İlan Detay - İlan verisi:', data.data);
+        console.log('🏪 İlan Detay - Mağaza ID:', data.data.magaza_id);
+        console.log('⭐ İlan Detay - Store Level:', data.data.store_level);
         setIlan(data.data);
         // Benzer ilanları yükle
         fetchBenzerIlanlar(data.data.kategori_slug);
@@ -411,12 +414,15 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                       {/* Mağaza Bilgileri */}
                       <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4 mb-3">
                         <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
+                          <Link 
+                            href={`/magaza/${ilan.magaza_id}`}
+                            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                          >
                             <Store className="h-5 w-5 text-purple-600" />
                             <div className="font-bold text-purple-900">
                               {ilan.magaza_ad || 'مغازه رسمی'}
                             </div>
-                          </div>
+                          </Link>
                           {/* Doğrulama Rozeti - Sadece Ücretli Paketler */}
                           {(ilan.store_level === 'elite' || ilan.store_level === 'pro') && (
                             <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
