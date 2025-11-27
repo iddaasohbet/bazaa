@@ -12,7 +12,7 @@ const dbConfig = {
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  ssl: false, // CPanel MySQL SSL desteklemiyor
+  // ssl: undefined - CPanel MySQL SSL desteklemiyor, property kaldırıldı
   connectTimeout: 30000,
   multipleStatements: false,
 };
