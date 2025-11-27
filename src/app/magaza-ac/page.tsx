@@ -403,8 +403,9 @@ export default function MagazaAcPage() {
                     <p className="text-sm text-gray-600">بهترین پکیج را برای رشد کسب و کار خود انتخاب کنید</p>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {paketler.map((paket) => (
+                  {/* Ücretli Paketler - Üstte */}
+                  <div className="grid md:grid-cols-3 gap-6 mb-6">
+                    {paketler.filter(p => p.fiyat > 0).map((paket) => (
                       <div
                         key={paket.id}
                         onClick={() => setSelectedPaket(paket.id)}
@@ -434,20 +435,14 @@ export default function MagazaAcPage() {
 
                           {/* Price */}
                           <div className="text-center mb-6 py-4 bg-white rounded-xl border-2 border-gray-200">
-                            {paket.fiyat === 0 ? (
-                              <div className="text-3xl font-bold text-green-600">رایگان</div>
-                            ) : (
-                              <>
-                                <div className="text-3xl font-bold text-gray-900" dir="ltr">
-                                  {paket.fiyat.toLocaleString('fa-AF')}
-                                  <span className="text-lg text-gray-500 mr-1">AFN</span>
-                                </div>
-                                {paket.sure_ay === 3 && (
-                                  <div className="text-xs text-green-600 font-bold mt-1">
-                                    ۳۰٪ تخفیف ✓
-                                  </div>
-                                )}
-                              </>
+                            <div className="text-3xl font-bold text-gray-900" dir="ltr">
+                              {paket.fiyat.toLocaleString('fa-AF')}
+                              <span className="text-lg text-gray-500 mr-1">AFN</span>
+                            </div>
+                            {paket.sure_ay === 3 && (
+                              <div className="text-xs text-green-600 font-bold mt-1">
+                                ۳۰٪ تخفیف ✓
+                              </div>
                             )}
                           </div>
 
@@ -466,6 +461,46 @@ export default function MagazaAcPage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Ücretsiz Paket - Alt Köşede */}
+                  {paketler.filter(p => p.fiyat === 0).map((paket) => (
+                    <div key={paket.id} className="flex justify-end">
+                      <div
+                        onClick={() => setSelectedPaket(paket.id)}
+                        className={`cursor-pointer rounded-lg border-2 transition-all hover:scale-105 w-full md:w-64 ${
+                          selectedPaket === paket.id
+                            ? 'border-green-500 bg-green-50 shadow-md scale-105'
+                            : 'border-gray-200 bg-white hover:border-green-300 shadow-sm'
+                        }`}
+                      >
+                        <div className="p-5">
+                          {/* Title */}
+                          <div className="text-center mb-3">
+                            <div className="text-lg font-bold text-gray-900 mb-1">{paket.ad_dari}</div>
+                            <div className="text-xs text-gray-500">رایگان برای همیشه</div>
+                          </div>
+
+                          {/* Price */}
+                          <div className="text-center mb-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                            <div className="text-2xl font-bold text-green-600">رایگان</div>
+                            <div className="text-xs text-green-700 mt-1">بدون نیاز به پرداخت</div>
+                          </div>
+
+                          {/* Select Button */}
+                          <button
+                            type="button"
+                            className={`w-full py-2 rounded-lg font-semibold transition-all text-sm ${
+                              selectedPaket === paket.id
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            {selectedPaket === paket.id ? '✓ انتخاب شده' : 'انتخاب رایگان'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
 
                   {/* Action Buttons */}
                   <div className="flex gap-4 pt-6 border-t border-gray-200">

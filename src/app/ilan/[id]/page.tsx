@@ -21,7 +21,9 @@ import {
   Copy,
   Check,
   Store,
-  Package
+  Package,
+  BadgeCheck,
+  ShieldCheck
 } from "lucide-react";
 import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
 
@@ -408,14 +410,27 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                     <div className="mb-3">
                       {/* Mağaza Bilgileri */}
                       <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4 mb-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Store className="h-5 w-5 text-purple-600" />
-                          <div className="font-bold text-purple-900">
-                            {ilan.magaza_ad || 'مغازه رسمی'}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Store className="h-5 w-5 text-purple-600" />
+                            <div className="font-bold text-purple-900">
+                              {ilan.magaza_ad || 'مغازه رسمی'}
+                            </div>
                           </div>
+                          {/* Doğrulama Rozeti - Sadece Ücretli Paketler */}
+                          {(ilan.store_level === 'elite' || ilan.store_level === 'pro') && (
+                            <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
+                              ilan.store_level === 'elite'
+                                ? 'bg-gradient-to-r from-yellow-400 to-orange-400'
+                                : 'bg-gradient-to-r from-blue-500 to-indigo-500'
+                            }`}>
+                              <BadgeCheck className="h-4 w-4 text-white fill-white" />
+                              <span className="text-xs font-bold text-white">تأیید شده</span>
+                            </div>
+                          )}
                         </div>
                         {ilan.store_level && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
                               ilan.store_level === 'elite' 
                                 ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-md'
@@ -425,7 +440,12 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                             }`}>
                               {ilan.store_level === 'elite' ? '⭐ پریمیوم' : ilan.store_level === 'pro' ? '💎 پرو' : 'عادی'}
                             </span>
-                            <span className="text-xs text-purple-600">فروشنده تأیید شده</span>
+                            {(ilan.store_level === 'elite' || ilan.store_level === 'pro') && (
+                              <span className="flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">
+                                <ShieldCheck className="h-3 w-3" />
+                                فروشنده معتبر
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>

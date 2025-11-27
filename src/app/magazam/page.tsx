@@ -34,24 +34,13 @@ export default function MagazamPage() {
   const [magazaBilgileri, setMagazaBilgileri] = useState<MagazaBilgileri | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('ilanlar');
-
-  // Mock ilanlar
-  const mockIlanlar = [
-    {
-      id: 1,
-      baslik: 'iPhone 13 Pro 256GB',
-      fiyat: 25000,
-      ana_resim: 'https://bazaarewatan.com/images/691e14d188e11_1763579089_6711.jpg',
-      goruntulenme: 245,
-    },
-    {
-      id: 2,
-      baslik: 'MacBook Pro M1 2021',
-      fiyat: 45000,
-      ana_resim: 'https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg',
-      goruntulenme: 189,
-    },
-  ];
+  const [ilanlar, setIlanlar] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    aktifIlanlar: 0,
+    toplamGoruntulenme: 0,
+    toplamFavoriler: 0,
+    toplamMesajlar: 0
+  });
 
   useEffect(() => {
     checkMagaza();
@@ -72,7 +61,14 @@ export default function MagazamPage() {
       const data = await response.json();
       
       if (data.success && data.data && data.data.length > 0) {
-        setMagazaBilgileri(data.data[0]);
+        const magaza = data.data[0];
+        setMagazaBilgileri(magaza);
+        
+        // Mağazanın ilanlarını yükle
+        await fetchMagazaIlanlari(magaza.id);
+        
+        // İstatistikleri yükle
+        await fetchStats(userData.id);
       } else {
         // Mağaza yoksa yönlendir
         router.push('/magaza-ac');
@@ -82,6 +78,30 @@ export default function MagazamPage() {
       router.push('/magaza-ac');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMagazaIlanlari = async (magazaId: number) => {
+    try {
+      const response = await fetch(`/api/magazalar/${magazaId}/ilanlar`);
+      const data = await response.json();
+      if (data.success) {
+        setIlanlar(data.data);
+      }
+    } catch (error) {
+      console.error('İlanlar yüklenirken hata:', error);
+    }
+  };
+
+  const fetchStats = async (kullaniciId: number) => {
+    try {
+      const response = await fetch(`/api/istatistikler?kullanici_id=${kullaniciId}`);
+      const data = await response.json();
+      if (data.success) {
+        setStats(data.data);
+      }
+    } catch (error) {
+      console.error('İstatistikler yüklenirken hata:', error);
     }
   };
 
@@ -276,19 +296,19 @@ export default function MagazamPage() {
           <div className="grid grid-cols-4 gap-6 mb-8" dir="rtl">
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="text-sm text-gray-500 mb-1">آگهی‌های فعال</div>
-              <div className="text-3xl font-bold text-gray-900">12</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.aktifIlanlar}</div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="text-sm text-gray-500 mb-1">بازدید کل</div>
-              <div className="text-3xl font-bold text-gray-900">1,234</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.toplamGoruntulenme.toLocaleString('fa-AF')}</div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="text-sm text-gray-500 mb-1">علاقه‌مندی</div>
-              <div className="text-3xl font-bold text-gray-900">45</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.toplamFavoriler}</div>
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="text-sm text-gray-500 mb-1">پیام‌ها</div>
-              <div className="text-3xl font-bold text-gray-900">8</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.toplamMesajlar}</div>
             </div>
           </div>
 
@@ -334,34 +354,48 @@ export default function MagazamPage() {
                     </Link>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {mockIlanlar.map((ilan) => (
-                      <Link key={ilan.id} href={`/ilan/${ilan.id}`} className="group">
-                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-gray-400 hover:shadow-md transition-all">
-                          <div className="relative aspect-square bg-gray-100">
-                            <Image
-                              src={getImageUrl(ilan.ana_resim)}
-                              alt={ilan.baslik}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="p-3">
-                            <h4 className="font-medium text-gray-900 mb-1 line-clamp-2 text-sm">
-                              {ilan.baslik}
-                            </h4>
-                            <div className="text-base font-bold text-gray-900 mb-2">
-                              {formatPrice(ilan.fiyat)}
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              <Eye className="h-3 w-3" />
-                              <span>{ilan.goruntulenme} بازدید</span>
-                            </div>
-                          </div>
-                        </div>
+                  {ilanlar.length === 0 ? (
+                    <div className="bg-gray-50 rounded-lg border border-gray-200 p-16 text-center">
+                      <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-4">هنوز آگهی اضافه نکرده‌اید</p>
+                      <Link
+                        href="/ilan-ver"
+                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg transition-all"
+                      >
+                        <Package className="h-4 w-4" />
+                        اولین آگهی را اضافه کنید
                       </Link>
-                    ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {ilanlar.map((ilan) => (
+                        <Link key={ilan.id} href={`/ilan/${ilan.id}`} className="group">
+                          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-gray-400 hover:shadow-md transition-all">
+                            <div className="relative aspect-square bg-gray-100">
+                              <Image
+                                src={getImageUrl(ilan.ana_resim)}
+                                alt={ilan.baslik}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="p-3">
+                              <h4 className="font-medium text-gray-900 mb-1 line-clamp-2 text-sm">
+                                {ilan.baslik}
+                              </h4>
+                              <div className="text-base font-bold text-gray-900 mb-2">
+                                {formatPrice(ilan.fiyat)}
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <Eye className="h-3 w-3" />
+                                <span>{ilan.goruntulenme} بازدید</span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
