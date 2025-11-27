@@ -6,6 +6,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const kullaniciId = searchParams.get('kullanici_id');
 
+    console.log('🔍 API /magazalar - Gelen kullanici_id:', kullaniciId);
+
     let sql = `
       SELECT 
         m.*,
@@ -20,11 +22,20 @@ export async function GET(request: NextRequest) {
     if (kullaniciId) {
       sql += ' AND m.kullanici_id = ?';
       params.push(kullaniciId);
+      console.log('✅ API /magazalar - Kullanıcı filtrelemesi eklendi:', kullaniciId);
+    } else {
+      console.log('⚠️ API /magazalar - kullanici_id YOK! Boş array dönüyoruz.');
+      // Güvenlik: kullanici_id yoksa boş döndür, tüm mağazaları gösterme
+      return NextResponse.json({
+        success: true,
+        data: [],
+      });
     }
 
     sql += ' ORDER BY m.created_at DESC';
 
     const magazalar = await query(sql, params);
+    console.log('📦 API /magazalar - Bulunan mağaza sayısı:', Array.isArray(magazalar) ? magazalar.length : 0);
 
     return NextResponse.json({
       success: true,

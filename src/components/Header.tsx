@@ -133,10 +133,15 @@ export default function Header() {
           const user = localStorage.getItem('user');
           if (user) {
             const userData = JSON.parse(user);
+            console.log('🔍 Header - Kullanıcı ID:', userData.id);
             // Kullanıcının mağazasını API'den kontrol et
             const response = await fetch(`/api/magazalar?kullanici_id=${userData.id}`);
             const data = await response.json();
+            console.log('📦 Header - API Response:', data);
             if (data.success && data.data && data.data.length > 0) {
+              console.log('✅ Header - Mağaza bulundu:', data.data[0]);
+              console.log('🏪 Header - Mağaza ID:', data.data[0].id);
+              console.log('👤 Header - Mağaza Kullanıcı ID:', data.data[0].kullanici_id);
               setHasMagaza(true);
               setMagazaId(data.data[0].id); // Mağaza ID'sini kaydet
             } else {
