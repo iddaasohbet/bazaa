@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       params
     );
 
-    const reklam = Array.isArray(reklamlar) && reklamlar.length > 0 ? reklamlar[0] : null;
+    const reklam: any = Array.isArray(reklamlar) && reklamlar.length > 0 ? reklamlar[0] : null;
 
     // Görüntülenme sayısını artır
     if (reklam) {

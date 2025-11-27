@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       [email]
     );
 
-    const user = Array.isArray(users) && users.length > 0 ? users[0] : null;
+    const user: any = Array.isArray(users) && users.length > 0 ? users[0] : null;
 
     if (!user) {
       return NextResponse.json(

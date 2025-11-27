@@ -16,7 +16,7 @@ export async function GET(
       [parseInt(id)]
     );
 
-    const magaza = Array.isArray(magazaData) && magazaData.length > 0 ? magazaData[0] : null;
+    const magaza: any = Array.isArray(magazaData) && magazaData.length > 0 ? magazaData[0] : null;
 
     if (!magaza) {
       return NextResponse.json(

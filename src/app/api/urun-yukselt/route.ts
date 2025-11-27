@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       'SELECT kullanici_id FROM ilanlar WHERE id = ?',
       [ilan_id]
     );
-    const ilan = Array.isArray(ilanData) && ilanData.length > 0 ? ilanData[0] : null;
+    const ilan: any = Array.isArray(ilanData) && ilanData.length > 0 ? ilanData[0] : null;
 
     if (!ilan || (ilan as any).kullanici_id !== kullanici_id) {
       return NextResponse.json(

@@ -22,7 +22,7 @@ export async function GET(
       [parseInt(id)]
     );
 
-    const odeme = Array.isArray(odemeData) && odemeData.length > 0 ? odemeData[0] : null;
+    const odeme: any = Array.isArray(odemeData) && odemeData.length > 0 ? odemeData[0] : null;
 
     if (!odeme) {
       return NextResponse.json(
@@ -72,7 +72,7 @@ export async function PATCH(
     // Eğer ödeme tamamlandıysa, ilgili servisi aktifleştir
     if (odeme_durumu === 'tamamlandi') {
       const odemeData = await query('SELECT * FROM odemeler WHERE id = ?', [parseInt(id)]);
-      const odeme = Array.isArray(odemeData) && odemeData.length > 0 ? odemeData[0] : null;
+      const odeme: any = Array.isArray(odemeData) && odemeData.length > 0 ? odemeData[0] : null;
 
       if (odeme) {
         await aktivasyonYap(odeme);
