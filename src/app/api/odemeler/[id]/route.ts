@@ -137,7 +137,7 @@ async function aktivasyonYap(odeme: any) {
           'SELECT * FROM urun_yukseltme_gecmisi WHERE id = ?',
           [odeme.iliskili_id]
         );
-        const yukseltme = Array.isArray(yukseltmeData) && yukseltmeData.length > 0 ? yukseltmeData[0] : null;
+        const yukseltme: any = Array.isArray(yukseltmeData) && yukseltmeData.length > 0 ? yukseltmeData[0] : null;
 
         if (yukseltme) {
           if (yukseltme.yukseltme_turu === 'onecikan') {
