@@ -94,3 +94,4 @@ SELECT COUNT(*) as 'Toplam İlan' FROM ilanlar WHERE aktif = TRUE;
 SELECT COUNT(*) as 'Toplam Mağaza' FROM magazalar WHERE aktif = TRUE;
 SELECT COUNT(*) as 'Toplam Kullanıcı' FROM kullanicilar WHERE aktif = TRUE;
 
+

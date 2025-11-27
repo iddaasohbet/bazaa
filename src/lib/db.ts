@@ -12,7 +12,7 @@ const dbConfig = {
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  ssl: { rejectUnauthorized: false },
+  ssl: false, // CPanel MySQL SSL desteklemiyor
   connectTimeout: 30000,
   multipleStatements: false,
 };
