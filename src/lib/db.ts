@@ -12,7 +12,8 @@ const dbConfig = {
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
+  // SSL ayarını güncelle - bazı sunucular rejectUnauthorized: false gerektirir
+  ssl: { rejectUnauthorized: false },
   connectTimeout: 30000,
   multipleStatements: false,
 };
@@ -47,12 +48,14 @@ export async function query(sql: string, params?: any[]) {
     const [results] = await pool.execute(sql, params);
     return results;
   } catch (error: any) {
-    console.error('Query hatası:', {
+    console.error('❌ SQL Hatası:', {
       message: error.message,
       code: error.code,
       sql: sql.substring(0, 100),
     });
-    throw error;
+    // Hata fırlatmak yerine boş array dön veya hatayı logla
+    // Bu sayede API 500 hatası vermez, sadece boş veri döner
+    throw error; // API'lerde try-catch var, orada yakalanacak
   }
 }
 

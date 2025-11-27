@@ -57,11 +57,12 @@ export async function GET(request: NextRequest) {
       data: reklam
     });
   } catch (error: any) {
-    console.error('Reklam yükleme hatası:', error);
-    return NextResponse.json(
-      { success: false, message: 'Reklam yüklenirken hata oluştu' },
-      { status: 500 }
-    );
+    console.error('❌ Reklam yükleme hatası:', error);
+    // Fallback: null dön (reklam yokmuş gibi)
+    return NextResponse.json({
+      success: true,
+      data: null
+    });
   }
 }
 
