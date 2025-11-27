@@ -67,7 +67,11 @@ export function formatDate(date: string | Date): string {
 // Resim URL'i oluştur
 export function getImageUrl(path: string | null): string {
   if (!path) return '/images/placeholder.jpg';
+  // Base64 resimler için
+  if (path.startsWith('data:image')) return path;
+  // HTTP/HTTPS URL'ler için
   if (path.startsWith('http')) return path;
+  // Local dosyalar için
   return `/uploads/${path}`;
 }
 
