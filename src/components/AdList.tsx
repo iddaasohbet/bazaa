@@ -1,0 +1,238 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { MapPin, Eye, Clock, Heart } from "lucide-react";
+import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+
+interface Ilan {
+  id: number;
+  baslik: string;
+  fiyat: number;
+  fiyat_tipi: string;
+  ana_resim: string;
+  kategori_ad: string;
+  kategori_slug: string;
+  il_ad: string;
+  durum: string;
+  goruntulenme: number;
+  created_at: string;
+  resimler?: string[];
+  resim_sayisi: number;
+}
+
+export default function AdList() {
+  const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [favoriler, setFavoriler] = useState<number[]>([]);
+
+  useEffect(() => {
+    fetchIlanlar();
+    loadFavoriler();
+    
+    // Favori güncellemelerini dinle
+    const handleFavoriUpdate = () => {
+      loadFavoriler();
+    };
+    
+    window.addEventListener('favoriGuncelle', handleFavoriUpdate);
+    return () => window.removeEventListener('favoriGuncelle', handleFavoriUpdate);
+  }, []);
+
+  const loadFavoriler = () => {
+    const favoriData = JSON.parse(localStorage.getItem('favoriler') || '[]');
+    const favoriIds = favoriData.map((f: any) => f.id);
+    setFavoriler(favoriIds);
+  };
+
+  const fetchIlanlar = async (loadMore = false) => {
+    try {
+      if (loadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+
+      const currentOffset = loadMore ? offset : 0;
+      const response = await fetch(`/api/ilanlar?limit=24&offset=${currentOffset}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        if (loadMore) {
+          setIlanlar(prev => [...prev, ...data.data]);
+        } else {
+          setIlanlar(data.data);
+        }
+        
+        setOffset(currentOffset + 24);
+        setHasMore(data.data.length === 24);
+      }
+    } catch (error) {
+      console.error('خطا در بارگذاری آگهی ها:', error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const durumBadges: { [key: string]: { text: string; color: string } } = {
+    'yeni': { text: 'نو', color: 'bg-green-100 text-green-700' },
+    'az_kullanilmis': { text: 'کم استفاده', color: 'bg-blue-100 text-blue-700' },
+    'kullanilmis': { text: 'استفاده شده', color: 'bg-gray-100 text-gray-700' },
+    'hasarli': { text: 'آسیب دیده', color: 'bg-red-100 text-red-700' },
+  };
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(12)].map((_, i) => (
+          <div key={i} className="card animate-pulse">
+            <div className="aspect-video bg-gray-200"></div>
+            <div className="p-4 space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-3 bg-gray-200 rounded w-full"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (ilanlar.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="text-6xl mb-4">📦</div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">هنوز آگهی ای وجود ندارد</h3>
+        <p className="text-gray-600 mb-6">اولین آگهی را شما ثبت کنید!</p>
+        <Link href="/ilan-ver" className="btn-primary inline-block">
+          ثبت آگهی
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {ilanlar.map((ilan, index) => {
+          const durumBadge = durumBadges[ilan.durum] || durumBadges['kullanilmis'];
+          
+          return (
+            <motion.div
+              key={ilan.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Link href={`/ilan/${ilan.id}`} className="group block h-full">
+                <div className="overflow-hidden rounded-xl bg-white border border-gray-200 transition-all hover:shadow-xl hover:border-blue-300 h-full flex flex-col">
+                  {/* Image */}
+                  <div className="relative aspect-video bg-gray-100 overflow-hidden">
+                    <Image
+                      src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
+                      alt={ilan.baslik}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                    
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Badge */}
+                    <div className="absolute top-2 left-2">
+                      <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
+                        {ilan.kategori_ad}
+                      </span>
+                    </div>
+                    
+                              {/* Favorite Button */}
+                              <button 
+                                onClick={(e) => { 
+                                  e.preventDefault(); 
+                                  e.stopPropagation();
+                                  
+                                  // Favorilere ekle/çıkar
+                                  const storedFavoriler = JSON.parse(localStorage.getItem('favoriler') || '[]');
+                                  const ilanIndex = storedFavoriler.findIndex((f: any) => f.id === ilan.id);
+                                  
+                                  if (ilanIndex > -1) {
+                                    // Favoriden çıkar
+                                    storedFavoriler.splice(ilanIndex, 1);
+                                  } else {
+                                    // Favoriye ekle
+                                    storedFavoriler.push({
+                                      id: ilan.id,
+                                      baslik: ilan.baslik,
+                                      fiyat: ilan.fiyat,
+                                      ana_resim: ilan.ana_resim,
+                                      kategori_ad: ilan.kategori_ad,
+                                      il_ad: ilan.il_ad,
+                                      goruntulenme: ilan.goruntulenme,
+                                      created_at: ilan.created_at,
+                                      resimler: ilan.resimler,
+                                      resim_sayisi: ilan.resim_sayisi,
+                                      fiyat_tipi: ilan.fiyat_tipi,
+                                    });
+                                  }
+                                  
+                                  localStorage.setItem('favoriler', JSON.stringify(storedFavoriler));
+                                  window.dispatchEvent(new Event('favoriGuncelle'));
+                                }}
+                                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
+                              >
+                                <Heart className={`h-4 w-4 transition-colors ${
+                                  favoriler.includes(ilan.id)
+                                    ? 'text-red-500 fill-red-500' 
+                                    : 'text-gray-600'
+                                }`} />
+                              </button>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-3 flex-1 flex flex-col">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight group-hover:text-blue-600 transition-colors">
+                      {ilan.baslik}
+                    </h3>
+                    
+                    <div className="flex items-baseline gap-1 mb-3">
+                      <span className="text-lg font-bold text-blue-600">
+                        {formatPrice(ilan.fiyat)}
+                      </span>
+                    </div>
+
+                    <div className="mt-auto space-y-2 text-xs text-gray-600">
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
+                        <span className="truncate">{ilan.il_ad}</span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                        <div className="flex items-center gap-1">
+                          <Eye className="h-3.5 w-3.5 text-gray-400" />
+                          <span>{ilan.goruntulenme}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5 text-gray-400" />
+                          <span>{formatDate(ilan.created_at)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
+
+    </div>
+  );
+}
+
