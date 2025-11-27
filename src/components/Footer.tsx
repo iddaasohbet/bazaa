@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Download } from "lucide-react";
+import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Download, Store } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -50,10 +50,23 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About */}
           <div>
-            <div className="mb-4">
-              <span className="text-2xl font-bold text-gray-900">Afghanistan</span>
-              <span className="text-2xl font-bold text-blue-600">.</span>
-            </div>
+            <Link href="/" className="flex items-center gap-3 mb-4 group">
+              {/* Icon */}
+              <div className="relative w-12 h-12">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-xl rotate-6 group-hover:rotate-12 transition-transform duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <Store className="h-7 w-7 text-white" />
+                </div>
+              </div>
+              {/* Text */}
+              <div className="flex flex-col">
+                <div className="flex items-center">
+                  <span className="text-2xl font-bold text-gray-900">Bazaare</span>
+                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Watan</span>
+                </div>
+                <span className="text-xs text-gray-500">بازار وطن</span>
+              </div>
+            </Link>
             <p className="text-sm text-gray-600 mb-4">
               معتبرترین پلتفرم آگهی در افغانستان. کالای دست دوم، خودرو، املاک و بیشتر.
             </p>

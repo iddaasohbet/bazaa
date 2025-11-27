@@ -67,6 +67,7 @@ const baseIlanDetay = [
     kullanici_telefon: '+93 700 345 678',
     magaza_id: 1, // Mağazası var
     store_level: 'elite',
+    magaza_ad: 'فروشگاه الکترونیک احمد',
     resimler: [
       'https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg',
       'https://bazaarewatan.com/images/691e1a347a648_1763580468_4652.jpg',
@@ -128,6 +129,7 @@ const baseIlanDetay = [
     kullanici_telefon: '+93 700 678 901',
     magaza_id: 1, // Mağazası var
     store_level: 'elite',
+    magaza_ad: 'مغازه تکنولوژی کابل',
     resimler: ['https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg'],
   },
 ];

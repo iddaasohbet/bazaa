@@ -108,10 +108,18 @@ export default function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 lg:h-18">
             {/* Logo */}
-            <Link href="/" className="flex items-center mr-6 lg:mr-8">
+            <Link href="/" className="flex items-center gap-3 mr-6 lg:mr-8 group">
+              {/* Icon */}
+              <div className="relative w-10 h-10 lg:w-12 lg:h-12">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-xl rotate-6 group-hover:rotate-12 transition-transform duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <Store className="h-6 w-6 lg:h-7 lg:w-7 text-white" />
+                </div>
+              </div>
+              {/* Text */}
               <div className="flex items-center">
-                <span className="text-2xl lg:text-3xl font-bold text-gray-900">Afghanistan</span>
-                <span className="text-2xl lg:text-3xl font-bold text-blue-600">.</span>
+                <span className="text-xl lg:text-2xl font-bold text-gray-900">Bazaare</span>
+                <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Watan</span>
               </div>
             </Link>
 
@@ -263,50 +271,119 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Sidebar Style */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-50 lg:hidden">
           {/* Backdrop */}
           <div 
-            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileMenuOpen(false)}
           />
           
-          {/* Menu Panel */}
-          <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto">
-            <div className="container mx-auto px-4 py-4">
-              {/* İlan Ver - Mobile */}
-              <Link
-                href="/ilan-ver"
-                className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white px-5 py-3 rounded-lg font-semibold mb-4 sm:hidden"
+          {/* Menu Panel - SOLDAN AÇILAN */}
+          <div className="absolute top-0 left-0 h-full w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-out overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between border-b border-blue-500 z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Store className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-white font-bold text-lg">BazaareWatan</div>
+                  <div className="text-blue-100 text-xs">بازار وطن</div>
+                </div>
+              </div>
+              <button
                 onClick={() => setMobileMenuOpen(false)}
+                className="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
               >
-                <Plus className="h-5 w-5" />
-                <span>ثبت آگهی</span>
-              </Link>
+                <X className="h-6 w-6 text-white" />
+              </button>
+            </div>
+
+            <div className="px-4 py-6">
+              {/* User Section */}
+              <div className="mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+                {isAuthenticated ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                      <User className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-gray-900">{userName}</div>
+                      <Link href="/profilim" className="text-sm text-blue-600 hover:underline">
+                        مشاهده پروفایل
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    href="/giris"
+                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <User className="h-5 w-5" />
+                    <span>ورود / ثبت نام</span>
+                  </Link>
+                )}
+              </div>
+
+              {/* Quick Actions */}
+              <div className="mb-6 space-y-3">
+                <Link
+                  href="/ilan-ver"
+                  className="flex items-center gap-3 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-5 py-3.5 rounded-xl font-bold transition-all shadow-lg"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Plus className="h-5 w-5" />
+                  <span>ثبت آگهی جدید</span>
+                </Link>
+                
+                {hasMagaza ? (
+                  <Link
+                    href="/magazam"
+                    className="flex items-center gap-3 w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-5 py-3.5 rounded-xl font-bold transition-all shadow-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Store className="h-5 w-5" />
+                    <span>مغازه من</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/magaza-ac"
+                    className="flex items-center gap-3 w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-5 py-3.5 rounded-xl font-bold transition-all shadow-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Plus className="h-5 w-5" />
+                    <span>افتتاح مغازه</span>
+                  </Link>
+                )}
+              </div>
 
               {/* Kategoriler */}
-              <div className="mb-4">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2">
+              <div className="mb-6">
+                <div className="text-sm font-bold text-gray-900 mb-3 px-2 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-blue-600" />
                   دسته بندی ها
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
                   {kategoriler.map((kat) => (
                     <Link
                       key={kat.href}
                       href={kat.href}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors group"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <span>{kat.icon}</span>
-                      <span className="text-sm font-medium text-gray-700">{kat.label}</span>
+                      <span className="text-2xl">{kat.icon}</span>
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">{kat.label}</span>
+                      <ChevronDown className="h-4 w-4 text-gray-400 mr-auto -rotate-90" />
                     </Link>
                   ))}
                 </div>
               </div>
 
               {/* Diğer Linkler */}
-              <div className="border-t border-gray-200 pt-3 space-y-1">
+              <div className="border-t border-gray-200 pt-4 space-y-1">
                 <Link
                   href="/"
                   className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"

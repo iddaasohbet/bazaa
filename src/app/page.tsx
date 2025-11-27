@@ -7,6 +7,8 @@ import FeaturedAds from "@/components/FeaturedAds";
 import VitrinAds from "@/components/VitrinAds";
 import BannerReklam from "@/components/BannerReklam";
 import SponsorluMagazalar from "@/components/SponsorluMagazalar";
+import EliteIlanlar from "@/components/EliteIlanlar";
+import ProIlanlar from "@/components/ProIlanlar";
 import AdList from "@/components/AdList";
 
 export default function Home() {
@@ -44,8 +46,15 @@ export default function Home() {
               <Sidebar />
             </div>
 
-            {/* Main Content Area - Ads List */}
+            {/* Main Content Area - Elite + Pro + Normal Ads */}
             <div className="flex-1 min-w-0">
+              {/* Elite Mağaza İlanları - %100 */}
+              <EliteIlanlar />
+              
+              {/* Pro Mağaza İlanları - %25 */}
+              <ProIlanlar />
+              
+              {/* Normal İlanlar */}
               <AdList />
             </div>
           </div>

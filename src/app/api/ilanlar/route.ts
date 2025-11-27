@@ -38,6 +38,7 @@ const baseIlanlar = [
     resimler: ['https://bazaarewatan.com/images/691e14d188e11_1763579089_6711.jpg'],
     resim_sayisi: 1,
     store_level: 'pro',
+    magaza_ad: 'مغازه موبایل هرات',
   },
   {
     id: 3,
@@ -58,6 +59,7 @@ const baseIlanlar = [
     resimler: ['https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg'],
     resim_sayisi: 1,
     store_level: 'elite',
+    magaza_ad: 'فروشگاه الکترونیک احمد',
   },
   {
     id: 4,
@@ -112,6 +114,7 @@ const baseIlanlar = [
     resimler: ['https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg'],
     resim_sayisi: 1,
     store_level: 'elite',
+    magaza_ad: 'مغازه تکنولوژی کابل',
   },
 ];
 
