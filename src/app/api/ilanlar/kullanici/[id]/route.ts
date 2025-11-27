@@ -1,47 +1,5 @@
 import { NextResponse } from 'next/server';
-
-// Base ilanlar
-const baseIlanlar = [
-  {
-    baslik: 'Toyota Corolla 2015 Model',
-    fiyat: 50000,
-    kategori_ad: 'Araçlar',
-    kategori_slug: 'araclar',
-    il_ad: 'Kabil',
-    durum: 'kullanilmis',
-    ana_resim: 'https://bazaarewatan.com/images/691e1a347a648_1763580468_4652.jpg',
-    goruntulenme: 245,
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    resimler: ['https://bazaarewatan.com/images/691e1a347a648_1763580468_4652.jpg'],
-    resim_sayisi: 1,
-  },
-  {
-    baslik: 'iPhone 13 Pro 256GB Mavi',
-    fiyat: 25000,
-    kategori_ad: 'Elektronik',
-    kategori_slug: 'elektronik',
-    il_ad: 'Herat',
-    durum: 'az_kullanilmis',
-    ana_resim: 'https://bazaarewatan.com/images/691e14d188e11_1763579089_6711.jpg',
-    goruntulenme: 189,
-    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    resimler: ['https://bazaarewatan.com/images/691e14d188e11_1763579089_6711.jpg'],
-    resim_sayisi: 1,
-  },
-  {
-    baslik: 'Samsung Smart TV 55"',
-    fiyat: 30000,
-    kategori_ad: 'Elektronik',
-    kategori_slug: 'elektronik',
-    il_ad: 'Kandahar',
-    durum: 'yeni',
-    ana_resim: 'https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg',
-    goruntulenme: 312,
-    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    resimler: ['https://bazaarewatan.com/images/691e08c04adbd_1763576000_5572.jpg'],
-    resim_sayisi: 1,
-  },
-];
+import { query } from '@/lib/db';
 
 export async function GET(
   request: Request,
@@ -49,26 +7,66 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const kullaniciId = resolvedParams.id;
+    const kullaniciId = parseInt(resolvedParams.id);
 
-    // Kullanıcının ilanlarını döndür (mock - 3 ilan)
-    const kullaniciIlanlari = baseIlanlar.map((ilan, index) => ({
-      ...ilan,
-      id: parseInt(kullaniciId) * 100 + index + 1,
-      kullanici_id: parseInt(kullaniciId),
-      fiyat_tipi: 'negotiable',
-    }));
+    console.log('📋 Kullanıcı ilanları getiriliyor, kullanici_id:', kullaniciId);
+
+    // Veritabanından kullanıcının ilanlarını çek
+    const ilanlar = await query(
+      `SELECT 
+        i.id,
+        i.baslik,
+        i.fiyat,
+        i.fiyat_tipi,
+        i.ana_resim,
+        i.durum,
+        i.goruntulenme,
+        i.created_at,
+        k.ad as kategori_ad,
+        il.ad as il_ad
+      FROM ilanlar i
+      LEFT JOIN kategoriler k ON i.kategori_id = k.id
+      LEFT JOIN iller il ON i.il_id = il.id
+      WHERE i.kullanici_id = ? AND i.aktif = TRUE
+      ORDER BY i.created_at DESC`,
+      [kullaniciId]
+    );
+
+    console.log(`✅ ${(ilanlar as any[]).length} ilan bulundu`);
+
+    // Her ilan için resimleri getir
+    const ilanlarWithImages = await Promise.all(
+      (ilanlar as any[]).map(async (ilan) => {
+        const resimler = await query(
+          'SELECT resim_url FROM ilan_resimleri WHERE ilan_id = ? ORDER BY sira',
+          [ilan.id]
+        ) as any[];
+        
+        return {
+          ...ilan,
+          resimler: resimler.map(r => r.resim_url),
+          resim_sayisi: resimler.length
+        };
+      })
+    );
+
+    // Kullanıcı bilgisini de getir
+    const kullanicilar = await query(
+      'SELECT id, ad FROM kullanicilar WHERE id = ?',
+      [kullaniciId]
+    );
+
+    const kullanici = Array.isArray(kullanicilar) && kullanicilar.length > 0 
+      ? kullanicilar[0] 
+      : { id: kullaniciId, ad: 'کاربر' };
 
     return NextResponse.json({
       success: true,
-      data: kullaniciIlanlari,
-      kullanici: {
-        id: kullaniciId,
-        ad: 'İlan Sahibi',
-      }
+      data: ilanlarWithImages,
+      kullanici
     });
   } catch (error: any) {
-    console.error('Kullanıcı ilanları yüklenirken hata:', error);
+    console.error('❌ Kullanıcı ilanları yüklenirken hata:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
