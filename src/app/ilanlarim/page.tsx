@@ -50,11 +50,19 @@ export default function Ilanlarim() {
 
   const fetchIlanlar = async () => {
     try {
-      // Mock ilanlar - kullanıcının ilanları
-      setTimeout(() => {
-        setIlanlar([]);
-        setLoading(false);
-      }, 500);
+      const user = localStorage.getItem('user');
+      if (!user) return;
+
+      const userData = JSON.parse(user);
+      
+      // API'den kullanıcının ilanlarını çek
+      const response = await fetch(`/api/ilanlar/kullanici/${userData.id}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setIlanlar(data.data || []);
+      }
+      setLoading(false);
     } catch (error) {
       console.error('İlanlar yüklenirken hata:', error);
       setLoading(false);
@@ -67,10 +75,25 @@ export default function Ilanlarim() {
     router.push('/');
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm('Bu ilanı silmek istediğinize emin misiniz?')) {
-      setIlanlar(prev => prev.filter(ilan => ilan.id !== id));
-      alert('İlan silindi');
+  const handleDelete = async (id: number) => {
+    if (confirm('این آگهی را حذف می‌کنید؟')) {
+      try {
+        const response = await fetch(`/api/ilanlar/${id}`, {
+          method: 'DELETE',
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setIlanlar(prev => prev.filter(ilan => ilan.id !== id));
+          alert('آگهی حذف شد');
+        } else {
+          alert('خطا در حذف آگهی');
+        }
+      } catch (error) {
+        console.error('İlan silme hatası:', error);
+        alert('خطا در حذف آگهی');
+      }
     }
   };
 
