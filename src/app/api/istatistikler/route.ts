@@ -11,33 +11,39 @@ export async function GET(request: NextRequest) {
       console.log('📊 Kullanıcı istatistikleri yükleniyor - ID:', kullaniciId);
       
       try {
-        // Aktif ilan sayısı ve toplam görüntülenme
+        // Aktif ilan sayısı ve toplam görüntülenme (kullanici_id VE magaza_id'ye göre)
         const ilanlarResult: any = await query(
-          'SELECT COUNT(*) as toplam, COALESCE(SUM(goruntulenme), 0) as toplamGoruntulenme FROM ilanlar WHERE kullanici_id = ? AND aktif = 1',
-          [kullaniciId]
+          `SELECT COUNT(*) as toplam, COALESCE(SUM(goruntulenme), 0) as toplamGoruntulenme 
+           FROM ilanlar 
+           WHERE (kullanici_id = ? OR magaza_id IN (SELECT id FROM magazalar WHERE kullanici_id = ?))
+           AND aktif = 1`,
+          [kullaniciId, kullaniciId]
         );
         const aktifIlanlar = Array.isArray(ilanlarResult) && ilanlarResult.length > 0 ? (ilanlarResult[0]?.toplam || 0) : 0;
         const toplamGoruntulenme = Array.isArray(ilanlarResult) && ilanlarResult.length > 0 ? (ilanlarResult[0]?.toplamGoruntulenme || 0) : 0;
         
-        console.log('✅ İlan stats:', { aktifIlanlar, toplamGoruntulenme });
+        console.log('✅ İlan stats:', { aktifIlanlar, toplamGoruntulenme, kullaniciId });
 
-        // Favori sayısı
+        // Favori sayısı (kullanıcının ilanlarına eklenen favoriler)
         const favorilerResult: any = await query(
-          'SELECT COUNT(*) as toplam FROM favoriler f JOIN ilanlar i ON f.ilan_id = i.id WHERE i.kullanici_id = ?',
-          [kullaniciId]
+          `SELECT COUNT(*) as toplam 
+           FROM favoriler f 
+           JOIN ilanlar i ON f.ilan_id = i.id 
+           WHERE (i.kullanici_id = ? OR i.magaza_id IN (SELECT id FROM magazalar WHERE kullanici_id = ?))`,
+          [kullaniciId, kullaniciId]
         );
         const toplamFavoriler = Array.isArray(favorilerResult) && favorilerResult.length > 0 ? (favorilerResult[0]?.toplam || 0) : 0;
         
-        console.log('✅ Favori stats:', { toplamFavoriler });
+        console.log('✅ Favori stats:', { toplamFavoriler, kullaniciId });
 
         // Mesaj sayısı (gelen mesajlar - okunmamış)
         const mesajlarResult: any = await query(
-          'SELECT COUNT(*) as toplam FROM mesajlar WHERE alici_id = ? AND okundu = 0',
+          'SELECT COUNT(*) as toplam FROM mesajlar WHERE alici_id = ?',
           [kullaniciId]
         );
         const toplamMesajlar = Array.isArray(mesajlarResult) && mesajlarResult.length > 0 ? (mesajlarResult[0]?.toplam || 0) : 0;
         
-        console.log('✅ Mesaj stats:', { toplamMesajlar });
+        console.log('✅ Mesaj stats:', { toplamMesajlar, kullaniciId });
 
         const statsData = {
           aktifIlanlar,

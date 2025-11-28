@@ -99,5 +99,97 @@ export async function GET(
   }
 }
 
+// Mağaza güncelle
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    
+    console.log('✏️ Mağaza güncelleme - ID:', id);
+    console.log('📝 Güncelleme verileri:', body);
+    
+    const {
+      ad,
+      ad_dari,
+      aciklama,
+      telefon,
+      adres,
+      il_id,
+      logo,
+      kapak_resmi,
+      banner,
+      tema_renk
+    } = body;
+
+    // Güncelleme sorgusu
+    let updateQuery = 'UPDATE magazalar SET updated_at = NOW()';
+    const params_list: any[] = [];
+
+    if (ad !== undefined) {
+      updateQuery += ', ad = ?';
+      params_list.push(ad);
+    }
+    if (ad_dari !== undefined) {
+      updateQuery += ', ad_dari = ?';
+      params_list.push(ad_dari);
+    }
+    if (aciklama !== undefined) {
+      updateQuery += ', aciklama = ?';
+      params_list.push(aciklama);
+    }
+    if (telefon !== undefined) {
+      updateQuery += ', telefon = ?';
+      params_list.push(telefon);
+    }
+    if (adres !== undefined) {
+      updateQuery += ', adres = ?';
+      params_list.push(adres);
+    }
+    if (il_id !== undefined) {
+      updateQuery += ', il_id = ?';
+      params_list.push(il_id);
+    }
+    if (logo !== undefined) {
+      updateQuery += ', logo = ?';
+      params_list.push(logo);
+    }
+    if (kapak_resmi !== undefined) {
+      updateQuery += ', kapak_resmi = ?';
+      params_list.push(kapak_resmi);
+    }
+    if (banner !== undefined) {
+      updateQuery += ', banner = ?';
+      params_list.push(banner);
+    }
+    if (tema_renk !== undefined) {
+      updateQuery += ', tema_renk = ?';
+      params_list.push(tema_renk);
+    }
+
+    updateQuery += ' WHERE id = ?';
+    params_list.push(parseInt(id));
+
+    console.log('🔄 SQL Query:', updateQuery);
+    
+    await query(updateQuery, params_list);
+
+    console.log('✅ Mağaza güncellendi!');
+
+    return NextResponse.json({
+      success: true,
+      message: 'مغازه با موفقیت به‌روزرسانی شد'
+    });
+  } catch (error: any) {
+    console.error('❌ Mağaza güncelleme hatası:', error);
+    return NextResponse.json(
+      { success: false, message: 'خطا در به‌روزرسانی مغازه: ' + error.message },
+      { status: 500 }
+    );
+  }
+}
+
 
 
