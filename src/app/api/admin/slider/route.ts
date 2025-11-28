@@ -4,7 +4,7 @@ import { query } from '@/lib/db';
 // GET - Tüm slider'ları getir (admin için)
 export async function GET() {
   try {
-    const sliders = await query(
+    const sliders: any = await query(
       `SELECT 
         s.*,
         i.baslik as ilan_baslik,

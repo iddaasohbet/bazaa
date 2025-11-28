@@ -4,7 +4,7 @@ import { query } from '@/lib/db';
 // GET - Aktif slider'ları getir
 export async function GET() {
   try {
-    const sliders = await query(
+    const sliders: any = await query(
       `SELECT 
         s.id, 
         s.ilan_id,
@@ -29,7 +29,7 @@ export async function GET() {
     );
 
     // İlan varsa ilan bilgilerini kullan, yoksa manuel bilgileri kullan
-    const processedSliders = sliders.map((slider: any) => ({
+    const processedSliders = (sliders as any[]).map((slider: any) => ({
       id: slider.id,
       baslik: slider.ilan_id ? slider.ilan_baslik : slider.baslik,
       aciklama: slider.ilan_id ? slider.ilan_aciklama : slider.aciklama,
