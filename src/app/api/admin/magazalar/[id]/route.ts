@@ -4,12 +4,12 @@ import { query } from '@/lib/db';
 // PUT - Mağaza güncelle
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
     const { vitrin_oncelik } = body;
-    const magazaId = params.id;
+    const { id: magazaId } = await params;
 
     if (!magazaId) {
       return NextResponse.json(

@@ -4,12 +4,12 @@ import { query } from '@/lib/db';
 // PUT - İlan güncelle
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
     const { onecikan } = body;
-    const ilanId = params.id;
+    const { id: ilanId } = await params;
 
     if (!ilanId) {
       return NextResponse.json(
