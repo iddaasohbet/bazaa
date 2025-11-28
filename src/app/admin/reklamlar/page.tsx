@@ -2,27 +2,38 @@
 
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
-import { BarChart3, Trash2, Eye, MousePointer, CheckCircle, XCircle, Clock, TrendingUp } from "lucide-react";
+import { Plus, Edit, Trash2, Tag, Eye, Calendar, ExternalLink, Image as ImageIcon } from "lucide-react";
 
 interface Reklam {
   id: number;
   baslik: string;
-  reklam_turu: string;
+  aciklama: string;
+  resim: string;
+  link: string;
   konum: string;
-  hedef_url: string;
   goruntulenme: number;
   tiklanma: number;
-  butce: number;
-  baslangic_tarihi: string;
-  bitis_tarihi: string;
   aktif: boolean;
-  onay_durumu: string;
+  baslangic: string;
+  bitis: string;
+  created_at: string;
 }
 
 export default function AdminReklamlarPage() {
   const [reklamlar, setReklamlar] = useState<Reklam[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("all");
+  const [showModal, setShowModal] = useState(false);
+  const [editingReklam, setEditingReklam] = useState<Reklam | null>(null);
+  const [formData, setFormData] = useState({
+    baslik: '',
+    aciklama: '',
+    resim: '',
+    link: '',
+    konum: 'header',
+    baslangic: '',
+    bitis: '',
+    aktif: true
+  });
 
   useEffect(() => {
     fetchReklamlar();
@@ -36,301 +47,391 @@ export default function AdminReklamlarPage() {
         setReklamlar(data.data);
       }
     } catch (error) {
-      console.error('Reklam listesi hatası:', error);
+      console.error('Reklam yükleme hatası:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOnayDurumu = async (id: number, durum: string) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
     try {
-      const response = await fetch(`/api/admin/reklamlar/${id}`, {
-        method: 'PATCH',
+      const url = '/api/admin/reklamlar';
+      const method = editingReklam ? 'PUT' : 'POST';
+      const body = editingReklam 
+        ? { ...formData, id: editingReklam.id }
+        : formData;
+
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ onay_durumu: durum, aktif: durum === 'onaylandi' })
+        body: JSON.stringify(body)
       });
 
-      if (response.ok) {
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(editingReklam ? '✅ تبلیغ به‌روزرسانی شد' : '✅ تبلیغ اضافه شد');
+        setShowModal(false);
+        setEditingReklam(null);
+        resetForm();
         fetchReklamlar();
-        alert('وضعیت تبلیغ به‌روزرسانی شد');
+      } else {
+        alert('❌ خطا: ' + data.message);
       }
     } catch (error) {
-      console.error('Durum güncelleme hatası:', error);
+      console.error('Hata:', error);
+      alert('❌ خطا در ذخیره‌سازی');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleEdit = (reklam: Reklam) => {
+    setEditingReklam(reklam);
+    setFormData({
+      baslik: reklam.baslik,
+      aciklama: reklam.aciklama,
+      resim: reklam.resim,
+      link: reklam.link,
+      konum: reklam.konum,
+      baslangic: reklam.baslangic?.split('T')[0] || '',
+      bitis: reklam.bitis?.split('T')[0] || '',
+      aktif: reklam.aktif
+    });
+    setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('آیا مطمئن هستید که می‌خواهید این تبلیغ را حذف کنید؟')) return;
 
     try {
-      const response = await fetch(`/api/admin/reklamlar/${id}`, {
+      const response = await fetch(`/api/admin/reklamlar?id=${id}`, {
         method: 'DELETE'
       });
 
-      if (response.ok) {
-        setReklamlar(reklamlar.filter(r => r.id !== id));
-        alert('تبلیغ حذف شد');
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('✅ تبلیغ حذف شد');
+        fetchReklamlar();
+      } else {
+        alert('❌ خطا: ' + data.message);
       }
     } catch (error) {
-      console.error('Reklam silme hatası:', error);
+      console.error('Hata:', error);
+      alert('❌ خطا در حذف');
     }
   };
 
-  const filteredReklamlar = filter === "all"
-    ? reklamlar
-    : reklamlar.filter(r => r.onay_durumu === filter);
-
-  const reklamTuruText = {
-    banner_header: "بنر هدر",
-    banner_kategori: "بنر دسته‌بندی",
-    banner_arama: "بنر جستجو",
-    sponsorlu_magaza: "مغازه اسپانسر",
-    sponsorlu_urun: "محصول اسپانسر"
+  const resetForm = () => {
+    setFormData({
+      baslik: '',
+      aciklama: '',
+      resim: '',
+      link: '',
+      konum: 'header',
+      baslangic: '',
+      bitis: '',
+      aktif: true
+    });
   };
 
-  const onayDurumuBadge = (durum: string) => {
-    switch (durum) {
-      case 'onaylandi':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <CheckCircle className="h-3 w-3" /> تأیید شده
-        </span>;
-      case 'reddedildi':
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-          <XCircle className="h-3 w-3" /> رد شده
-        </span>;
-      default:
-        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          <Clock className="h-3 w-3" /> در انتظار
-        </span>;
-    }
+  const handleNewReklam = () => {
+    setEditingReklam(null);
+    resetForm();
+    setShowModal(true);
+  };
+
+  const getKonumBadge = (konum: string) => {
+    const badges: any = {
+      header: { text: 'هدر', color: 'bg-blue-100 text-blue-700' },
+      sidebar: { text: 'سایدبار', color: 'bg-green-100 text-green-700' },
+      footer: { text: 'فوتر', color: 'bg-purple-100 text-purple-700' }
+    };
+    const badge = badges[konum] || badges.header;
+    return <span className={`${badge.color} px-2 py-1 rounded text-xs font-bold`}>{badge.text}</span>;
   };
 
   return (
     <AdminLayout>
-      <div className="space-y-6 pb-8" dir="rtl">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-8" dir="rtl">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">مدیریت تبلیغات</h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">مدیریت و تأیید همه تبلیغات</p>
+            <h1 className="text-3xl font-bold text-gray-900">مدیریت تبلیغات</h1>
+            <p className="mt-2 text-gray-600">تبلیغات سایت را مدیریت کنید</p>
           </div>
+          <button
+            onClick={handleNewReklam}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            تبلیغ جدید
+          </button>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">مجموع تبلیغات</p>
-                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{reklamlar.length}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-white" />
-              </div>
-            </div>
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="text-sm text-gray-600">کل تبلیغات</div>
+            <div className="text-2xl font-bold text-gray-900">{reklamlar.length}</div>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">در انتظار</p>
-                <p className="text-2xl sm:text-3xl font-bold text-yellow-600">
-                  {reklamlar.filter(r => r.onay_durumu === 'beklemede').length}
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-white" />
-              </div>
-            </div>
+          <div className="bg-green-50 rounded-lg border border-green-200 p-4">
+            <div className="text-sm text-green-600">فعال</div>
+            <div className="text-2xl font-bold text-green-700">{reklamlar.filter(r => r.aktif).length}</div>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">فعال</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-600">
-                  {reklamlar.filter(r => r.onay_durumu === 'onaylandi' && r.aktif).length}
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-white" />
-              </div>
-            </div>
+          <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
+            <div className="text-sm text-blue-600">کل نمایش</div>
+            <div className="text-2xl font-bold text-blue-700">{reklamlar.reduce((sum, r) => sum + r.goruntulenme, 0)}</div>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">مجموع کلیک</p>
-                <p className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  {reklamlar.reduce((sum, r) => sum + r.tiklanma, 0).toLocaleString('fa-AF')}
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                <MousePointer className="h-6 w-6 text-white" />
-              </div>
-            </div>
+          <div className="bg-purple-50 rounded-lg border border-purple-200 p-4">
+            <div className="text-sm text-purple-600">کل کلیک</div>
+            <div className="text-2xl font-bold text-purple-700">{reklamlar.reduce((sum, r) => sum + r.tiklanma, 0)}</div>
           </div>
         </div>
-
-        {/* Filters */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-sm">
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                filter === "all"
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              همه ({reklamlar.length})
-            </button>
-            <button
-              onClick={() => setFilter("beklemede")}
-              className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                filter === "beklemede"
-                  ? "bg-yellow-600 text-white shadow-lg shadow-yellow-500/30"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              در انتظار ({reklamlar.filter(r => r.onay_durumu === 'beklemede').length})
-            </button>
-            <button
-              onClick={() => setFilter("onaylandi")}
-              className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                filter === "onaylandi"
-                  ? "bg-green-600 text-white shadow-lg shadow-green-500/30"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              تأیید شده ({reklamlar.filter(r => r.onay_durumu === 'onaylandi').length})
-            </button>
-            <button
-              onClick={() => setFilter("reddedildi")}
-              className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
-                filter === "reddedildi"
-                  ? "bg-red-600 text-white shadow-lg shadow-red-500/30"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              رد شده ({reklamlar.filter(r => r.onay_durumu === 'reddedildi').length})
-            </button>
-          </div>
-        </div>
-
-        {/* Ads Table */}
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      تبلیغ
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      نوع
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      آمار
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      بودجه
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      تاریخ پایان
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      وضعیت
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      عملیات
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
-                  {filteredReklamlar.map((reklam) => (
-                    <tr key={reklam.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div>
-                          <div className="font-semibold text-gray-900">{reklam.baslik}</div>
-                          <div className="text-sm text-gray-500">{reklam.konum}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          {reklamTuruText[reklam.reklam_turu as keyof typeof reklamTuruText]}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-3 text-sm text-gray-600">
-                          <div className="flex items-center gap-1.5">
-                            <Eye className="h-4 w-4 text-blue-600" />
-                            <span className="font-medium">{reklam.goruntulenme.toLocaleString('fa-AF')}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <MousePointer className="h-4 w-4 text-green-600" />
-                            <span className="font-medium">{reklam.tiklanma.toLocaleString('fa-AF')}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                        {reklam.butce ? `${reklam.butce.toLocaleString('fa-AF')} AFN` : '-'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        {new Date(reklam.bitis_tarihi).toLocaleDateString('fa-IR')}
-                      </td>
-                      <td className="px-6 py-4">
-                        {onayDurumuBadge(reklam.onay_durumu)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2 items-center">
-                          {reklam.onay_durumu === 'beklemede' && (
-                            <>
-                              <button
-                                onClick={() => handleOnayDurumu(reklam.id, 'onaylandi')}
-                                className="px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg font-semibold text-xs transition-colors"
-                                title="تأیید"
-                              >
-                                تأیید
-                              </button>
-                              <button
-                                onClick={() => handleOnayDurumu(reklam.id, 'reddedildi')}
-                                className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-semibold text-xs transition-colors"
-                                title="رد"
-                              >
-                                رد
-                              </button>
-                            </>
-                          )}
-                          <button
-                            onClick={() => handleDelete(reklam.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="حذف"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {filteredReklamlar.length === 0 && (
-                <div className="text-center py-12">
-                  <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 font-medium">هنوز تبلیغی وجود ندارد</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
+
+      {loading && reklamlar.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      ) : reklamlar.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300" dir="rtl">
+          <Tag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600">هنوز تبلیغی اضافه نشده است</p>
+          <button
+            onClick={handleNewReklam}
+            className="mt-4 text-blue-600 hover:text-blue-700 font-semibold"
+          >
+            اولین تبلیغ را اضافه کنید
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {reklamlar.map((reklam) => (
+            <div key={reklam.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div className="flex flex-col md:flex-row gap-4 p-6">
+                {/* Image */}
+                <div className="md:w-64 flex-shrink-0">
+                  <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
+                    <img
+                      src={reklam.resim}
+                      alt={reklam.baslik}
+                      className="w-full h-full object-cover"
+                    />
+                    {!reklam.aktif && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-bold bg-red-500 px-3 py-1 rounded-full text-sm">
+                          غیرفعال
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="flex-1" dir="rtl">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">{reklam.baslik}</h3>
+                      <p className="text-gray-600 text-sm line-clamp-2 mb-2">{reklam.aciklama}</p>
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        {getKonumBadge(reklam.konum)}
+                        {reklam.aktif ? (
+                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">فعال</span>
+                        ) : (
+                          <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">غیرفعال</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {reklam.link && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                      <ExternalLink className="h-4 w-4" />
+                      <span className="truncate">{reklam.link}</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-sm">
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Eye className="h-4 w-4" />
+                      <span>{reklam.goruntulenme} نمایش</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Tag className="h-4 w-4" />
+                      <span>{reklam.tiklanma} کلیک</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Calendar className="h-4 w-4" />
+                      <span>از {new Date(reklam.baslangic).toLocaleDateString('fa-IR')}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Calendar className="h-4 w-4" />
+                      <span>تا {new Date(reklam.bitis).toLocaleDateString('fa-IR')}</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEdit(reklam)}
+                      className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      <Edit className="h-4 w-4" />
+                      ویرایش
+                    </button>
+                    <button
+                      onClick={() => handleDelete(reklam.id)}
+                      className="flex items-center gap-2 bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      حذف
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" dir="rtl">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingReklam ? 'ویرایش تبلیغ' : 'تبلیغ جدید'}
+              </h2>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">عنوان *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.baslik}
+                  onChange={(e) => setFormData({...formData, baslik: e.target.value})}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="عنوان تبلیغ"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">توضیحات</label>
+                <textarea
+                  value={formData.aciklama}
+                  onChange={(e) => setFormData({...formData, aciklama: e.target.value})}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="توضیحات کوتاه..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">آدرس تصویر *</label>
+                <input
+                  type="url"
+                  required
+                  value={formData.resim}
+                  onChange={(e) => setFormData({...formData, resim: e.target.value})}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://example.com/image.jpg"
+                />
+                {formData.resim && (
+                  <div className="mt-3 relative aspect-video rounded-lg overflow-hidden bg-gray-100">
+                    <img src={formData.resim} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">لینک</label>
+                <input
+                  type="text"
+                  value={formData.link}
+                  onChange={(e) => setFormData({...formData, link: e.target.value})}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="/arama یا https://example.com"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">موقعیت</label>
+                  <select
+                    value={formData.konum}
+                    onChange={(e) => setFormData({...formData, konum: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="header">هدر</option>
+                    <option value="sidebar">سایدبار</option>
+                    <option value="footer">فوتر</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">وضعیت</label>
+                  <select
+                    value={formData.aktif ? 'true' : 'false'}
+                    onChange={(e) => setFormData({...formData, aktif: e.target.value === 'true'})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="true">فعال</option>
+                    <option value="false">غیرفعال</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">تاریخ شروع</label>
+                  <input
+                    type="date"
+                    value={formData.baslangic}
+                    onChange={(e) => setFormData({...formData, baslangic: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">تاریخ پایان</label>
+                  <input
+                    type="date"
+                    value={formData.bitis}
+                    onChange={(e) => setFormData({...formData, bitis: e.target.value})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    setEditingReklam(null);
+                  }}
+                  className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition-colors"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'در حال ذخیره...' : editingReklam ? 'به‌روزرسانی' : 'افزودن'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
-
-
