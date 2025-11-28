@@ -9,19 +9,17 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { formatPrice, getImageUrl } from "@/lib/utils";
 
-interface Ilan {
+interface Slider {
   id: number;
   baslik: string;
   aciklama: string;
-  fiyat: number;
-  ana_resim: string;
-  kategori_ad: string;
-  il_ad: string;
-  resimler?: string[];
+  resim: string;
+  link?: string;
+  sira: number;
 }
 
 export default function FeaturedAds() {
-  const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
+  const [sliders, setSliders] = useState<Slider[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -35,18 +33,18 @@ export default function FeaturedAds() {
   );
 
   useEffect(() => {
-    fetchFeaturedAds();
+    fetchSliders();
   }, []);
 
-  const fetchFeaturedAds = async () => {
+  const fetchSliders = async () => {
     try {
-      const response = await fetch('/api/ilanlar/onecikan');
+      const response = await fetch('/api/slider');
       const data = await response.json();
       if (data.success) {
-        setIlanlar(data.data);
+        setSliders(data.data);
       }
     } catch (error) {
-      console.error('خطا در بارگذاری آگهی های ویژه:', error);
+      console.error('خطا در بارگذاری اسلایدر:', error);
     } finally {
       setLoading(false);
     }
@@ -68,7 +66,7 @@ export default function FeaturedAds() {
     };
   }, [emblaApi, onSelect]);
 
-  if (loading || ilanlar.length === 0) {
+  if (loading || sliders.length === 0) {
     return (
       <section className="relative h-[400px] sm:h-[450px] lg:h-[500px] overflow-hidden bg-gray-900 rounded-lg flex items-center justify-center">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
@@ -80,17 +78,17 @@ export default function FeaturedAds() {
     <section className="relative h-[400px] sm:h-[450px] lg:h-[500px] overflow-hidden bg-gray-900 rounded-lg">
       <div className="h-full w-full" ref={emblaRef} dir="ltr">
         <div className="flex h-full">
-          {ilanlar.map((ilan) => (
+          {sliders.map((slider) => (
             <div
-              key={ilan.id}
+              key={slider.id}
               className="relative flex-[0_0_100%] min-w-0 h-full"
             >
               <div className="relative h-full w-full overflow-hidden">
                 <Image
-                  src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
-                  alt={ilan.baslik}
+                  src={slider.resim}
+                  alt={slider.baslik}
                   fill
-                  priority={ilan.id === ilanlar[0]?.id}
+                  priority={slider.id === sliders[0]?.id}
                   className="object-cover object-center"
                   sizes="100vw"
                   quality={85}
@@ -106,29 +104,23 @@ export default function FeaturedAds() {
                     >
                       <p className="mb-2 text-sm sm:text-base font-semibold text-yellow-400 uppercase tracking-wider flex items-center gap-2">
                         <span className="inline-block w-12 h-0.5 bg-yellow-400"></span>
-                        آگهی ویژه
+                        بازار وطن
                       </p>
                       <h1 className="mb-4 text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
-                        {ilan.baslik}
+                        {slider.baslik}
                       </h1>
-                      <p className="mb-2 text-base sm:text-lg lg:text-xl text-gray-200 line-clamp-2">
-                        {ilan.aciklama}
+                      <p className="mb-6 text-base sm:text-lg lg:text-xl text-gray-200 line-clamp-2">
+                        {slider.aciklama}
                       </p>
-                      <div className="mb-6 flex items-baseline gap-3">
-                        <span className="text-4xl sm:text-5xl font-bold text-white">
-                          {formatPrice(ilan.fiyat)}
-                        </span>
-                        <span className="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                          {ilan.kategori_ad}
-                        </span>
-                      </div>
-                      <Link
-                        href={`/ilan/${ilan.id}`}
-                        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-2xl hover:scale-105"
-                      >
-                        <span>مشاهده آگهی</span>
-                        <ArrowRight className="h-5 w-5" />
-                      </Link>
+                      {slider.link && (
+                        <Link
+                          href={slider.link}
+                          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-2xl hover:scale-105"
+                        >
+                          <span>مشاهده بیشتر</span>
+                          <ArrowRight className="h-5 w-5" />
+                        </Link>
+                      )}
                     </motion.div>
                   </div>
                 </div>
@@ -140,7 +132,7 @@ export default function FeaturedAds() {
 
       {/* Dots Indicator */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-        {ilanlar.map((_, index) => (
+        {sliders.map((_, index) => (
           <button
             key={index}
             onClick={() => emblaApi?.scrollTo(index)}
