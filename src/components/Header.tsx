@@ -87,11 +87,14 @@ export default function Header() {
       try {
         const user = localStorage.getItem('user');
         if (!user) {
+          console.log('⚠️ Header - Kullanıcı yok, favori sayısı 0');
           setFavoriSayisi(0);
           return;
         }
 
         const userData = JSON.parse(user);
+        console.log('❤️ Header - Favori sayısı güncelleniyor - Kullanıcı ID:', userData.id);
+        
         const response = await fetch('/api/favoriler', {
           headers: {
             'x-user-id': userData.id.toString()
@@ -99,11 +102,15 @@ export default function Header() {
         });
 
         const data = await response.json();
+        console.log('❤️ Header - Favori API Response:', data);
+        
         if (data.success) {
-          setFavoriSayisi((data.data || []).length);
+          const favoriCount = (data.data || []).length;
+          console.log('✅ Header - Favori sayısı güncellendi:', favoriCount);
+          setFavoriSayisi(favoriCount);
         }
       } catch (error) {
-        console.error('Favori sayısı yüklenirken hata:', error);
+        console.error('❌ Header - Favori sayısı yüklenirken hata:', error);
       }
     };
     

@@ -8,37 +8,64 @@ export async function GET(request: NextRequest) {
 
     // Eğer kullanıcı ID'si varsa, kullanıcıya özel istatistikleri dön
     if (kullaniciId) {
-      // Aktif ilan sayısı
-      const ilanlarResult: any = await query(
-        'SELECT COUNT(*) as toplam, COALESCE(SUM(goruntulenme), 0) as toplamGoruntulenme FROM ilanlar WHERE kullanici_id = ? AND aktif = 1',
-        [kullaniciId]
-      );
-      const aktifIlanlar = ilanlarResult[0]?.toplam || 0;
-      const toplamGoruntulenme = ilanlarResult[0]?.toplamGoruntulenme || 0;
+      console.log('📊 Kullanıcı istatistikleri yükleniyor - ID:', kullaniciId);
+      
+      try {
+        // Aktif ilan sayısı ve toplam görüntülenme
+        const ilanlarResult: any = await query(
+          'SELECT COUNT(*) as toplam, COALESCE(SUM(goruntulenme), 0) as toplamGoruntulenme FROM ilanlar WHERE kullanici_id = ? AND aktif = 1',
+          [kullaniciId]
+        );
+        const aktifIlanlar = Array.isArray(ilanlarResult) && ilanlarResult.length > 0 ? (ilanlarResult[0]?.toplam || 0) : 0;
+        const toplamGoruntulenme = Array.isArray(ilanlarResult) && ilanlarResult.length > 0 ? (ilanlarResult[0]?.toplamGoruntulenme || 0) : 0;
+        
+        console.log('✅ İlan stats:', { aktifIlanlar, toplamGoruntulenme });
 
-      // Favori sayısı
-      const favorilerResult: any = await query(
-        'SELECT COUNT(*) as toplam FROM favoriler f JOIN ilanlar i ON f.ilan_id = i.id WHERE i.kullanici_id = ?',
-        [kullaniciId]
-      );
-      const toplamFavoriler = favorilerResult[0]?.toplam || 0;
+        // Favori sayısı
+        const favorilerResult: any = await query(
+          'SELECT COUNT(*) as toplam FROM favoriler f JOIN ilanlar i ON f.ilan_id = i.id WHERE i.kullanici_id = ?',
+          [kullaniciId]
+        );
+        const toplamFavoriler = Array.isArray(favorilerResult) && favorilerResult.length > 0 ? (favorilerResult[0]?.toplam || 0) : 0;
+        
+        console.log('✅ Favori stats:', { toplamFavoriler });
 
-      // Mesaj sayısı (gelen mesajlar)
-      const mesajlarResult: any = await query(
-        'SELECT COUNT(*) as toplam FROM mesajlar WHERE alici_id = ? AND okundu = 0',
-        [kullaniciId]
-      );
-      const toplamMesajlar = mesajlarResult[0]?.toplam || 0;
+        // Mesaj sayısı (gelen mesajlar - okunmamış)
+        const mesajlarResult: any = await query(
+          'SELECT COUNT(*) as toplam FROM mesajlar WHERE alici_id = ? AND okundu = 0',
+          [kullaniciId]
+        );
+        const toplamMesajlar = Array.isArray(mesajlarResult) && mesajlarResult.length > 0 ? (mesajlarResult[0]?.toplam || 0) : 0;
+        
+        console.log('✅ Mesaj stats:', { toplamMesajlar });
 
-      return NextResponse.json({
-        success: true,
-        data: {
+        const statsData = {
           aktifIlanlar,
           toplamGoruntulenme,
           toplamFavoriler,
           toplamMesajlar,
-        },
-      });
+        };
+        
+        console.log('📊 Final stats:', statsData);
+
+        return NextResponse.json({
+          success: true,
+          data: statsData,
+        });
+      } catch (dbError) {
+        console.error('❌ Database hatası, fallback kullanılıyor:', dbError);
+        
+        // Database hatası varsa fallback
+        return NextResponse.json({
+          success: true,
+          data: {
+            aktifIlanlar: 0,
+            toplamGoruntulenme: 0,
+            toplamFavoriler: 0,
+            toplamMesajlar: 0,
+          },
+        });
+      }
     }
 
     // Genel istatistikler

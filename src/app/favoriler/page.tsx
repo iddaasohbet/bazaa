@@ -15,13 +15,15 @@ interface Ilan {
   ilan_id: number;
   baslik: string;
   fiyat: number;
-  fiyat_tipi?: string;
-  resimler?: string;
+  eski_fiyat?: number;
+  indirim_yuzdesi?: number;
+  ana_resim: string;
   kategori_ad: string;
-  il: string;
-  ilce: string;
-  goruntulenme?: number;
-  tarih?: string;
+  kategori_slug: string;
+  il_ad: string;
+  goruntulenme: number;
+  created_at: string;
+  ilan_created_at: string;
 }
 
 export default function Favoriler() {
@@ -31,17 +33,28 @@ export default function Favoriler() {
 
   useEffect(() => {
     loadFavoriler();
+    
+    // Favori güncellemelerini dinle
+    const handleFavoriUpdate = () => {
+      console.log('🔄 Favori güncellendi, yeniden yükleniyor...');
+      loadFavoriler();
+    };
+    
+    window.addEventListener('favoriGuncelle', handleFavoriUpdate);
+    return () => window.removeEventListener('favoriGuncelle', handleFavoriUpdate);
   }, []);
 
   const loadFavoriler = async () => {
     try {
       const userStr = localStorage.getItem('user');
       if (!userStr) {
+        console.log('⚠️ Kullanıcı giriş yapmamış, yönlendiriliyor...');
         router.push('/giris');
         return;
       }
 
       const user = JSON.parse(userStr);
+      console.log('📋 Favoriler yükleniyor - Kullanıcı ID:', user.id);
       
       const response = await fetch('/api/favoriler', {
         headers: {
@@ -50,12 +63,18 @@ export default function Favoriler() {
       });
 
       const data = await response.json();
+      console.log('📋 Favoriler API Response:', data);
       
       if (data.success) {
+        console.log('✅ Favoriler yüklendi:', data.data.length, 'adet');
         setFavoriler(data.data || []);
+      } else {
+        console.error('❌ Favori yükleme başarısız:', data.message);
+        setFavoriler([]);
       }
     } catch (error) {
-      console.error('Favoriler yüklenirken hata:', error);
+      console.error('❌ Favoriler yüklenirken hata:', error);
+      setFavoriler([]);
     } finally {
       setLoading(false);
     }
@@ -122,11 +141,7 @@ export default function Favoriler() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {favoriler.map((favori, index) => {
-                const resimler = favori.resimler ? (typeof favori.resimler === 'string' ? JSON.parse(favori.resimler) : favori.resimler) : [];
-                const firstImage = Array.isArray(resimler) && resimler.length > 0 ? resimler[0] : '';
-                
-                return (
+              {favoriler.map((favori, index) => (
                 <motion.div
                   key={favori.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -139,7 +154,7 @@ export default function Favoriler() {
                         {/* Image */}
                         <div className="relative aspect-video bg-gray-100 overflow-hidden">
                           <Image
-                            src={getImageUrl(firstImage)}
+                            src={getImageUrl(favori.ana_resim)}
                             alt={favori.baslik}
                             fill
                             className="object-cover group-hover:scale-110 transition-transform duration-500"
@@ -152,6 +167,15 @@ export default function Favoriler() {
                               {favori.kategori_ad}
                             </span>
                           </div>
+                          
+                          {/* İndirim Badge */}
+                          {favori.indirim_yuzdesi && favori.indirim_yuzdesi > 0 && (
+                            <div className="absolute top-2 right-2">
+                              <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">
+                                {favori.indirim_yuzdesi}% تخفیف
+                              </span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Content */}
@@ -160,16 +184,28 @@ export default function Favoriler() {
                             {favori.baslik}
                           </h3>
                           
-                          <div className="flex items-baseline gap-1 mb-3">
-                            <span className="text-lg font-bold text-blue-600">
-                              {formatPrice(favori.fiyat)}
-                            </span>
+                          {/* Fiyat */}
+                          <div className="mb-3">
+                            {favori.eski_fiyat && favori.indirim_yuzdesi && favori.indirim_yuzdesi > 0 ? (
+                              <div className="space-y-0.5">
+                                <div className="text-xs text-gray-500 line-through">
+                                  {formatPrice(favori.eski_fiyat)}
+                                </div>
+                                <div className="text-lg font-bold text-red-600">
+                                  {formatPrice(favori.fiyat)}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-lg font-bold text-blue-600">
+                                {formatPrice(favori.fiyat)}
+                              </div>
+                            )}
                           </div>
 
                           <div className="mt-auto space-y-2 text-xs text-gray-600">
                             <div className="flex items-center gap-1.5">
                               <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                              <span className="truncate">{favori.il}</span>
+                              <span className="truncate">{favori.il_ad}</span>
                             </div>
                             <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                               <div className="flex items-center gap-1">
@@ -178,7 +214,7 @@ export default function Favoriler() {
                               </div>
                               <div className="flex items-center gap-1">
                                 <Clock className="h-3.5 w-3.5 text-gray-400" />
-                                <span>{formatDate(favori.tarih || '')}</span>
+                                <span>{formatDate(favori.ilan_created_at)}</span>
                               </div>
                             </div>
                           </div>
@@ -192,15 +228,14 @@ export default function Favoriler() {
                         e.preventDefault();
                         removeFavorite(favori.ilan_id);
                       }}
-                      className="absolute top-2 right-2 w-8 h-8 rounded-full border-2 border-white bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all shadow-sm z-10"
+                      className="absolute top-2 right-2 w-8 h-8 rounded-full border-2 border-white bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all shadow-lg z-10"
                       title="حذف از علاقه مندی ها"
                     >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 </motion.div>
-              );
-              })}
+              ))}
             </div>
           )}
         </div>

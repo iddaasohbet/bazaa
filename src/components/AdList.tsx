@@ -195,19 +195,25 @@ export default function AdList() {
                                   const user = JSON.parse(userStr);
                                   const isFavorite = favoriler.includes(ilan.id);
                                   
+                                  console.log('❤️ Favori işlemi - İlan ID:', ilan.id, 'Favoride mi?', isFavorite);
+                                  
                                   try {
                                     if (isFavorite) {
                                       // Favoriden çıkar
-                                      await fetch(`/api/favoriler?ilanId=${ilan.id}`, {
+                                      console.log('🗑️ Favoriden çıkarılıyor...');
+                                      const response = await fetch(`/api/favoriler?ilanId=${ilan.id}`, {
                                         method: 'DELETE',
                                         headers: {
                                           'x-user-id': user.id.toString()
                                         }
                                       });
+                                      const data = await response.json();
+                                      console.log('✅ API Response (DELETE):', data);
                                       setFavoriler(prev => prev.filter(id => id !== ilan.id));
                                     } else {
                                       // Favoriye ekle
-                                      await fetch('/api/favoriler', {
+                                      console.log('➕ Favoriye ekleniyor...');
+                                      const response = await fetch('/api/favoriler', {
                                         method: 'POST',
                                         headers: {
                                           'Content-Type': 'application/json',
@@ -215,12 +221,15 @@ export default function AdList() {
                                         },
                                         body: JSON.stringify({ ilanId: ilan.id })
                                       });
+                                      const data = await response.json();
+                                      console.log('✅ API Response (POST):', data);
                                       setFavoriler(prev => [...prev, ilan.id]);
                                     }
                                     
+                                    console.log('📢 favoriGuncelle event dispatch ediliyor...');
                                     window.dispatchEvent(new Event('favoriGuncelle'));
                                   } catch (error) {
-                                    console.error('Favori işlemi hatası:', error);
+                                    console.error('❌ Favori işlemi hatası:', error);
                                   }
                                 }}
                                 className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"

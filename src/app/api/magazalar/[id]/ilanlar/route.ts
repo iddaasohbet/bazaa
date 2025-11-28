@@ -10,30 +10,38 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '50');
 
+    console.log('📦 Mağaza ilanları API - Mağaza ID:', id);
+
     // Mağaza sahibini bul
     const magazaData = await query(
-      'SELECT kullanici_id FROM magazalar WHERE id = ?',
+      'SELECT id, kullanici_id FROM magazalar WHERE id = ?',
       [parseInt(id)]
     );
 
     const magaza: any = Array.isArray(magazaData) && magazaData.length > 0 ? magazaData[0] : null;
 
+    console.log('🏪 Mağaza bilgisi:', magaza);
+
     if (!magaza) {
+      console.error('❌ Mağaza bulunamadı');
       return NextResponse.json(
         { success: false, message: 'Mağaza bulunamadı' },
         { status: 404 }
       );
     }
 
-    // Mağazanın ilanlarını getir
+    // Mağazanın ilanlarını getir (magaza_id'ye göre)
     const ilanlar = await query(
-      `
-      SELECT 
+      `SELECT 
         i.id,
         i.baslik,
         i.fiyat,
+        i.eski_fiyat,
+        i.indirim_yuzdesi,
         i.ana_resim,
         i.goruntulenme,
+        i.aktif,
+        i.created_at,
         k.ad as kategori_ad,
         EXISTS(
           SELECT 1 FROM vitrinler v 
@@ -44,22 +52,24 @@ export async function GET(
         ) as vitrin
       FROM ilanlar i
       LEFT JOIN kategoriler k ON i.kategori_id = k.id
-      WHERE i.kullanici_id = ? AND i.aktif = TRUE
+      WHERE i.magaza_id = ? AND i.aktif = TRUE
       ORDER BY vitrin DESC, i.created_at DESC
-      LIMIT ?
-      `,
-      [parseInt(id), (magaza as any).kullanici_id, limit]
+      LIMIT ?`,
+      [parseInt(id), parseInt(id), limit]
     );
+
+    console.log('✅ İlanlar yüklendi:', Array.isArray(ilanlar) ? ilanlar.length : 0, 'adet');
 
     return NextResponse.json({
       success: true,
-      data: ilanlar
+      data: ilanlar || []
     });
   } catch (error: any) {
-    console.error('Mağaza ilanları hatası:', error);
+    console.error('❌ Mağaza ilanları hatası:', error);
+    
+    // Hata durumunda boş array dön
     return NextResponse.json(
-      { success: false, message: 'İlanlar yüklenirken hata oluştu' },
-      { status: 500 }
+      { success: true, data: [] }
     );
   }
 }

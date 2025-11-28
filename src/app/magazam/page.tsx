@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Store, MapPin, Phone, Mail, Eye, Package, Edit, Settings, TrendingUp, ShoppingBag, ExternalLink } from "lucide-react";
+import { Store, MapPin, Phone, Mail, Eye, Package, Edit, Settings, TrendingUp, ShoppingBag, ExternalLink, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatPrice, getImageUrl } from "@/lib/utils";
@@ -68,7 +68,7 @@ export default function MagazamPage() {
         await fetchMagazaIlanlari(magaza.id);
         
         // İstatistikleri yükle
-        await fetchStats(userData.id);
+        await fetchStats(userData.id, magaza.id);
       } else {
         // Mağaza yoksa yönlendir
         router.push('/magaza-ac');
@@ -83,25 +83,48 @@ export default function MagazamPage() {
 
   const fetchMagazaIlanlari = async (magazaId: number) => {
     try {
+      console.log('📦 Mağaza ilanları yükleniyor - Mağaza ID:', magazaId);
+      
       const response = await fetch(`/api/magazalar/${magazaId}/ilanlar`);
       const data = await response.json();
+      
+      console.log('📦 İlanlar API Response:', data);
+      
       if (data.success) {
-        setIlanlar(data.data);
+        console.log('✅ İlanlar yüklendi:', data.data.length, 'adet');
+        setIlanlar(data.data || []);
+      } else {
+        console.warn('⚠️ İlanlar yüklenemedi');
+        setIlanlar([]);
       }
     } catch (error) {
-      console.error('İlanlar yüklenirken hata:', error);
+      console.error('❌ İlanlar yüklenirken hata:', error);
+      setIlanlar([]);
     }
   };
 
-  const fetchStats = async (kullaniciId: number) => {
+  const fetchStats = async (kullaniciId: number, magazaId: number) => {
     try {
+      console.log('📊 İstatistikler yükleniyor - Kullanıcı ID:', kullaniciId);
+      
       const response = await fetch(`/api/istatistikler?kullanici_id=${kullaniciId}`);
       const data = await response.json();
-      if (data.success) {
-        setStats(data.data);
+      
+      console.log('📊 İstatistik API Response:', data);
+      
+      if (data.success && data.data) {
+        console.log('✅ İstatistikler yüklendi:', data.data);
+        setStats({
+          aktifIlanlar: data.data.aktifIlanlar || 0,
+          toplamGoruntulenme: data.data.toplamGoruntulenme || 0,
+          toplamFavoriler: data.data.toplamFavoriler || 0,
+          toplamMesajlar: data.data.toplamMesajlar || 0
+        });
+      } else {
+        console.warn('⚠️ İstatistik yüklenemedi, 0 değerleri kullanılıyor');
       }
     } catch (error) {
-      console.error('İstatistikler yüklenirken hata:', error);
+      console.error('❌ İstatistikler yüklenirken hata:', error);
     }
   };
 
@@ -302,23 +325,38 @@ export default function MagazamPage() {
 
         <div className="container mx-auto px-4 py-8">
 
-          {/* Stats - Minimalist */}
-          <div className="grid grid-cols-4 gap-6 mb-8" dir="rtl">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="text-sm text-gray-500 mb-1">آگهی‌های فعال</div>
-              <div className="text-3xl font-bold text-gray-900">{stats.aktifIlanlar}</div>
+          {/* Stats - Enhanced */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8" dir="rtl">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <Package className="w-8 h-8 opacity-80" />
+              </div>
+              <div className="text-3xl font-bold mb-1">{stats.aktifIlanlar}</div>
+              <div className="text-sm opacity-90">آگهی‌های فعال</div>
             </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="text-sm text-gray-500 mb-1">بازدید کل</div>
-              <div className="text-3xl font-bold text-gray-900">{stats.toplamGoruntulenme.toLocaleString('fa-AF')}</div>
+            
+            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <Eye className="w-8 h-8 opacity-80" />
+              </div>
+              <div className="text-3xl font-bold mb-1">{stats.toplamGoruntulenme.toLocaleString('fa-AF')}</div>
+              <div className="text-sm opacity-90">بازدید کل</div>
             </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="text-sm text-gray-500 mb-1">علاقه‌مندی</div>
-              <div className="text-3xl font-bold text-gray-900">{stats.toplamFavoriler}</div>
+            
+            <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <svg className="w-8 h-8 opacity-80" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </div>
+              <div className="text-3xl font-bold mb-1">{stats.toplamFavoriler}</div>
+              <div className="text-sm opacity-90">علاقه‌مندی</div>
             </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="text-sm text-gray-500 mb-1">پیام‌ها</div>
-              <div className="text-3xl font-bold text-gray-900">{stats.toplamMesajlar}</div>
+            
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <MessageSquare className="w-8 h-8 opacity-80" />
+              </div>
+              <div className="text-3xl font-bold mb-1">{stats.toplamMesajlar}</div>
+              <div className="text-sm opacity-90">پیام‌ها</div>
             </div>
           </div>
 
