@@ -108,7 +108,7 @@ export default function MagazaAcPage() {
     const selectedPaketData = paketler.find(p => p.id === selectedPaket);
     
     // Basic paket ücretsiz, direkt oluştur
-    if (selectedPaketData?.fiyat === 0) {
+    if (Number(selectedPaketData?.fiyat) === 0) {
       setLoading(true);
       
       try {
@@ -409,7 +409,7 @@ export default function MagazaAcPage() {
 
                   {/* Ücretli Paketler - Üstte */}
                   <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    {paketler.filter(p => p.fiyat > 0).map((paket) => (
+                    {paketler.filter(p => Number(p.fiyat) > 0).map((paket) => (
                       <div
                         key={paket.id}
                         onClick={() => setSelectedPaket(paket.id)}
@@ -476,7 +476,7 @@ export default function MagazaAcPage() {
                   </div>
 
                   {/* Ücretsiz Paket - Tam Genişlik */}
-                  {paketler.filter(p => p.fiyat === 0).map((paket) => (
+                  {paketler.filter(p => Number(p.fiyat) === 0).map((paket) => (
                     <div key={paket.id} className="w-full">
                       <div
                         onClick={() => setSelectedPaket(paket.id)}
@@ -559,7 +559,7 @@ export default function MagazaAcPage() {
                           در حال ایجاد...
                         </span>
                       ) : (
-                        paketler.find(p => p.id === selectedPaket)?.fiyat === 0 
+                        Number(paketler.find(p => p.id === selectedPaket)?.fiyat) === 0 
                           ? '✓ ایجاد مغازه رایگان' 
                           : '→ ادامه و پرداخت'
                       )}

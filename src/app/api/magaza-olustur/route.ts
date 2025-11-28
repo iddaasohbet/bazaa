@@ -45,11 +45,12 @@ export async function POST(request: NextRequest) {
     );
     const paket: any = Array.isArray(paketData) && paketData.length > 0 ? paketData[0] : null;
 
-    // Slug oluştur
-    const slug = magaza_ad.toLowerCase()
+    // Slug oluştur - Unique olması için timestamp ekle
+    const baseSlug = magaza_ad.toLowerCase()
       .replace(/\s+/g, '-')
       .replace(/[^\w\-]+/g, '')
       .replace(/\-\-+/g, '-');
+    const slug = `${baseSlug}-${Date.now()}`;
 
     // Paket tarihleri ve onay durumu
     let paket_baslangic = new Date(); // Hemen başlat
