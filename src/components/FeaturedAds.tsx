@@ -16,6 +16,10 @@ interface Slider {
   resim: string;
   link?: string;
   sira: number;
+  ilan_id?: number;
+  fiyat?: number;
+  kategori_ad?: string;
+  il_ad?: string;
 }
 
 export default function FeaturedAds() {
@@ -109,15 +113,30 @@ export default function FeaturedAds() {
                       <h1 className="mb-4 text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
                         {slider.baslik}
                       </h1>
-                      <p className="mb-6 text-base sm:text-lg lg:text-xl text-gray-200 line-clamp-2">
+                      <p className="mb-4 text-base sm:text-lg lg:text-xl text-gray-200 line-clamp-2">
                         {slider.aciklama}
                       </p>
+                      
+                      {/* Eğer ilan ise fiyat göster */}
+                      {slider.ilan_id && slider.fiyat !== undefined && (
+                        <div className="mb-6 flex items-baseline gap-3">
+                          <span className="text-4xl sm:text-5xl font-bold text-white">
+                            {formatPrice(slider.fiyat)}
+                          </span>
+                          {slider.kategori_ad && (
+                            <span className="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                              {slider.kategori_ad}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      
                       {slider.link && (
                         <Link
                           href={slider.link}
                           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-2xl hover:scale-105"
                         >
-                          <span>مشاهده بیشتر</span>
+                          <span>{slider.ilan_id ? 'مشاهده آگهی' : 'مشاهده بیشتر'}</span>
                           <ArrowRight className="h-5 w-5" />
                         </Link>
                       )}

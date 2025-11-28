@@ -5,7 +5,13 @@ import { query } from '@/lib/db';
 export async function GET() {
   try {
     const sliders = await query(
-      `SELECT * FROM slider ORDER BY sira ASC`,
+      `SELECT 
+        s.*,
+        i.baslik as ilan_baslik,
+        i.ana_resim as ilan_resim
+       FROM slider s
+       LEFT JOIN ilanlar i ON s.ilan_id = i.id
+       ORDER BY s.sira ASC`,
       []
     );
 
@@ -26,19 +32,28 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { baslik, aciklama, resim, link, sira, aktif } = body;
+    const { ilan_id, baslik, aciklama, resim, link, sira, aktif } = body;
 
-    if (!baslik || !resim) {
+    // İlan seçilmişse ilan_id yeterli, değilse manuel bilgiler gerekli
+    if (!ilan_id && (!baslik || !resim)) {
       return NextResponse.json(
-        { success: false, message: 'عنوان و تصویر الزامی است' },
+        { success: false, message: 'لطفاً یا یک آگهی انتخاب کنید یا اطلاعات کامل وارد کنید' },
         { status: 400 }
       );
     }
 
     const result = await query(
-      `INSERT INTO slider (baslik, aciklama, resim, link, sira, aktif) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [baslik, aciklama || '', resim, link || '', sira || 0, aktif !== false]
+      `INSERT INTO slider (ilan_id, baslik, aciklama, resim, link, sira, aktif) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        ilan_id || null,
+        baslik || '', 
+        aciklama || '', 
+        resim || '', 
+        link || '', 
+        sira || 0, 
+        aktif !== false
+      ]
     );
 
     return NextResponse.json({
@@ -59,7 +74,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, baslik, aciklama, resim, link, sira, aktif } = body;
+    const { id, ilan_id, baslik, aciklama, resim, link, sira, aktif } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -70,10 +85,19 @@ export async function PUT(request: NextRequest) {
 
     await query(
       `UPDATE slider 
-       SET baslik = ?, aciklama = ?, resim = ?, link = ?, sira = ?, aktif = ?, 
+       SET ilan_id = ?, baslik = ?, aciklama = ?, resim = ?, link = ?, sira = ?, aktif = ?, 
            updated_at = NOW()
        WHERE id = ?`,
-      [baslik, aciklama || '', resim, link || '', sira || 0, aktif !== false, id]
+      [
+        ilan_id || null,
+        baslik || '', 
+        aciklama || '', 
+        resim || '', 
+        link || '', 
+        sira || 0, 
+        aktif !== false, 
+        id
+      ]
     );
 
     return NextResponse.json({
