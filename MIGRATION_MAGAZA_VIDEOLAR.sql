@@ -19,3 +19,4 @@ CREATE TABLE IF NOT EXISTS magaza_videolar (
 -- Premium mağazaların maksimum video sayısını kontrol etmek için
 -- Elite paketler: 10 video, Pro paketler: 5 video, Basic: 0 video
 
+

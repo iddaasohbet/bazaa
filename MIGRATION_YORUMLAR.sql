@@ -11,3 +11,4 @@ CREATE TABLE IF NOT EXISTS magaza_yorumlari (
     FOREIGN KEY (kullanici_id) REFERENCES kullanicilar(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
