@@ -12,6 +12,10 @@ interface Paket {
   store_level: string;
   fiyat: number;
   sure_ay: number;
+  ozellikler?: {
+    aciklama?: string;
+    ozellikler?: string[];
+  };
 }
 
 export default function MagazaAcPage() {
@@ -404,22 +408,22 @@ export default function MagazaAcPage() {
                   </div>
 
                   {/* Ücretli Paketler - Üstte */}
-                  <div className="grid md:grid-cols-3 gap-6 mb-6">
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
                     {paketler.filter(p => p.fiyat > 0).map((paket) => (
                       <div
                         key={paket.id}
                         onClick={() => setSelectedPaket(paket.id)}
-                        className={`cursor-pointer rounded-lg border-2 transition-all hover:scale-105 ${
+                        className={`cursor-pointer rounded-xl border-2 transition-all ${
                           selectedPaket === paket.id
-                            ? 'border-green-500 bg-green-50 shadow-md scale-105'
-                            : 'border-gray-200 bg-white hover:border-green-300 shadow-sm'
+                            ? 'border-green-500 bg-green-50 shadow-lg'
+                            : 'border-gray-200 bg-white hover:border-green-300 shadow-sm hover:shadow-md'
                         }`}
                       >
                         <div className="p-6">
                           {/* Badge */}
                           {paket.store_level === 'elite' && (
                             <div className="text-center mb-3">
-                              <span className="inline-block bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                              <span className="inline-block bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
                                 ⭐ محبوب‌ترین
                               </span>
                             </div>
@@ -427,21 +431,30 @@ export default function MagazaAcPage() {
                           
                           {/* Title */}
                           <div className="text-center mb-4">
-                            <div className="text-xl font-bold text-gray-900 mb-1">{paket.ad_dari}</div>
+                            <div className="text-2xl font-bold text-gray-900 mb-1">{paket.ad_dari}</div>
                             <div className="text-sm text-gray-500">
                               {paket.sure_ay === 1 ? 'ماهانه' : `${paket.sure_ay} ماهه`}
                             </div>
                           </div>
 
+                          {/* Description */}
+                          {paket.ozellikler?.aciklama && (
+                            <div className="mb-4 px-2">
+                              <p className="text-sm text-gray-600 leading-relaxed text-center">
+                                {paket.ozellikler.aciklama}
+                              </p>
+                            </div>
+                          )}
+
                           {/* Price */}
-                          <div className="text-center mb-6 py-4 bg-white rounded-xl border-2 border-gray-200">
+                          <div className="text-center mb-4 py-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
                             <div className="text-3xl font-bold text-gray-900" dir="ltr">
                               {paket.fiyat.toLocaleString('fa-AF')}
-                              <span className="text-lg text-gray-500 mr-1">AFN</span>
+                              <span className="text-lg text-gray-600 mr-1">AFN</span>
                             </div>
                             {paket.sure_ay === 3 && (
-                              <div className="text-xs text-green-600 font-bold mt-1">
-                                ۳۰٪ تخفیف ✓
+                              <div className="text-xs text-green-600 font-bold mt-2 bg-green-100 inline-block px-3 py-1 rounded-full">
+                                ✓ ۳۰٪ تخفیف
                               </div>
                             )}
                           </div>
@@ -449,9 +462,9 @@ export default function MagazaAcPage() {
                           {/* Select Button */}
                           <button
                             type="button"
-                            className={`w-full py-2.5 rounded-lg font-semibold transition-all ${
+                            className={`w-full py-3 rounded-lg font-bold transition-all ${
                               selectedPaket === paket.id
-                                ? 'bg-green-600 text-white'
+                                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                           >
@@ -462,41 +475,65 @@ export default function MagazaAcPage() {
                     ))}
                   </div>
 
-                  {/* Ücretsiz Paket - Alt Köşede */}
+                  {/* Ücretsiz Paket - Tam Genişlik */}
                   {paketler.filter(p => p.fiyat === 0).map((paket) => (
-                    <div key={paket.id} className="flex justify-end">
+                    <div key={paket.id} className="w-full">
                       <div
                         onClick={() => setSelectedPaket(paket.id)}
-                        className={`cursor-pointer rounded-lg border-2 transition-all hover:scale-105 w-full md:w-64 ${
+                        className={`cursor-pointer rounded-xl border-2 transition-all ${
                           selectedPaket === paket.id
-                            ? 'border-green-500 bg-green-50 shadow-md scale-105'
-                            : 'border-gray-200 bg-white hover:border-green-300 shadow-sm'
+                            ? 'border-green-500 bg-green-50 shadow-lg'
+                            : 'border-gray-200 bg-white hover:border-green-300 shadow-sm hover:shadow-md'
                         }`}
                       >
-                        <div className="p-5">
-                          {/* Title */}
-                          <div className="text-center mb-3">
-                            <div className="text-lg font-bold text-gray-900 mb-1">{paket.ad_dari}</div>
-                            <div className="text-xs text-gray-500">رایگان برای همیشه</div>
-                          </div>
+                        <div className="p-6">
+                          <div className="flex flex-col md:flex-row items-center gap-6">
+                            {/* Sol - Bilgiler */}
+                            <div className="flex-1 text-center md:text-right">
+                              {/* Badge */}
+                              <div className="mb-3">
+                                <span className="inline-block bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md">
+                                  🟢 رایگان
+                                </span>
+                              </div>
+                              
+                              {/* Title */}
+                              <div className="mb-3">
+                                <div className="text-2xl font-bold text-gray-900 mb-1">{paket.ad_dari}</div>
+                                <div className="text-sm text-gray-500">برای شروع سریع و آزمایشی</div>
+                              </div>
 
-                          {/* Price */}
-                          <div className="text-center mb-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                            <div className="text-2xl font-bold text-green-600">رایگان</div>
-                            <div className="text-xs text-green-700 mt-1">بدون نیاز به پرداخت</div>
-                          </div>
+                              {/* Description */}
+                              {paket.ozellikler?.aciklama && (
+                                <div className="mb-4">
+                                  <p className="text-sm text-gray-600 leading-relaxed">
+                                    {paket.ozellikler.aciklama}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
 
-                          {/* Select Button */}
-                          <button
-                            type="button"
-                            className={`w-full py-2 rounded-lg font-semibold transition-all text-sm ${
-                              selectedPaket === paket.id
-                                ? 'bg-green-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                          >
-                            {selectedPaket === paket.id ? '✓ انتخاب شده' : 'انتخاب رایگان'}
-                          </button>
+                            {/* Sağ - Price & Button */}
+                            <div className="flex-shrink-0 w-full md:w-72">
+                              {/* Price */}
+                              <div className="text-center mb-4 py-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
+                                <div className="text-3xl font-bold text-green-600">رایگان</div>
+                                <div className="text-xs text-green-700 mt-1 font-semibold">بدون نیاز به پرداخت</div>
+                              </div>
+
+                              {/* Select Button */}
+                              <button
+                                type="button"
+                                className={`w-full py-3 rounded-lg font-bold transition-all ${
+                                  selectedPaket === paket.id
+                                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                              >
+                                {selectedPaket === paket.id ? '✓ انتخاب شده' : 'شروع رایگان'}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
