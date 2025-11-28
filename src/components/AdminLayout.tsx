@@ -23,7 +23,8 @@ import {
   MapPin,
   ShieldCheck,
   Tag,
-  TrendingUp
+  TrendingUp,
+  Image
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -79,6 +80,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     {
       title: "ظاهر سایت",
       items: [
+        { icon: Image, label: "مدیریت اسلایدر", href: "/admin/slider" },
         { icon: Package, label: "تنظیمات Footer", href: "/admin/footer-ayarlari" },
       ]
     }
