@@ -199,34 +199,36 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
           ) : (
             <>
               {/* Kapak Bölgesi - TAM GENİŞLİK */}
-              <div className="relative mb-8 mt-8">
+              <div className="relative mb-8 mt-4 sm:mt-6 md:mt-8">
                 {/* Kapak Resmi - Tam Genişlik */}
-                <div className={`relative rounded-3xl overflow-hidden shadow-2xl ${
+                <div className={`relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl ${
                   isElite 
-                    ? 'border-4 border-yellow-400 ring-8 ring-yellow-200/50' 
+                    ? 'border-2 sm:border-4 border-yellow-400 ring-4 sm:ring-8 ring-yellow-200/50' 
                     : isPro
-                    ? 'border-4 border-blue-400 ring-8 ring-blue-200/50'
-                    : 'border-4 border-white'
+                    ? 'border-2 sm:border-4 border-blue-400 ring-4 sm:ring-8 ring-blue-200/50'
+                    : 'border-2 sm:border-4 border-white'
                 }`}>
                   {/* Elite/Pro Badge */}
                   {(isElite || isPro) && (
-                    <div className="absolute top-6 right-6 z-20">
-                      <div className={`flex items-center gap-2 text-white px-6 py-3 rounded-2xl text-base font-bold shadow-2xl border-2 ${
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 z-20">
+                      <div className={`flex items-center gap-1.5 sm:gap-2 text-white px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-bold shadow-2xl border-2 ${
                         isElite
                           ? 'bg-gradient-to-r from-yellow-500 to-orange-500 border-yellow-300'
                           : 'bg-gradient-to-r from-blue-500 to-indigo-500 border-blue-300'
                       }`}>
                         {isElite ? (
                           <>
-                            <Crown className="h-6 w-6 fill-white" />
-                            <span>مغازه پریمیوم</span>
-                            <Sparkles className="h-5 w-5" />
+                            <Crown className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 fill-white" />
+                            <span className="hidden sm:inline">مغازه پریمیوم</span>
+                            <span className="sm:hidden">پریمیوم</span>
+                            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                           </>
                         ) : (
                           <>
-                            <Star className="h-6 w-6 fill-white" />
-                            <span>مغازه حرفه‌ای</span>
-                            <Zap className="h-5 w-5" />
+                            <Star className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 fill-white" />
+                            <span className="hidden sm:inline">مغازه حرفه‌ای</span>
+                            <span className="sm:hidden">حرفه‌ای</span>
+                            <Zap className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                           </>
                         )}
                       </div>
@@ -234,7 +236,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   )}
 
                   {/* Kapak Resmi */}
-                  <div className={`relative ${isElite ? 'h-72' : isPro ? 'h-64' : 'h-48'} ${
+                  <div className={`relative ${isElite ? 'h-48 sm:h-56 md:h-64 lg:h-72' : isPro ? 'h-40 sm:h-48 md:h-56 lg:h-64' : 'h-32 sm:h-40 md:h-48'} ${
                     isElite 
                       ? 'bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-600' 
                       : isPro
@@ -274,13 +276,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 </div>
 
                 {/* Logo - Kapaktan Taşan - ORTADA */}
-                <div className="absolute bottom-36 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                  <div className={`relative ${isElite ? 'w-40 h-40' : isPro ? 'w-36 h-36' : 'w-28 h-28'} rounded-3xl overflow-hidden ${
+                <div className="absolute -bottom-12 sm:-bottom-16 md:-bottom-20 left-1/2 -translate-x-1/2 z-20">
+                  <div className={`relative ${isElite ? 'w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40' : isPro ? 'w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36' : 'w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28'} rounded-2xl sm:rounded-3xl overflow-hidden ${
                     isElite 
-                      ? 'border-4 border-yellow-400 shadow-2xl bg-white ring-8 ring-yellow-300/50' 
+                      ? 'border-2 sm:border-4 border-yellow-400 shadow-2xl bg-white ring-4 sm:ring-8 ring-yellow-300/50' 
                       : isPro
-                      ? 'border-4 border-blue-400 shadow-2xl bg-white ring-8 ring-blue-300/50'
-                      : 'border-4 border-white shadow-2xl bg-white ring-4 ring-purple-200'
+                      ? 'border-2 sm:border-4 border-blue-400 shadow-2xl bg-white ring-4 sm:ring-8 ring-blue-300/50'
+                      : 'border-2 sm:border-4 border-white shadow-2xl bg-white ring-2 sm:ring-4 ring-purple-200'
                   } flex-shrink-0`}>
                     {magaza.logo ? (
                       <img
@@ -318,70 +320,71 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 </div>
 
                 {/* Mağaza Bilgileri */}
-                <div className="relative px-8 pt-24" dir="rtl">
+                <div className="relative px-4 sm:px-6 md:px-8 pt-16 sm:pt-20 md:pt-24" dir="rtl">
                   {/* Bilgiler - Elite/Pro Özel */}
-                  <div className={`rounded-2xl p-8 shadow-2xl ${
+                  <div className={`rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl ${
                     isElite 
-                      ? 'bg-gradient-to-br from-white via-yellow-50/30 to-orange-50/30 border-4 border-yellow-300' 
+                      ? 'bg-gradient-to-br from-white via-yellow-50/30 to-orange-50/30 border-2 sm:border-4 border-yellow-300' 
                       : isPro
-                      ? 'bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border-4 border-blue-300'
+                      ? 'bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border-2 sm:border-4 border-blue-300'
                       : 'bg-white border-2 border-gray-200'
                   }`}>
-                      <div className="flex items-start justify-between mb-6">
-                        {/* Sadece mağaza sahibi için yönetim butonu */}
-                        {user && magaza && user.id === magaza.kullanici_id && (
-                          <Link
-                            href="/magazam"
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md font-semibold"
-                          >
-                            <Settings className="h-4 w-4" />
-                            <span className="text-sm">پنل مدیریت</span>
-                          </Link>
-                        )}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3 flex-wrap">
+                      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-0 sm:justify-between mb-6">
+                        <div className="flex-1 order-2 sm:order-1 w-full">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
                             <h1 className={`font-bold ${
                               isElite 
-                                ? 'text-4xl bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent' 
+                                ? 'text-2xl sm:text-3xl md:text-4xl bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent' 
                                 : isPro
-                                ? 'text-4xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
-                                : 'text-3xl text-gray-900'
+                                ? 'text-2xl sm:text-3xl md:text-4xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
+                                : 'text-xl sm:text-2xl md:text-3xl text-gray-900'
                             }`}>
                               {magaza.ad_dari || magaza.ad}
                             </h1>
                             {(isElite || isPro) && (
-                              <div className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-bold shadow-lg ${
+                              <div className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-bold shadow-lg ${
                                 isElite
-                                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-base border-2 border-yellow-300'
-                                  : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm'
+                                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs sm:text-sm md:text-base border-2 border-yellow-300'
+                                  : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs sm:text-sm'
                               }`}>
-                                {isElite ? <Crown className="h-5 w-5 fill-white" /> : <Star className="h-4 w-4" />}
-                                <span>{isElite ? 'ELITE PREMIUM' : 'PRO'}</span>
-                                {isElite && <Sparkles className="h-4 w-4" />}
+                                {isElite ? <Crown className="h-4 w-4 sm:h-5 sm:w-5 fill-white" /> : <Star className="h-3 w-3 sm:h-4 sm:w-4" />}
+                                <span>{isElite ? 'PREMIUM' : 'PRO'}</span>
+                                {isElite && <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />}
                               </div>
                             )}
                           </div>
                           
+                          {/* Sadece mağaza sahibi için yönetim butonu - Mobilde üstte */}
+                          {user && magaza && user.id === magaza.kullanici_id && (
+                            <Link
+                              href="/magazam"
+                              className="flex sm:hidden items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md font-semibold mb-4 w-full"
+                            >
+                              <Settings className="h-4 w-4" />
+                              <span className="text-sm">پنل مدیریت</span>
+                            </Link>
+                          )}
+                          
                           {/* Doğrulama Rozeti - Ücretli Paketler için */}
                           {(isElite || isPro) && (
-                            <div className="flex items-center gap-2 mb-3 flex-wrap">
-                              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl shadow-lg border-2 ${
+                            <div className="flex items-center gap-2 mb-4 flex-wrap">
+                              <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-lg border-2 ${
                                 isElite
                                   ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-yellow-300'
                                   : 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-300'
                               }`}>
-                                <BadgeCheck className={`h-5 w-5 ${isElite ? 'text-yellow-600' : 'text-blue-600'}`} />
-                                <span className={`text-sm font-bold ${isElite ? 'text-yellow-800' : 'text-blue-800'}`}>
+                                <BadgeCheck className={`h-4 w-4 sm:h-5 sm:w-5 ${isElite ? 'text-yellow-600' : 'text-blue-600'}`} />
+                                <span className={`text-xs sm:text-sm font-bold ${isElite ? 'text-yellow-800' : 'text-blue-800'}`}>
                                   مغازه تأیید شده
                                 </span>
                               </div>
-                              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl shadow-md ${
+                              <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-md ${
                                 isElite
                                   ? 'bg-green-100 border-2 border-green-300'
                                   : 'bg-green-100 border-2 border-green-300'
                               }`}>
-                                <ShieldCheck className="h-5 w-5 text-green-600" />
-                                <span className="text-sm font-bold text-green-800">
+                                <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                                <span className="text-xs sm:text-sm font-bold text-green-800">
                                   فروشنده معتبر
                                 </span>
                               </div>
@@ -389,30 +392,41 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           )}
                           
                           <p className={`mb-4 leading-relaxed ${
-                            isElite ? 'text-gray-800 text-xl' : 'text-gray-700 text-lg'
+                            isElite ? 'text-gray-800 text-sm sm:text-base md:text-lg lg:text-xl' : 'text-gray-700 text-sm sm:text-base md:text-lg'
                           }`}>{magaza.aciklama}</p>
                         </div>
+                        
+                        {/* Desktop'ta yönetim butonu - Sağ üstte */}
+                        {user && magaza && user.id === magaza.kullanici_id && (
+                          <Link
+                            href="/magazam"
+                            className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md font-semibold order-1 sm:order-2 self-start"
+                          >
+                            <Settings className="h-4 w-4" />
+                            <span className="text-sm">پنل مدیریت</span>
+                          </Link>
+                        )}
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Package className="h-5 w-5 text-blue-600" />
-                          <span>{magaza.ilan_sayisi} محصول</span>
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                        <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
+                          <Package className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                          <span className="truncate">{magaza.ilan_sayisi} محصول</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Eye className="h-5 w-5 text-blue-600" />
-                          <span>{magaza.goruntulenme} بازدید</span>
+                        <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
+                          <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                          <span className="truncate">{magaza.goruntulenme} بازدید</span>
                         </div>
                         {magaza.il_ad && (
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <MapPin className="h-5 w-5 text-blue-600" />
-                            <span>{magaza.il_ad}</span>
+                          <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
+                            <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                            <span className="truncate">{magaza.il_ad}</span>
                           </div>
                         )}
                         {magaza.telefon && (
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <Phone className="h-5 w-5 text-blue-600" />
-                            <span dir="ltr">{magaza.telefon}</span>
+                          <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
+                            <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                            <span dir="ltr" className="truncate">{magaza.telefon}</span>
                           </div>
                         )}
                       </div>
@@ -420,15 +434,15 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       {magaza.telefon && (
                         <a
                           href={`tel:${magaza.telefon}`}
-                          className={`inline-flex items-center gap-2 font-bold px-8 py-4 rounded-xl transition-all shadow-lg ${
+                          className={`inline-flex items-center justify-center gap-2 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-lg sm:rounded-xl transition-all shadow-lg text-sm sm:text-base w-full sm:w-auto ${
                             isElite
                               ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-2 border-yellow-400'
                               : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-2 border-green-500'
                           }`}
                         >
-                          <Phone className="h-5 w-5" />
+                          <Phone className="h-4 w-4 sm:h-5 sm:w-5" />
                           <span>تماس با مغازه</span>
-                          {isElite && <Sparkles className="h-4 w-4" />}
+                          {isElite && <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />}
                         </a>
                       )}
                   </div>
@@ -437,32 +451,32 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
               {/* Vitrin İlanları - Elite Özel */}
               {vitrinIlanlar.length > 0 && (
-                <section className={`mb-12 rounded-3xl p-8 shadow-2xl ${
+                <section className={`mb-8 sm:mb-12 rounded-xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl ${
                   isElite 
-                    ? 'bg-gradient-to-br from-white via-yellow-50/50 to-orange-50/50 border-4 border-yellow-300 ring-4 ring-yellow-200/30' 
+                    ? 'bg-gradient-to-br from-white via-yellow-50/50 to-orange-50/50 border-2 sm:border-4 border-yellow-300 ring-2 sm:ring-4 ring-yellow-200/30' 
                     : 'bg-white border-2 border-yellow-200'
                 }`} dir="rtl">
-                  <div className="flex items-center gap-3 mb-6">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                     {isElite ? (
                       <>
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-                          <Crown className="h-7 w-7 text-white fill-white" />
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                          <Crown className="h-5 w-5 sm:h-7 sm:w-7 text-white fill-white" />
                         </div>
                         <div>
-                          <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
                             ویترین پریمیوم
                           </h2>
-                          <p className="text-sm text-gray-600">محصولات ویژه این مغازه</p>
+                          <p className="text-xs sm:text-sm text-gray-600">محصولات ویژه این مغازه</p>
                         </div>
                       </>
                     ) : (
                       <>
-                        <Star className="h-8 w-8 text-yellow-500 fill-yellow-500" />
-                        <h2 className="text-3xl font-bold text-gray-900">ویترین مغازه</h2>
+                        <Star className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">ویترین مغازه</h2>
                       </>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                     {vitrinIlanlar.map((ilan, index) => (
                       <motion.div
                         key={ilan.id}
@@ -471,7 +485,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         transition={{ delay: index * 0.05 }}
                       >
                         <Link href={`/ilan/${ilan.id}`} className="group block">
-                          <div className="bg-white rounded-xl shadow-xl border-3 border-yellow-300 overflow-hidden hover:shadow-2xl hover:border-yellow-500 transition-all ring-2 ring-yellow-100">
+                          <div className="bg-white rounded-xl shadow-xl border-2 border-yellow-300 overflow-hidden hover:shadow-2xl hover:border-yellow-500 transition-all ring-2 ring-yellow-100">
                             <div className="relative aspect-square bg-gray-100">
                               <Image
                                 src={getImageUrl(ilan.ana_resim)}
@@ -502,25 +516,25 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               )}
 
               {/* Tüm İlanlar - Elite Özel */}
-              <section className={`rounded-3xl p-8 shadow-2xl mb-12 ${
+              <section className={`rounded-xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl mb-8 sm:mb-12 ${
                 isElite 
-                  ? 'bg-gradient-to-br from-white to-yellow-50/30 border-4 border-yellow-200' 
+                  ? 'bg-gradient-to-br from-white to-yellow-50/30 border-2 sm:border-4 border-yellow-200' 
                   : 'bg-white border-2 border-gray-200'
               }`} dir="rtl">
-                <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                   {isElite ? (
                     <>
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-                        <ShoppingBag className="h-6 w-6 text-white" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                        <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                       </div>
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
                         تمام محصولات
                       </h2>
                     </>
                   ) : (
                     <>
-                      <ShoppingBag className="h-8 w-8 text-blue-600" />
-                      <h2 className="text-3xl font-bold text-gray-900">همه محصولات</h2>
+                      <ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">همه محصولات</h2>
                     </>
                   )}
                 </div>
@@ -541,7 +555,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
                     {ilanlar.map((ilan) => (
                       <Link key={ilan.id} href={`/ilan/${ilan.id}`} className="group">
                         <div className="bg-white rounded-xl shadow-md border-2 border-gray-200 overflow-hidden hover:shadow-2xl hover:border-purple-300 transition-all">
@@ -569,21 +583,21 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               </section>
 
               {/* Yorumlar Bölümü */}
-              <section className={`rounded-3xl p-8 shadow-2xl ${
+              <section className={`rounded-xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl ${
                 isElite 
-                  ? 'bg-gradient-to-br from-white to-purple-50/30 border-4 border-purple-200' 
+                  ? 'bg-gradient-to-br from-white to-purple-50/30 border-2 sm:border-4 border-purple-200' 
                   : 'bg-white border-2 border-gray-200'
               }`} dir="rtl">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 ${
                     isElite 
                       ? 'bg-gradient-to-br from-purple-500 to-pink-500' 
                       : 'bg-blue-100'
                   }`}>
-                    <MessageCircle className={`h-6 w-6 ${isElite ? 'text-white' : 'text-blue-600'}`} />
+                    <MessageCircle className={`h-5 w-5 sm:h-6 sm:w-6 ${isElite ? 'text-white' : 'text-blue-600'}`} />
                   </div>
                   <div className="flex-1">
-                    <h2 className={`text-3xl font-bold ${
+                    <h2 className={`text-xl sm:text-2xl md:text-3xl font-bold ${
                       isElite 
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent' 
                         : 'text-gray-900'
@@ -614,7 +628,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
                 {/* Yorum Formu */}
                 {user ? (
-                  <form onSubmit={handleYorumGonder} className="mb-8 bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
+                  <form onSubmit={handleYorumGonder} className="mb-6 sm:mb-8 bg-gray-50 rounded-lg sm:rounded-xl p-4 sm:p-6 border-2 border-gray-200">
                     <div className="mb-4">
                       <label className="block text-sm font-bold text-gray-700 mb-2">
                         امتیاز شما
@@ -656,7 +670,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     <button
                       type="submit"
                       disabled={yorumGonderiliyor}
-                      className={`flex items-center gap-2 font-bold px-6 py-3 rounded-lg transition-all ${
+                      className={`flex items-center justify-center gap-2 font-bold px-6 py-3 rounded-lg transition-all w-full sm:w-auto ${
                         isElite
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
                           : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -676,14 +690,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     </button>
                   </form>
                 ) : (
-                  <div className="mb-8 bg-blue-50 border-2 border-blue-200 rounded-xl p-6 text-center">
-                    <MessageCircle className="h-12 w-12 text-blue-600 mx-auto mb-3" />
-                    <p className="text-gray-700 mb-4">
+                  <div className="mb-6 sm:mb-8 bg-blue-50 border-2 border-blue-200 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center">
+                    <MessageCircle className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mx-auto mb-3" />
+                    <p className="text-sm sm:text-base text-gray-700 mb-4">
                       برای ثبت نظر باید وارد حساب کاربری خود شوید
                     </p>
                     <Link
                       href="/giris"
-                      className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-all"
+                      className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-all w-full sm:w-auto"
                     >
                       ورود / ثبت نام
                     </Link>
