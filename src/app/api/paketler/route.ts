@@ -91,7 +91,7 @@ const mockPaketler = [
 
 export async function GET(request: NextRequest) {
   try {
-    const paketler = await query(`
+    const paketler: any = await query(`
       SELECT 
         id,
         ad,
@@ -128,9 +128,17 @@ export async function GET(request: NextRequest) {
         sure_ay ASC
     `);
 
+    // JSON stringlerini parse et
+    const parsedPaketler = paketler.map((paket: any) => ({
+      ...paket,
+      ozellikler: typeof paket.ozellikler === 'string' 
+        ? JSON.parse(paket.ozellikler) 
+        : paket.ozellikler
+    }));
+
     return NextResponse.json({
       success: true,
-      data: paketler
+      data: parsedPaketler
     });
   } catch (error: any) {
     console.error('Paket listesi hatası (fallback kullanılıyor):', error);
