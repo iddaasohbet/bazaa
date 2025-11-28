@@ -218,7 +218,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, kullanici_id, resimler } = body;
+    const { baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, emlak_tipi, kullanici_id, resimler } = body;
 
     console.log('📝 Yeni ilan oluşturuluyor:', { baslik, kullanici_id, resim_sayisi: resimler?.length || 0 });
 
@@ -248,10 +248,10 @@ export async function POST(request: Request) {
     // İlan oluştur
     const result = await query(
       `INSERT INTO ilanlar (
-        baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, 
+        baslik, aciklama, fiyat, fiyat_tipi, kategori_id, il_id, durum, emlak_tipi,
         kullanici_id, magaza_id, ana_resim, aktif, goruntulenme
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
-      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', kategori_id, il_id, durum || 'kullanilmis', kullanici_id, magazaId, anaResim]
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
+      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', kategori_id, il_id, durum || 'kullanilmis', emlak_tipi || null, kullanici_id, magazaId, anaResim]
     );
 
     const ilanId = (result as any).insertId;

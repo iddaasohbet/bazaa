@@ -39,6 +39,7 @@ interface Ilan {
   kategori_slug: string;
   il_ad: string;
   durum: string;
+  emlak_tipi?: string;
   goruntulenme: number;
   created_at: string;
   kullanici_ad: string;
@@ -164,6 +165,12 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
     'az_kullanilmis': 'کم استفاده',
     'kullanilmis': 'استفاده شده',
     'hasarli': 'آسیب دیده',
+  };
+
+  const emlakTipiLabels: { [key: string]: { label: string; icon: string; color: string } } = {
+    'satilik': { label: 'فروشی', icon: '🏷️', color: 'bg-green-100 text-green-700' },
+    'kiralik': { label: 'کرایی', icon: '🔑', color: 'bg-blue-100 text-blue-700' },
+    'rehinli': { label: 'گروی', icon: '🏦', color: 'bg-purple-100 text-purple-700' },
   };
 
   const handleSendMessage = async () => {
@@ -319,7 +326,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className={`grid ${ilan.emlak_tipi ? 'grid-cols-3' : 'grid-cols-2'} gap-4 mb-6`}>
                   <div className="border border-gray-200 rounded-lg p-4">
                     <div className="text-sm text-gray-600 mb-1">دسته بندی</div>
                     <Link href={`/kategori/${ilan.kategori_slug}`} className="font-semibold text-blue-600 hover:underline">
@@ -330,6 +337,17 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                     <div className="text-sm text-gray-600 mb-1">وضعیت</div>
                     <div className="font-semibold text-gray-900">{durumLabels[ilan.durum]}</div>
                   </div>
+                  
+                  {/* Emlak Tipi - Sadece emlak kategorisinde göster */}
+                  {ilan.emlak_tipi && emlakTipiLabels[ilan.emlak_tipi] && (
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="text-sm text-gray-600 mb-1">نوع ملک</div>
+                      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold ${emlakTipiLabels[ilan.emlak_tipi].color}`}>
+                        <span>{emlakTipiLabels[ilan.emlak_tipi].icon}</span>
+                        <span>{emlakTipiLabels[ilan.emlak_tipi].label}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>

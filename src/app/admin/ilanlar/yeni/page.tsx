@@ -45,6 +45,7 @@ export default function YeniIlanPage() {
     durum: "kullanilmis",
     stok_miktari: "1",
     video_url: "",
+    emlak_tipi: "",
   });
 
   useEffect(() => {
@@ -291,6 +292,64 @@ export default function YeniIlanPage() {
                       </select>
                     </div>
                   </div>
+
+                  {/* Emlak Tipi - Emlak kategorisi seçildiğinde göster */}
+                  {kategoriler.find(k => k.id === parseInt(formData.kategori_id))?.ad === 'Emlak' && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        نوع ملک (Emlak Tipi) <span className="text-red-500">*</span>
+                      </label>
+                      <div className="grid grid-cols-3 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, emlak_tipi: 'satilik' })}
+                          className={`px-6 py-4 rounded-lg border-2 font-semibold transition-all ${
+                            formData.emlak_tipi === 'satilik'
+                              ? 'border-blue-600 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-2xl mb-1">🏷️</div>
+                            <div>فروشی</div>
+                            <div className="text-xs text-gray-500">Satılık</div>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, emlak_tipi: 'kiralik' })}
+                          className={`px-6 py-4 rounded-lg border-2 font-semibold transition-all ${
+                            formData.emlak_tipi === 'kiralik'
+                              ? 'border-blue-600 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-2xl mb-1">🔑</div>
+                            <div>کرایی</div>
+                            <div className="text-xs text-gray-500">Kiralık</div>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, emlak_tipi: 'rehinli' })}
+                          className={`px-6 py-4 rounded-lg border-2 font-semibold transition-all ${
+                            formData.emlak_tipi === 'rehinli'
+                              ? 'border-blue-600 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-2xl mb-1">🏦</div>
+                            <div>گروی</div>
+                            <div className="text-xs text-gray-500">Rehinli</div>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Durum ve Stok */}
                   <div className="grid sm:grid-cols-2 gap-4">

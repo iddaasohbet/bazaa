@@ -80,7 +80,8 @@ export async function POST(request: Request) {
       fiyat_tipi, 
       kategori_id, 
       il_id, 
-      durum, 
+      durum,
+      emlak_tipi,
       kullanici_id, 
       stok_miktari,
       video_url,
@@ -120,9 +121,9 @@ export async function POST(request: Request) {
     const result = await query(
       `INSERT INTO ilanlar (
         baslik, aciklama, fiyat, eski_fiyat, indirim_yuzdesi, fiyat_tipi, 
-        kategori_id, il_id, durum, kullanici_id, magaza_id, 
+        kategori_id, il_id, durum, emlak_tipi, kullanici_id, magaza_id, 
         stok_miktari, video_url, ana_resim, aktif, onecikan, goruntulenme
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
       [
         baslik, 
         aciklama, 
@@ -132,7 +133,8 @@ export async function POST(request: Request) {
         fiyat_tipi || 'negotiable', 
         kategori_id, 
         il_id, 
-        durum || 'kullanilmis', 
+        durum || 'kullanilmis',
+        emlak_tipi || null,
         kullanici_id, 
         magaza_id,
         stok_miktari || 1,

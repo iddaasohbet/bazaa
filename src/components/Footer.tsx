@@ -1,9 +1,93 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Download, Store } from "lucide-react";
 
+interface FooterSettings {
+  site_baslik: string;
+  site_aciklama: string;
+  copyright_metni: string;
+  iletisim_adres: string;
+  iletisim_telefon: string;
+  iletisim_email: string;
+  sosyal_facebook: string;
+  sosyal_twitter: string;
+  sosyal_instagram: string;
+  app_baslik: string;
+  app_aciklama: string;
+  app_google_play_link: string;
+  app_qr_url: string;
+  hizli_linkler: string;
+  alt_linkler: string;
+}
+
+interface FooterLink {
+  label: string;
+  href: string;
+}
+
 export default function Footer() {
+  const [settings, setSettings] = useState<FooterSettings | null>(null);
+  const [hizliLinkler, setHizliLinkler] = useState<FooterLink[]>([]);
+  const [altLinkler, setAltLinkler] = useState<FooterLink[]>([]);
+
+  useEffect(() => {
+    fetchFooterSettings();
+  }, []);
+
+  const fetchFooterSettings = async () => {
+    try {
+      const response = await fetch('/api/admin/footer-ayarlari');
+      const data = await response.json();
+      
+      if (data.success) {
+        setSettings(data.data);
+        
+        // JSON linklerini parse et
+        try {
+          const hizli = JSON.parse(data.data.hizli_linkler || '[]');
+          setHizliLinkler(hizli);
+        } catch (e) {
+          setHizliLinkler([
+            { label: "درباره ما", href: "/hakkimizda" },
+            { label: "چگونه کار می کند؟", href: "/nasil-calisir" },
+            { label: "خرید امن", href: "/guvenli-alisveris" },
+            { label: "سوالات متداول", href: "/sss" }
+          ]);
+        }
+        
+        try {
+          const alt = JSON.parse(data.data.alt_linkler || '[]');
+          setAltLinkler(alt);
+        } catch (e) {
+          setAltLinkler([
+            { label: "سیاست حفظ حریم خصوصی", href: "/gizlilik" },
+            { label: "شرایط استفاده", href: "/kullanim-kosullari" },
+            { label: "حریم خصوصی", href: "/kvkk" }
+          ]);
+        }
+      }
+    } catch (error) {
+      console.error('Footer ayarları yüklenemedi:', error);
+    }
+  };
+
+  // Default değerler (yüklenene kadar)
+  const siteBaslik = settings?.site_baslik || 'BazaareWatan';
+  const siteAciklama = settings?.site_aciklama || 'معتبرترین پلتفرم آگهی در افغانستان. کالای دست دوم، خودرو، املاک و بیشتر.';
+  const copyrightMetni = settings?.copyright_metni || 'آگهی های افغانستان. تمامی حقوق محفوظ است.';
+  const iletisimAdres = settings?.iletisim_adres || 'کابل، افغانستان';
+  const iletisimTelefon = settings?.iletisim_telefon || '+93 700 000 000';
+  const iletisimEmail = settings?.iletisim_email || 'info@afghanistan-ilanlar.com';
+  const sosyalFacebook = settings?.sosyal_facebook || '#';
+  const sosyalTwitter = settings?.sosyal_twitter || '#';
+  const sosyalInstagram = settings?.sosyal_instagram || '#';
+  const appBaslik = settings?.app_baslik || 'اپلیکیشن موبایل ما را دانلود کنید';
+  const appAciklama = settings?.app_aciklama || 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید';
+  const appGooglePlayLink = settings?.app_google_play_link || 'https://play.google.com/store';
+  const appQrUrl = settings?.app_qr_url || 'https://cihatcengiz.com';
+
   return (
     <footer className="bg-white border-t border-gray-200 mt-16">
       {/* Android App Download Section */}
@@ -12,17 +96,17 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-right" dir="rtl">
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                اپلیکیشن موبایل ما را دانلود کنید
+                {appBaslik}
               </h3>
               <p className="text-gray-600">
-                آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید
+                {appAciklama}
               </p>
             </div>
             <div className="flex items-center gap-6">
               {/* QR Code */}
               <div className="bg-white p-2 rounded-lg border border-gray-300 shadow-md">
                 <img 
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://cihatcengiz.com" 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(appQrUrl)}`}
                   alt="QR Code"
                   className="w-20 h-20"
                 />
@@ -31,7 +115,9 @@ export default function Footer() {
               
               {/* Download Button */}
               <a
-                href="#"
+                href={appGooglePlayLink}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-3 bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900 text-white px-8 py-4 rounded-xl transition-all shadow-lg border-2 border-gray-700"
               >
                 <Download className="h-6 w-6" />
@@ -68,18 +154,24 @@ export default function Footer() {
               </div>
             </Link>
             <p className="text-sm text-gray-600 mb-4">
-              معتبرترین پلتفرم آگهی در افغانستان. کالای دست دوم، خودرو، املاک و بیشتر.
+              {siteAciklama}
             </p>
             <div className="flex gap-3">
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-colors">
-                <Twitter className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-colors">
-                <Instagram className="h-4 w-4" />
-              </a>
+              {sosyalFacebook && sosyalFacebook !== '#' && (
+                <a href={sosyalFacebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
+                  <Facebook className="h-4 w-4" />
+                </a>
+              )}
+              {sosyalTwitter && sosyalTwitter !== '#' && (
+                <a href={sosyalTwitter} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-colors">
+                  <Twitter className="h-4 w-4" />
+                </a>
+              )}
+              {sosyalInstagram && sosyalInstagram !== '#' && (
+                <a href={sosyalInstagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-colors">
+                  <Instagram className="h-4 w-4" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -87,26 +179,13 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-bold text-gray-900 mb-4">لینک های سریع</h4>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/hakkimizda" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  درباره ما
-                </Link>
-              </li>
-              <li>
-                <Link href="/nasil-calisir" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  چگونه کار می کند؟
-                </Link>
-              </li>
-              <li>
-                <Link href="/guvenli-alisveris" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  خرید امن
-                </Link>
-              </li>
-              <li>
-                <Link href="/sss" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  سوالات متداول
-                </Link>
-              </li>
+              {hizliLinkler.map((link, index) => (
+                <li key={index}>
+                  <Link href={link.href} className="text-gray-600 hover:text-blue-600 transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -148,18 +227,18 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-600">کابل، افغانستان</span>
+                <span className="text-gray-600">{iletisimAdres}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <a href="tel:+93700000000" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  +93 700 000 000
+                <a href={`tel:${iletisimTelefon.replace(/\s/g, '')}`} className="text-gray-600 hover:text-blue-600 transition-colors">
+                  {iletisimTelefon}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <a href="mailto:info@afghanistan-ilanlar.com" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  info@afghanistan-ilanlar.com
+                <a href={`mailto:${iletisimEmail}`} className="text-gray-600 hover:text-blue-600 transition-colors">
+                  {iletisimEmail}
                 </a>
               </li>
             </ul>
@@ -172,18 +251,14 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
             <div>
-              &copy; {new Date().getFullYear()} آگهی های افغانستان. تمامی حقوق محفوظ است.
+              &copy; {new Date().getFullYear()} {copyrightMetni}
             </div>
             <div className="flex gap-6">
-              <Link href="/gizlilik" className="hover:text-blue-600 transition-colors">
-                سیاست حفظ حریم خصوصی
-              </Link>
-              <Link href="/kullanim-kosullari" className="hover:text-blue-600 transition-colors">
-                شرایط استفاده
-              </Link>
-              <Link href="/kvkk" className="hover:text-blue-600 transition-colors">
-                حریم خصوصی
-              </Link>
+              {altLinkler.map((link, index) => (
+                <Link key={index} href={link.href} className="hover:text-blue-600 transition-colors">
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

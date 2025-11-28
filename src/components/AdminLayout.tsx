@@ -75,6 +75,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         { icon: Settings, label: "تنظیمات", href: "/admin/ayarlar" },
         { icon: ShieldCheck, label: "امنیت", href: "/admin/guvenlik" },
       ]
+    },
+    {
+      title: "ظاهر سایت",
+      items: [
+        { icon: Package, label: "تنظیمات Footer", href: "/admin/footer-ayarlari" },
+      ]
     }
   ];
 

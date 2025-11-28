@@ -25,10 +25,44 @@ interface Ilan {
 export default function EliteIlanlar() {
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [favoriler, setFavoriler] = useState<number[]>([]);
 
   useEffect(() => {
     fetchEliteIlanlar();
+    loadFavoriler();
+    
+    // Favori güncellemelerini dinle
+    const handleFavoriUpdate = () => {
+      loadFavoriler();
+    };
+    
+    window.addEventListener('favoriGuncelle', handleFavoriUpdate);
+    return () => window.removeEventListener('favoriGuncelle', handleFavoriUpdate);
   }, []);
+
+  const loadFavoriler = async () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return;
+
+      const user = JSON.parse(userStr);
+      
+      const response = await fetch('/api/favoriler', {
+        headers: {
+          'x-user-id': user.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        const favoriIds = (data.data || []).map((f: any) => f.ilan_id);
+        setFavoriler(favoriIds);
+      }
+    } catch (error) {
+      console.error('Favoriler yüklenirken hata:', error);
+    }
+  };
 
   const fetchEliteIlanlar = async () => {
     try {
@@ -138,13 +172,55 @@ export default function EliteIlanlar() {
                   
                   {/* Favorite Button */}
                   <button 
-                    onClick={(e) => { 
+                    onClick={async (e) => { 
                       e.preventDefault();
                       e.stopPropagation();
+                      
+                      const userStr = localStorage.getItem('user');
+                      if (!userStr) {
+                        alert('لطفاً ابتدا وارد شوید');
+                        return;
+                      }
+
+                      const user = JSON.parse(userStr);
+                      const isFavorite = favoriler.includes(ilan.id);
+                      
+                      try {
+                        if (isFavorite) {
+                          // Favoriden çıkar
+                          await fetch(`/api/favoriler?ilanId=${ilan.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                              'x-user-id': user.id.toString()
+                            }
+                          });
+                          setFavoriler(prev => prev.filter(id => id !== ilan.id));
+                        } else {
+                          // Favoriye ekle
+                          await fetch('/api/favoriler', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'x-user-id': user.id.toString()
+                            },
+                            body: JSON.stringify({ ilanId: ilan.id })
+                          });
+                          setFavoriler(prev => [...prev, ilan.id]);
+                        }
+                        
+                        // Header'ı güncelle
+                        window.dispatchEvent(new Event('favoriGuncelle'));
+                      } catch (error) {
+                        console.error('Favori işlemi hatası:', error);
+                      }
                     }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
+                    className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all z-20"
                   >
-                    <Heart className="h-4 w-4 text-gray-600" />
+                    <Heart className={`h-4 w-4 transition-colors ${
+                      favoriler.includes(ilan.id)
+                        ? 'text-red-500 fill-red-500' 
+                        : 'text-gray-600'
+                    }`} />
                   </button>
                 </div>
 
