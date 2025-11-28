@@ -502,3 +502,6 @@ export default function FooterAyarlariPage() {
   );
 }
 
+
+
+

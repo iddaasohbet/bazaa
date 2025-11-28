@@ -59,3 +59,6 @@ ON DUPLICATE KEY UPDATE ayar_value=VALUES(ayar_value);
 -- Başarılı mesajı
 SELECT 'Footer ayarları tablosu başarıyla oluşturuldu!' as message;
 
+
+
+
