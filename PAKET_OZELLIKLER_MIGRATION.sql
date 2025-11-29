@@ -46,9 +46,10 @@ SET ozellikler = JSON_OBJECT(
 )
 WHERE store_level = 'elite' AND ozellikler IS NULL;
 
--- 3. İndex ekle (performans için)
-CREATE INDEX IF NOT EXISTS idx_paketler_ozellikler 
-ON paketler((CAST(ozellikler AS CHAR(255))));
+-- 3. İndex ekleme - MariaDB/MySQL uyumlu
+-- JSON kolonlarında doğrudan index oluşturmak yerine generated column kullanılabilir
+-- Ancak bu optional, şu an için gerekli değil
 
-SELECT 'Migration completed successfully!' AS status;
+SELECT 'Migration completed successfully! ✅' AS status;
+SELECT COUNT(*) as total_paketler FROM paketler;
 
