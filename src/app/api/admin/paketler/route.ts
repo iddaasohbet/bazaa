@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const paketler: any = await query(
       `SELECT 
-        id, ad, ad_dari, store_level, sure_ay, fiyat,
+        id, ad, ad_dari, store_level, sure_ay, fiyat, eski_fiyat,
         product_limit, category_limit, aktif, ozellikler, created_at
        FROM paketler 
        ORDER BY 
@@ -42,7 +42,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif, ozellikler } = body;
+    const { ad, ad_dari, store_level, sure_ay, fiyat, eski_fiyat, product_limit, category_limit, aktif, ozellikler } = body;
 
     if (!ad || !ad_dari) {
       return NextResponse.json(
@@ -56,14 +56,15 @@ export async function POST(request: NextRequest) {
 
     const result = await query(
       `INSERT INTO paketler 
-       (ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif, ozellikler) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (ad, ad_dari, store_level, sure_ay, fiyat, eski_fiyat, product_limit, category_limit, aktif, ozellikler) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         ad,
         ad_dari,
         store_level || 'basic',
         sure_ay || 1,
         fiyat || 0,
+        eski_fiyat || null,
         product_limit || 50,
         category_limit || 1,
         aktif !== false ? 1 : 0,
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif, ozellikler } = body;
+    const { id, ad, ad_dari, store_level, sure_ay, fiyat, eski_fiyat, product_limit, category_limit, aktif, ozellikler } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -103,7 +104,7 @@ export async function PUT(request: NextRequest) {
 
     await query(
       `UPDATE paketler 
-       SET ad = ?, ad_dari = ?, store_level = ?, sure_ay = ?, fiyat = ?,
+       SET ad = ?, ad_dari = ?, store_level = ?, sure_ay = ?, fiyat = ?, eski_fiyat = ?,
            product_limit = ?, category_limit = ?, aktif = ?, ozellikler = ?
        WHERE id = ?`,
       [
@@ -112,6 +113,7 @@ export async function PUT(request: NextRequest) {
         store_level,
         sure_ay,
         fiyat,
+        eski_fiyat || null,
         product_limit,
         category_limit,
         aktif !== false ? 1 : 0,

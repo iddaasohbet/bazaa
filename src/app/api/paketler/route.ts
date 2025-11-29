@@ -99,6 +99,7 @@ export async function GET(request: NextRequest) {
         store_level,
         sure_ay,
         fiyat,
+        eski_fiyat,
         product_limit,
         category_limit,
         listing_priority,

@@ -11,6 +11,7 @@ interface Paket {
   store_level: string;
   sure_ay: number;
   fiyat: number;
+  eski_fiyat?: number;
   product_limit: number;
   category_limit: number;
   aktif: boolean;
@@ -32,6 +33,7 @@ export default function AdminPaketlerPage() {
     store_level: 'basic',
     sure_ay: 1,
     fiyat: 0,
+    eski_fiyat: 0,
     product_limit: 50,
     category_limit: 1,
     aktif: true,
@@ -115,6 +117,7 @@ export default function AdminPaketlerPage() {
       store_level: paket.store_level,
       sure_ay: paket.sure_ay,
       fiyat: paket.fiyat,
+      eski_fiyat: paket.eski_fiyat || 0,
       product_limit: paket.product_limit,
       category_limit: paket.category_limit,
       aktif: paket.aktif,
@@ -153,6 +156,7 @@ export default function AdminPaketlerPage() {
       store_level: 'basic',
       sure_ay: 1,
       fiyat: 0,
+      eski_fiyat: 0,
       product_limit: 50,
       category_limit: 1,
       aktif: true,
@@ -338,18 +342,35 @@ export default function AdminPaketlerPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">قیمت (افغانی) *</label>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  step="0.01"
-                  value={formData.fiyat}
-                  onChange={(e) => setFormData({...formData, fiyat: parseFloat(e.target.value)})}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">قیمت فعلی (افغانی) *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="0.01"
+                    value={formData.fiyat}
+                    onChange={(e) => setFormData({...formData, fiyat: parseFloat(e.target.value)})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="350"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">قیمت تخفیف‌خورده</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">قیمت قبلی (اختیاری)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.eski_fiyat}
+                    onChange={(e) => setFormData({...formData, eski_fiyat: parseFloat(e.target.value) || 0})}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">خط‌خورده نمایش داده می‌شود</p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -489,8 +510,20 @@ function PaketCard({ paket, onEdit, onDelete, getLevelBadge }: any) {
           )}
         </div>
         <div className="text-right mr-4">
+          {paket.eski_fiyat && paket.eski_fiyat > paket.fiyat && (
+            <div className="text-sm text-gray-500 line-through decoration-red-500 decoration-2 mb-1">
+              {paket.eski_fiyat.toLocaleString()} افغانی
+            </div>
+          )}
           <div className="text-2xl font-bold text-blue-600">{paket.fiyat.toLocaleString()} <span className="text-sm">افغانی</span></div>
           <div className="text-sm text-gray-600">{paket.sure_ay} ماهه</div>
+          {paket.eski_fiyat && paket.eski_fiyat > paket.fiyat && (
+            <div className="mt-1">
+              <span className="inline-block bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                {Math.round(((paket.eski_fiyat - paket.fiyat) / paket.eski_fiyat) * 100)}% تخفیف
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

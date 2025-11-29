@@ -11,6 +11,7 @@ interface Paket {
   ad_dari: string;
   store_level: string;
   fiyat: number;
+  eski_fiyat?: number;
   sure_ay: number;
   ozellikler?: {
     aciklama?: string;
@@ -503,15 +504,28 @@ export default function MagazaAcPage() {
                                 } animate-pulse`}></div>
                               )}
                               <div className="relative z-10">
+                                {/* Eski Fiyat - Database'den veya otomatik hesaplama */}
+                                {(paket.eski_fiyat && paket.eski_fiyat > paket.fiyat) && (
+                                  <div className="mb-2">
+                                    <span className="text-lg text-gray-500 line-through decoration-red-500 decoration-2" dir="ltr">
+                                      {paket.eski_fiyat.toLocaleString('fa-AF')} AFN
+                                    </span>
+                                  </div>
+                                )}
+                                
+                                {/* Yeni Fiyat */}
                                 <div className="text-4xl font-bold text-gray-900 mb-1" dir="ltr">
                                   {paket.fiyat.toLocaleString('fa-AF')}
                                   <span className="text-lg text-gray-600 mr-2">AFN</span>
                                 </div>
-                                {paket.sure_ay === 3 && (
-                                  <div className="mt-2">
-                                    <span className="inline-flex items-center gap-1.5 text-xs text-green-700 font-bold bg-green-100 px-3 py-1.5 rounded-full border border-green-300">
-                                      <Zap className="h-3.5 w-3.5" />
-                                      <span>۳۰٪ تخفیف</span>
+                                
+                                {/* İndirim Badge - Otomatik hesaplama */}
+                                {paket.eski_fiyat && paket.eski_fiyat > paket.fiyat && (
+                                  <div className="mt-3">
+                                    <span className="inline-flex items-center gap-1.5 text-sm text-white font-bold bg-gradient-to-r from-red-500 to-red-600 px-4 py-2 rounded-full shadow-lg shadow-red-300/50 border-2 border-red-400 animate-pulse">
+                                      <Zap className="h-4 w-4" />
+                                      <span>{Math.round(((paket.eski_fiyat - paket.fiyat) / paket.eski_fiyat) * 100)}٪ تخفیف ویژه</span>
+                                      <Sparkles className="h-4 w-4" />
                                     </span>
                                   </div>
                                 )}
