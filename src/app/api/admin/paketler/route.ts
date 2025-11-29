@@ -7,7 +7,7 @@ export async function GET() {
     const paketler: any = await query(
       `SELECT 
         id, ad, ad_dari, store_level, sure_ay, fiyat,
-        product_limit, category_limit, aktif, created_at
+        product_limit, category_limit, aktif, ozellikler, created_at
        FROM paketler 
        ORDER BY 
         CASE store_level 
@@ -19,9 +19,15 @@ export async function GET() {
       []
     );
 
+    // Parse JSON ozellikler
+    const parsedPaketler = paketler.map((paket: any) => ({
+      ...paket,
+      ozellikler: paket.ozellikler ? JSON.parse(paket.ozellikler) : null
+    }));
+
     return NextResponse.json({
       success: true,
-      data: paketler
+      data: parsedPaketler
     });
   } catch (error: any) {
     console.error('Paket yükleme hatası:', error);
@@ -36,7 +42,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif } = body;
+    const { ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif, ozellikler } = body;
 
     if (!ad || !ad_dari) {
       return NextResponse.json(
@@ -45,10 +51,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Ozellikler'i JSON string'e çevir
+    const ozelliklerJson = ozellikler ? JSON.stringify(ozellikler) : null;
+
     const result = await query(
       `INSERT INTO paketler 
-       (ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+       (ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif, ozellikler) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         ad,
         ad_dari,
@@ -57,7 +66,8 @@ export async function POST(request: NextRequest) {
         fiyat || 0,
         product_limit || 50,
         category_limit || 1,
-        aktif !== false ? 1 : 0
+        aktif !== false ? 1 : 0,
+        ozelliklerJson
       ]
     );
 
@@ -79,7 +89,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif } = body;
+    const { id, ad, ad_dari, store_level, sure_ay, fiyat, product_limit, category_limit, aktif, ozellikler } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -88,10 +98,13 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Ozellikler'i JSON string'e çevir
+    const ozelliklerJson = ozellikler ? JSON.stringify(ozellikler) : null;
+
     await query(
       `UPDATE paketler 
        SET ad = ?, ad_dari = ?, store_level = ?, sure_ay = ?, fiyat = ?,
-           product_limit = ?, category_limit = ?, aktif = ?
+           product_limit = ?, category_limit = ?, aktif = ?, ozellikler = ?
        WHERE id = ?`,
       [
         ad,
@@ -102,6 +115,7 @@ export async function PUT(request: NextRequest) {
         product_limit,
         category_limit,
         aktif !== false ? 1 : 0,
+        ozelliklerJson,
         id
       ]
     );

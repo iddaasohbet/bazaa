@@ -15,6 +15,10 @@ interface Paket {
   category_limit: number;
   aktif: boolean;
   created_at: string;
+  ozellikler?: {
+    aciklama?: string;
+    ozellikler?: string[];
+  };
 }
 
 export default function AdminPaketlerPage() {
@@ -30,7 +34,9 @@ export default function AdminPaketlerPage() {
     fiyat: 0,
     product_limit: 50,
     category_limit: 1,
-    aktif: true
+    aktif: true,
+    aciklama: '',
+    ozellikler: [] as string[]
   });
 
   useEffect(() => {
@@ -58,9 +64,23 @@ export default function AdminPaketlerPage() {
     try {
       const url = '/api/admin/paketler';
       const method = editingPaket ? 'PUT' : 'POST';
+      
+      // Ozellikler nesnesini oluştur
+      const ozelliklerObj = {
+        aciklama: formData.aciklama,
+        ozellikler: formData.ozellikler.filter(o => o.trim() !== '')
+      };
+      
       const body = editingPaket 
-        ? { ...formData, id: editingPaket.id }
-        : formData;
+        ? { 
+            ...formData, 
+            id: editingPaket.id,
+            ozellikler: ozelliklerObj
+          }
+        : {
+            ...formData,
+            ozellikler: ozelliklerObj
+          };
 
       const response = await fetch(url, {
         method,
@@ -97,7 +117,9 @@ export default function AdminPaketlerPage() {
       fiyat: paket.fiyat,
       product_limit: paket.product_limit,
       category_limit: paket.category_limit,
-      aktif: paket.aktif
+      aktif: paket.aktif,
+      aciklama: paket.ozellikler?.aciklama || '',
+      ozellikler: paket.ozellikler?.ozellikler || []
     });
     setShowModal(true);
   };
@@ -133,7 +155,9 @@ export default function AdminPaketlerPage() {
       fiyat: 0,
       product_limit: 50,
       category_limit: 1,
-      aktif: true
+      aktif: true,
+      aciklama: '',
+      ozellikler: []
     });
   };
 
@@ -355,6 +379,56 @@ export default function AdminPaketlerPage() {
               </div>
 
               <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">توضیحات پکیج</label>
+                <textarea
+                  value={formData.aciklama}
+                  onChange={(e) => setFormData({...formData, aciklama: e.target.value})}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="پکیج حرفه‌ای برای فروشندگان بزرگ و کسب‌وکارهای در حال رشد..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">ویژگی‌های پکیج</label>
+                <div className="space-y-2">
+                  {formData.ozellikler.map((ozellik, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={ozellik}
+                        onChange={(e) => {
+                          const newOzellikler = [...formData.ozellikler];
+                          newOzellikler[index] = e.target.value;
+                          setFormData({...formData, ozellikler: newOzellikler});
+                        }}
+                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="پشتیبانی VIP"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newOzellikler = formData.ozellikler.filter((_, i) => i !== index);
+                          setFormData({...formData, ozellikler: newOzellikler});
+                        }}
+                        className="px-4 py-2.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, ozellikler: [...formData.ozellikler, '']})}
+                    className="w-full px-4 py-2.5 border-2 border-dashed border-gray-300 hover:border-blue-400 text-gray-600 hover:text-blue-600 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>افزودن ویژگی</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">وضعیت</label>
                 <select
                   value={formData.aktif ? 'true' : 'false'}
@@ -397,7 +471,7 @@ function PaketCard({ paket, onEdit, onDelete, getLevelBadge }: any) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4" dir="rtl">
-        <div>
+        <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <h3 className="text-xl font-bold text-gray-900">{paket.ad_dari}</h3>
             {getLevelBadge(paket.store_level)}
@@ -407,13 +481,32 @@ function PaketCard({ paket, onEdit, onDelete, getLevelBadge }: any) {
               <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">غیرفعال</span>
             )}
           </div>
-          <p className="text-gray-600 text-sm">{paket.ad}</p>
+          <p className="text-gray-600 text-sm mb-2">{paket.ad}</p>
+          {paket.ozellikler?.aciklama && (
+            <p className="text-gray-600 text-sm bg-blue-50 border border-blue-200 rounded-lg p-3 leading-relaxed">
+              {paket.ozellikler.aciklama}
+            </p>
+          )}
         </div>
-        <div className="text-right">
+        <div className="text-right mr-4">
           <div className="text-2xl font-bold text-blue-600">{paket.fiyat.toLocaleString()} <span className="text-sm">افغانی</span></div>
           <div className="text-sm text-gray-600">{paket.sure_ay} ماهه</div>
         </div>
       </div>
+
+      {paket.ozellikler?.ozellikler && paket.ozellikler.ozellikler.length > 0 && (
+        <div className="mb-4 bg-gray-50 rounded-lg p-4" dir="rtl">
+          <div className="text-sm font-bold text-gray-700 mb-2">ویژگی‌ها:</div>
+          <ul className="text-sm text-gray-600 space-y-1">
+            {paket.ozellikler.ozellikler.map((ozellik: string, index: number) => (
+              <li key={index} className="flex items-start gap-2">
+                <span className="text-blue-600 mt-1">•</span>
+                <span>{ozellik}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-4 mb-4 text-sm" dir="rtl">
         <div className="bg-gray-50 rounded-lg p-3">
