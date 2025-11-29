@@ -15,3 +15,7 @@ CREATE TABLE IF NOT EXISTS magaza_yorumlari (
 
 
 
+
+
+
+

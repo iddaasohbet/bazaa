@@ -500,3 +500,7 @@ export default function KategorilerPage() {
 
 
 
+
+
+
+
