@@ -94,6 +94,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { icon: Users, label: "کاربران", href: "/admin/kullanicilar", badge: "۵۶۷۸" },
         { icon: Store, label: "مغازه‌ها", href: "/admin/magazalar", badge: "۲۳۴" },
+        { icon: Package, label: "مغازه جوړ کړئ", href: "/admin/magaza-olustur" },
       ]
     },
     {
