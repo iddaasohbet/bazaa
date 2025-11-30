@@ -17,13 +17,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { ad, email, telefon, sifre } = body;
-    console.log('👤 Kayıt bilgileri:', { ad, email, telefon });
+    const { ad, email, telefon, sifre, il, ilce } = body;
+    console.log('👤 Kayıt bilgileri:', { ad, email, telefon, il, ilce });
 
     // Validasyon
-    if (!ad || !email || !sifre) {
+    if (!ad || !email || !sifre || !il) {
       return NextResponse.json(
-        { success: false, message: 'نام، ایمیل و رمز عبور الزامی است' },
+        { success: false, message: 'نام، ایمیل، رمز عبور و ولایت الزامی است' },
         { status: 400 }
       );
     }
@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
     // Kullanıcı oluştur
     console.log('💾 Kullanıcı kaydediliyor...');
     const result = await query(
-      `INSERT INTO kullanicilar (ad, email, telefon, sifre, rol, aktif) 
-       VALUES (?, ?, ?, ?, 'user', TRUE)`,
-      [ad, email, telefon, hashedPassword]
+      `INSERT INTO kullanicilar (ad, email, telefon, sifre, il, ilce, rol, aktif) 
+       VALUES (?, ?, ?, ?, ?, ?, 'user', TRUE)`,
+      [ad, email, telefon, hashedPassword, il, ilce || null]
     );
 
     const userId = (result as any).insertId;

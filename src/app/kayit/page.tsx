@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Lock, Phone, Eye, EyeOff } from "lucide-react";
+import { User, Mail, Lock, Phone, Eye, EyeOff, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getCitiesList, getDistrictsList } from "@/lib/cities";
 
 export default function KayitOl() {
   const router = useRouter();
@@ -15,9 +16,19 @@ export default function KayitOl() {
     telefon: "",
     sifre: "",
     sifreTekrar: "",
+    il: "",
+    ilce: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [districts, setDistricts] = useState<string[]>([]);
+
+  const cities = getCitiesList();
+
+  const handleCityChange = (cityId: string) => {
+    setFormData({ ...formData, il: cityId, ilce: "" });
+    setDistricts(getDistrictsList(cityId));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +63,8 @@ export default function KayitOl() {
           email: formData.email,
           telefon: formData.telefon,
           sifre: formData.sifre,
+          il: formData.il,
+          ilce: formData.ilce || null,
         }),
       });
 
@@ -158,6 +171,46 @@ export default function KayitOl() {
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">ایمیل یا شماره تلفن الزامی است</p>
+                </div>
+
+                {/* City & District */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ولایت (شهر) *
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <select
+                        value={formData.il}
+                        onChange={(e) => handleCityChange(e.target.value)}
+                        className="w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                        required
+                      >
+                        <option value="">ولایت انتخاب کنید</option>
+                        {cities.map(city => (
+                          <option key={city.id} value={city.id}>{city.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ولسوالی (منطقه)
+                    </label>
+                    <select
+                      value={formData.ilce}
+                      onChange={(e) => setFormData({ ...formData, ilce: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      disabled={!formData.il}
+                    >
+                      <option value="">اول ولایت انتخاب کنید</option>
+                      {districts.map(district => (
+                        <option key={district} value={district}>{district}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Password */}

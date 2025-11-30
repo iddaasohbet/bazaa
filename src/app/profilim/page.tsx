@@ -13,6 +13,11 @@ export default function Profilim() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [stats, setStats] = useState({
+    aktifIlanlar: 0,
+    favoriler: 0,
+    mesajlar: 0,
+  });
 
   const startEdit = (field: string, currentValue: string) => {
     setEditing(field);
@@ -91,6 +96,9 @@ export default function Profilim() {
         // API'den yüklenemezse localStorage'dan yükle
         setUserData(localUser);
       }
+
+      // İstatistikleri yükle
+      await loadStats(localUser.id);
     } catch (error) {
       console.error('Kullanıcı bilgileri yüklenirken hata:', error);
       // Hata durumunda localStorage'dan yükle
@@ -102,6 +110,41 @@ export default function Profilim() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadStats = async (userId: number) => {
+    try {
+      // Aktif ilanları say
+      const ilanlarRes = await fetch(`/api/ilanlar?kullanici_id=${userId}`);
+      const ilanlarData = await ilanlarRes.json();
+      const aktifIlanlar = ilanlarData.success ? ilanlarData.data.length : 0;
+
+      // Favorileri say
+      const favorilerRes = await fetch('/api/favoriler', {
+        headers: {
+          'x-user-id': userId.toString()
+        }
+      });
+      const favorilerData = await favorilerRes.json();
+      const favoriler = favorilerData.success ? favorilerData.data.length : 0;
+
+      // Mesajları say
+      const mesajlarRes = await fetch('/api/mesajlar', {
+        headers: {
+          'x-user-id': userId.toString()
+        }
+      });
+      const mesajlarData = await mesajlarRes.json();
+      const mesajlar = mesajlarData.success ? mesajlarData.data.length : 0;
+
+      setStats({
+        aktifIlanlar,
+        favoriler,
+        mesajlar,
+      });
+    } catch (error) {
+      console.error('İstatistik yükleme hatası:', error);
     }
   };
 
@@ -133,9 +176,9 @@ export default function Profilim() {
       
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Profilim</h1>
-            <p className="text-gray-600">Hesap bilgilerinizi görüntüleyin ve yönetin</p>
+          <div className="mb-8" dir="rtl">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">پروفایل من</h1>
+            <p className="text-gray-600">اطلاعات حساب خود را مشاهده و مدیریت کنید</p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
@@ -147,7 +190,7 @@ export default function Profilim() {
                   <div className="w-20 h-20 rounded-full border-2 border-gray-300 mx-auto mb-3 flex items-center justify-center">
                     <User className="h-10 w-10 text-gray-600" />
                   </div>
-                  <h2 className="text-center font-bold text-gray-900">{userData.name}</h2>
+                  <h2 className="text-center font-bold text-gray-900">{userData.ad || userData.name}</h2>
                   <p className="text-center text-sm text-gray-600 mt-1">{userData.email}</p>
                 </div>
 
@@ -158,7 +201,7 @@ export default function Profilim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-blue-600 bg-blue-50 rounded-md transition-colors mb-1"
                   >
                     <User className="h-5 w-5" />
-                    <span className="flex-1 text-sm font-medium">Profilim</span>
+                    <span className="flex-1 text-sm font-medium">پروفایل من</span>
                   </Link>
                   
                   <Link
@@ -166,7 +209,7 @@ export default function Profilim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
                   >
                     <FileText className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">İlanlarım</span>
+                    <span className="flex-1 text-sm font-medium">آگهی‌های من</span>
                   </Link>
                   
                   <Link
@@ -174,7 +217,7 @@ export default function Profilim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
                   >
                     <Heart className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">Favorilerim</span>
+                    <span className="flex-1 text-sm font-medium">علاقه‌مندی‌ها</span>
                   </Link>
                   
                   <Link
@@ -182,7 +225,7 @@ export default function Profilim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
                   >
                     <MessageSquare className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">Mesajlar</span>
+                    <span className="flex-1 text-sm font-medium">پیام‌ها</span>
                   </Link>
                   
                   <Link
@@ -190,7 +233,7 @@ export default function Profilim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
                   >
                     <Settings className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">Ayarlar</span>
+                    <span className="flex-1 text-sm font-medium">تنظیمات</span>
                   </Link>
                 </nav>
 
@@ -201,7 +244,7 @@ export default function Profilim() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                   >
                     <LogOut className="h-5 w-5" />
-                    <span className="flex-1 text-sm font-medium text-left">Çıkış Yap</span>
+                    <span className="flex-1 text-sm font-medium text-right">خروج</span>
                   </button>
                 </div>
               </div>
@@ -210,15 +253,15 @@ export default function Profilim() {
             {/* Right Content */}
             <div className="flex-1 min-w-0 space-y-6">
               {/* Kişisel Bilgiler */}
-              <div className="border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-6">Kişisel Bilgiler</h3>
+              <div className="border border-gray-200 rounded-lg p-6" dir="rtl">
+                <h3 className="text-lg font-bold text-gray-900 mb-6">اطلاعات شخصی</h3>
                 <div className="space-y-4">
                   {/* Ad Soyad */}
                   <div className="flex items-start gap-4 pb-4 border-b border-gray-200">
                     <User className="h-5 w-5 text-gray-400 mt-0.5" />
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600 mb-1">Ad Soyad</div>
-                      {editing === 'name' ? (
+                      <div className="text-sm text-gray-600 mb-1">نام و نام خانوادگی</div>
+                      {editing === 'ad' ? (
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -228,28 +271,28 @@ export default function Profilim() {
                             autoFocus
                           />
                           <button
-                            onClick={() => saveEdit('name')}
+                            onClick={() => saveEdit('ad')}
                             className="px-4 py-2 border-2 border-blue-600 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                           >
-                            Kaydet
+                            ذخیره
                           </button>
                           <button
                             onClick={cancelEdit}
                             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                           >
-                            İptal
+                            لغو
                           </button>
                         </div>
                       ) : (
-                        <div className="font-semibold text-gray-900">{userData.name}</div>
+                        <div className="font-semibold text-gray-900">{userData.ad || userData.name}</div>
                       )}
                     </div>
-                    {editing !== 'name' && (
+                    {editing !== 'ad' && (
                       <button
-                        onClick={() => startEdit('name', userData.name)}
+                        onClick={() => startEdit('ad', userData.ad || userData.name)}
                         className="text-sm text-blue-600 hover:underline"
                       >
-                        Düzenle
+                        ویرایش
                       </button>
                     )}
                   </div>
@@ -258,7 +301,7 @@ export default function Profilim() {
                   <div className="flex items-start gap-4 pb-4 border-b border-gray-200">
                     <Mail className="h-5 w-5 text-gray-400 mt-0.5" />
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600 mb-1">E-posta</div>
+                      <div className="text-sm text-gray-600 mb-1">ایمیل</div>
                       {editing === 'email' ? (
                         <div className="flex gap-2">
                           <input
@@ -272,13 +315,13 @@ export default function Profilim() {
                             onClick={() => saveEdit('email')}
                             className="px-4 py-2 border-2 border-blue-600 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                           >
-                            Kaydet
+                            ذخیره
                           </button>
                           <button
                             onClick={cancelEdit}
                             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                           >
-                            İptal
+                            لغو
                           </button>
                         </div>
                       ) : (
@@ -290,7 +333,7 @@ export default function Profilim() {
                         onClick={() => startEdit('email', userData.email)}
                         className="text-sm text-blue-600 hover:underline"
                       >
-                        Düzenle
+                        ویرایش
                       </button>
                     )}
                   </div>
@@ -299,7 +342,7 @@ export default function Profilim() {
                   <div className="flex items-start gap-4 pb-4 border-b border-gray-200">
                     <Phone className="h-5 w-5 text-gray-400 mt-0.5" />
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600 mb-1">Telefon</div>
+                      <div className="text-sm text-gray-600 mb-1">تلفن</div>
                       {editing === 'telefon' ? (
                         <div className="flex gap-2">
                           <input
@@ -314,17 +357,17 @@ export default function Profilim() {
                             onClick={() => saveEdit('telefon')}
                             className="px-4 py-2 border-2 border-blue-600 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                           >
-                            Kaydet
+                            ذخیره
                           </button>
                           <button
                             onClick={cancelEdit}
                             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                           >
-                            İptal
+                            لغو
                           </button>
                         </div>
                       ) : (
-                        <div className="font-semibold text-gray-900">{userData.telefon || 'Belirtilmemiş'}</div>
+                        <div className="font-semibold text-gray-900">{userData.telefon || 'مشخص نشده'}</div>
                       )}
                     </div>
                     {editing !== 'telefon' && (
@@ -332,7 +375,7 @@ export default function Profilim() {
                         onClick={() => startEdit('telefon', userData.telefon || '')}
                         className="text-sm text-blue-600 hover:underline"
                       >
-                        Düzenle
+                        ویرایش
                       </button>
                     )}
                   </div>
@@ -341,40 +384,40 @@ export default function Profilim() {
                   <div className="flex items-start gap-4">
                     <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600 mb-1">Konum</div>
-                      {editing === 'konum' ? (
+                      <div className="text-sm text-gray-600 mb-1">موقعیت</div>
+                      {editing === 'il' ? (
                         <div className="flex gap-2">
                           <input
                             type="text"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                            placeholder="Kabil, Afganistan"
+                            placeholder="کابل، افغانستان"
                             autoFocus
                           />
                           <button
-                            onClick={() => saveEdit('konum')}
+                            onClick={() => saveEdit('il')}
                             className="px-4 py-2 border-2 border-blue-600 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                           >
-                            Kaydet
+                            ذخیره
                           </button>
                           <button
                             onClick={cancelEdit}
                             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                           >
-                            İptal
+                            لغو
                           </button>
                         </div>
                       ) : (
-                        <div className="font-semibold text-gray-900">{userData.konum || 'Kabil, Afganistan'}</div>
+                        <div className="font-semibold text-gray-900">{userData.il || 'کابل، افغانستان'}</div>
                       )}
                     </div>
-                    {editing !== 'konum' && (
+                    {editing !== 'il' && (
                       <button
-                        onClick={() => startEdit('konum', userData.konum || 'Kabil, Afganistan')}
+                        onClick={() => startEdit('il', userData.il || 'کابل، افغانستان')}
                         className="text-sm text-blue-600 hover:underline"
                       >
-                        Düzenle
+                        ویرایش
                       </button>
                     )}
                   </div>
@@ -383,41 +426,41 @@ export default function Profilim() {
 
               {/* İstatistikler */}
               <div className="border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-6">Hesap İstatistikleri</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-6">آمار حساب</h3>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="border border-gray-200 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">0</div>
-                    <div className="text-sm text-gray-600">Aktif İlan</div>
-                  </div>
-                  <div className="border border-gray-200 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">0</div>
-                    <div className="text-sm text-gray-600">Favori</div>
-                  </div>
-                  <div className="border border-gray-200 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">0</div>
-                    <div className="text-sm text-gray-600">Mesaj</div>
-                  </div>
+                  <Link href="/ilanlarim" className="border border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
+                    <div className="text-2xl font-bold text-blue-600 mb-1">{stats.aktifIlanlar}</div>
+                    <div className="text-sm text-gray-600">آگهی فعال</div>
+                  </Link>
+                  <Link href="/favoriler" className="border border-gray-200 rounded-lg p-4 text-center hover:border-red-500 hover:bg-red-50 transition-all cursor-pointer">
+                    <div className="text-2xl font-bold text-red-600 mb-1">{stats.favoriler}</div>
+                    <div className="text-sm text-gray-600">علاقه‌مندی</div>
+                  </Link>
+                  <Link href="/mesajlar" className="border border-gray-200 rounded-lg p-4 text-center hover:border-green-500 hover:bg-green-50 transition-all cursor-pointer">
+                    <div className="text-2xl font-bold text-green-600 mb-1">{stats.mesajlar}</div>
+                    <div className="text-sm text-gray-600">پیام</div>
+                  </Link>
                 </div>
               </div>
 
               {/* Hesap Güvenliği */}
-              <div className="border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-6">Hesap Güvenliği</h3>
+              <div className="border border-gray-200 rounded-lg p-6" dir="rtl">
+                <h3 className="text-lg font-bold text-gray-900 mb-6">امنیت حساب</h3>
                 <div className="space-y-3">
                   <button className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="text-sm font-medium text-gray-900">Şifre Değiştir</div>
+                      <div className="text-sm font-medium text-gray-900">تغییر رمز عبور</div>
                     </div>
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-5 w-5 text-gray-400 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                   
                   <button className="w-full flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="text-sm font-medium text-gray-900">E-posta Doğrulama</div>
+                      <div className="text-sm font-medium text-gray-900">تأیید ایمیل</div>
                     </div>
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-5 w-5 text-gray-400 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>

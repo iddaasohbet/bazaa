@@ -220,9 +220,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { baslik, aciklama, fiyat, fiyat_tipi, para_birimi, fiyat_usd, kategori_id, il_id, durum, emlak_tipi, kullanici_id, resimler } = body;
+    const { baslik, aciklama, fiyat, fiyat_tipi, para_birimi, fiyat_usd, kategori_id, il_id, ilce, durum, emlak_tipi, kullanici_id, resimler } = body;
 
-    console.log('📝 Yeni ilan oluşturuluyor:', { baslik, kullanici_id, para_birimi, resim_sayisi: resimler?.length || 0 });
+    console.log('📝 Yeni ilan oluşturuluyor:', { baslik, kullanici_id, para_birimi, il_id, ilce, resim_sayisi: resimler?.length || 0 });
 
     // Validasyon
     if (!baslik || !aciklama || !fiyat || !kategori_id || !il_id || !kullanici_id) {
@@ -250,10 +250,10 @@ export async function POST(request: Request) {
     // İlan oluştur
     const result = await query(
       `INSERT INTO ilanlar (
-        baslik, aciklama, fiyat, fiyat_tipi, para_birimi, fiyat_usd, kategori_id, il_id, durum, emlak_tipi,
+        baslik, aciklama, fiyat, fiyat_tipi, para_birimi, fiyat_usd, kategori_id, il_id, ilce, durum, emlak_tipi,
         kullanici_id, magaza_id, ana_resim, aktif, goruntulenme
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
-      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', para_birimi || 'AFN', fiyat_usd || null, kategori_id, il_id, durum || 'kullanilmis', emlak_tipi || null, kullanici_id, magazaId, anaResim]
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
+      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', para_birimi || 'AFN', fiyat_usd || null, kategori_id, il_id, ilce || null, durum || 'kullanilmis', emlak_tipi || null, kullanici_id, magazaId, anaResim]
     );
 
     const ilanId = (result as any).insertId;

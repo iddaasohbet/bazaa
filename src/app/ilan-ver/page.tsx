@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Upload, X, AlertCircle } from "lucide-react";
+import { getCitiesList, getDistrictsList, getCityIdByName } from "@/lib/cities";
 
 interface Kategori {
   id: number;
@@ -24,6 +25,7 @@ export default function IlanVer() {
   const [images, setImages] = useState<File[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [districts, setDistricts] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     baslik: "",
@@ -34,9 +36,17 @@ export default function IlanVer() {
     fiyat_usd: "",
     kategori_id: "",
     il_id: "",
+    ilce: "",
     durum: "kullanilmis",
     emlak_tipi: "",
   });
+
+  const cities = getCitiesList();
+
+  const handleCityChange = (cityId: string) => {
+    setFormData({ ...formData, il_id: cityId, ilce: "" });
+    setDistricts(getDistrictsList(cityId));
+  };
 
   useEffect(() => {
     // Giriş kontrolü
@@ -146,7 +156,8 @@ export default function IlanVer() {
         para_birimi: formData.para_birimi,
         fiyat_usd: formData.fiyat_usd ? parseFloat(formData.fiyat_usd) : null,
         kategori_id: parseInt(formData.kategori_id),
-        il_id: parseInt(formData.il_id),
+        il_id: formData.il_id,
+        ilce: formData.ilce || null,
         durum: formData.durum,
         emlak_tipi: formData.emlak_tipi || null,
         kullanici_id: userData.id,
@@ -229,7 +240,7 @@ export default function IlanVer() {
             {/* Kategori ve Konum */}
             <div className="border border-gray-200 rounded-lg p-6" dir="rtl">
               <h3 className="text-sm font-bold text-gray-900 mb-4">دسته‌بندی و موقعیت</h3>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     دسته‌بندی *
@@ -249,17 +260,34 @@ export default function IlanVer() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    شهر *
+                    ولایت (شهر) *
                   </label>
                   <select
                     value={formData.il_id}
-                    onChange={(e) => setFormData({ ...formData, il_id: e.target.value })}
+                    onChange={(e) => handleCityChange(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-                    <option value="">شهر را انتخاب کنید</option>
-                    {iller.map(il => (
-                      <option key={il.id} value={il.id}>{il.ad}</option>
+                    <option value="">ولایت انتخاب کنید</option>
+                    {cities.map(city => (
+                      <option key={city.id} value={city.id}>{city.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ولسوالی (منطقه)
+                  </label>
+                  <select
+                    value={formData.ilce}
+                    onChange={(e) => setFormData({ ...formData, ilce: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={!formData.il_id}
+                  >
+                    <option value="">اول ولایت انتخاب کنید</option>
+                    {districts.map(district => (
+                      <option key={district} value={district}>{district}</option>
                     ))}
                   </select>
                 </div>
@@ -382,65 +410,51 @@ export default function IlanVer() {
               <div className="grid md:grid-cols-3 gap-4">
                 {/* AFN Fiyat */}
                 {formData.para_birimi === 'AFN' && (
-                  <div>
+                  <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      قیمت (AFN) *
+                      قیمت (افغانی) *
                     </label>
                     <div className="relative">
                       <input
                         type="number"
                         value={formData.fiyat}
-                        onChange={(e) => setFormData({ ...formData, fiyat: e.target.value })}
+                        onChange={(e) => setFormData({ ...formData, fiyat: e.target.value, fiyat_usd: '' })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="0"
                         required
                         min="0"
                       />
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">؋</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">؋ AFN</span>
                     </div>
+                    <p className="text-xs text-gray-500 mt-1">قیمت به افغانی</p>
                   </div>
                 )}
 
                 {/* USD Fiyat */}
                 {formData.para_birimi === 'USD' && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        قیمت دالر (USD) *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={formData.fiyat_usd}
-                          onChange={(e) => setFormData({ ...formData, fiyat_usd: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="0"
-                          required
-                          min="0"
-                          step="0.01"
-                        />
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
-                      </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      قیمت (دالر) *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={formData.fiyat_usd}
+                        onChange={(e) => {
+                          const usdValue = e.target.value;
+                          const afnValue = usdValue ? (parseFloat(usdValue) * 70).toString() : '';
+                          setFormData({ ...formData, fiyat_usd: usdValue, fiyat: afnValue });
+                        }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="0"
+                        required
+                        min="0"
+                        step="0.01"
+                      />
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$ USD</span>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        قیمت افغانی (AFN) *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={formData.fiyat}
-                          onChange={(e) => setFormData({ ...formData, fiyat: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="0"
-                          required
-                          min="0"
-                        />
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">؋</span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">معادل افغانی برای نمایش</p>
-                    </div>
-                  </>
+                    <p className="text-xs text-gray-500 mt-1">قیمت به دالر (معادل افغانی خودکار محاسبه می‌شود)</p>
+                  </div>
                 )}
 
                 <div>
