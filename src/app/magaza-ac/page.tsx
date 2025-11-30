@@ -684,12 +684,12 @@ export default function MagazaAcPage() {
 
               {/* Navigation Buttons - Step 1 için */}
               {step === 1 && (
-                <div className="flex justify-end gap-4 pt-6 px-8 pb-8 border-t border-gray-200 -mx-8 -mb-8 bg-gray-50">
+                <div className="flex justify-start gap-4 pt-6 px-8 pb-8 border-t border-gray-200 -mx-8 -mb-8 bg-gray-50">
                   <button
                     type="submit"
                     className="px-12 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all"
                   >
-                    ← بعدی
+                    بعدی ←
                   </button>
                 </div>
               )}
