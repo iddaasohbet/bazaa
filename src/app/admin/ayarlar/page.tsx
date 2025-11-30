@@ -94,6 +94,37 @@ export default function AyarlarPage() {
     return ayarlar.find(a => a.anahtar === anahtar)?.deger || '';
   };
 
+  // Ayar açıklamalarını Dari/Pashto'ya çevir
+  const getAyarLabel = (anahtar: string): string => {
+    const labels: { [key: string]: string } = {
+      'site_adi': 'د سایټ نوم',
+      'site_slogan': 'د سایټ شعار',
+      'site_aciklama': 'د سایټ تفصیل',
+      'site_anahtar_kelimeler': 'SEO کلیدي کلمې',
+      'site_email': 'بریښنالیک پته',
+      'site_telefon': 'ټیلیفون شمیره',
+      'site_adres': 'پته',
+      'facebook_url': 'فیسبوک لینک',
+      'twitter_url': 'ټویټر لینک',
+      'instagram_url': 'انستاګرام لینک',
+      'youtube_url': 'یوټیوب لینک',
+      'ilan_onay_gerektir': 'اعلان تایید ته اړتیا لري؟ (0: نه، 1: هو)',
+      'kayit_aktif': 'د کارونکي ثبت فعال دی؟ (0: نه، 1: هو)',
+      'magaza_acma_aktif': 'دوکان جوړول فعال دی؟ (0: نه، 1: هو)',
+      'varsayilan_ilan_suresi': 'د اعلان ډیفالټ موده (ورځې)',
+      'maksimum_resim_sayisi': 'د اعلان لپاره اعظمي عکسونه',
+      'google_analytics_id': 'Google Analytics ID',
+      'google_maps_api_key': 'Google Maps API Key',
+      'smtp_host': 'SMTP سرور',
+      'smtp_port': 'SMTP پورټ',
+      'smtp_kullanici': 'SMTP کارونکی',
+      'smtp_sifre': 'SMTP پټنوم',
+      'bakim_modu': 'د ساتنې حالت فعال دی؟ (0: نه، 1: هو)',
+      'bakim_mesaji': 'د ساتنې پیغام'
+    };
+    return labels[anahtar] || anahtar;
+  };
+
   const kategoriler = [
     { key: 'genel', label: 'عمومی تنظیمات', icon: Globe },
     { key: 'iletisim', label: 'د اړیکو معلومات', icon: Mail },
@@ -116,7 +147,7 @@ export default function AyarlarPage() {
             onChange={(e) => handleChange(ayar.anahtar, e.target.checked ? '1' : '0')}
             className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
           />
-          <span className="text-sm text-gray-600">{ayar.aciklama}</span>
+          <span className="text-sm text-gray-600">{getAyarLabel(ayar.anahtar)}</span>
         </label>
       );
     }
@@ -128,7 +159,7 @@ export default function AyarlarPage() {
           value={ayar.deger}
           onChange={(e) => handleChange(ayar.anahtar, e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder={ayar.aciklama}
+          placeholder={getAyarLabel(ayar.anahtar)}
         />
       );
     }
@@ -140,7 +171,7 @@ export default function AyarlarPage() {
           onChange={(e) => handleChange(ayar.anahtar, e.target.value)}
           rows={3}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder={ayar.aciklama}
+          placeholder={getAyarLabel(ayar.anahtar)}
         />
       );
     }
@@ -151,7 +182,7 @@ export default function AyarlarPage() {
         value={ayar.deger}
         onChange={(e) => handleChange(ayar.anahtar, e.target.value)}
         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        placeholder={ayar.aciklama}
+        placeholder={getAyarLabel(ayar.anahtar)}
       />
     );
   };
@@ -162,7 +193,7 @@ export default function AyarlarPage() {
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Ayarlar yükleniyor...</p>
+            <p className="text-gray-600">بارول...</p>
           </div>
         </div>
       </AdminLayout>
@@ -241,7 +272,7 @@ export default function AyarlarPage() {
               .map((ayar) => (
                 <div key={ayar.id} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
                   <label className="block mb-2">
-                    <span className="text-sm font-medium text-gray-700">{ayar.aciklama}</span>
+                    <span className="text-sm font-medium text-gray-700">{getAyarLabel(ayar.anahtar)}</span>
                     <span className="text-xs text-gray-500 ml-2">({ayar.anahtar})</span>
                   </label>
                   {renderAyarInput(ayar)}
@@ -251,7 +282,7 @@ export default function AyarlarPage() {
             {ayarlar.filter(ayar => ayar.kategori === activeTab).length === 0 && (
               <div className="text-center py-12 text-gray-500">
                 <Settings className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p>Bu kategoride ayar bulunmuyor</p>
+                <p>په دې کټګورۍ کې تنظیمات نشته</p>
               </div>
             )}
           </div>
