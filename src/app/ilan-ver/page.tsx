@@ -30,6 +30,8 @@ export default function IlanVer() {
     aciklama: "",
     fiyat: "",
     fiyat_tipi: "negotiable",
+    para_birimi: "AFN",
+    fiyat_usd: "",
     kategori_id: "",
     il_id: "",
     durum: "kullanilmis",
@@ -141,6 +143,8 @@ export default function IlanVer() {
         aciklama: formData.aciklama,
         fiyat: parseFloat(formData.fiyat),
         fiyat_tipi: formData.fiyat_tipi,
+        para_birimi: formData.para_birimi,
+        fiyat_usd: formData.fiyat_usd ? parseFloat(formData.fiyat_usd) : null,
         kategori_id: parseInt(formData.kategori_id),
         il_id: parseInt(formData.il_id),
         durum: formData.durum,
@@ -338,40 +342,127 @@ export default function IlanVer() {
 
             {/* Fiyat ve Durum */}
             <div className="border border-gray-200 rounded-lg p-6">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Fiyat ve Durum Bilgileri</h3>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fiyat (AFN) *
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.fiyat}
-                    onChange={(e) => setFormData({ ...formData, fiyat: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="0"
-                    required
-                    min="0"
-                  />
+              <h3 className="text-sm font-bold text-gray-900 mb-4">قیمت و وضعیت (Fiyat ve Durum)</h3>
+              
+              {/* Para Birimi Seçimi */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  واحد پول (Para Birimi) *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, para_birimi: 'AFN', fiyat_usd: '' })}
+                    className={`px-4 py-3 rounded-lg border-2 font-semibold transition-all ${
+                      formData.para_birimi === 'AFN'
+                        ? 'border-blue-600 bg-blue-50 text-blue-700'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">؋</div>
+                      <div>افغانی (AFN)</div>
+                    </div>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, para_birimi: 'USD' })}
+                    className={`px-4 py-3 rounded-lg border-2 font-semibold transition-all ${
+                      formData.para_birimi === 'USD'
+                        ? 'border-green-600 bg-green-50 text-green-700'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">$</div>
+                      <div>دالر (USD)</div>
+                    </div>
+                  </button>
                 </div>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* AFN Fiyat */}
+                {formData.para_birimi === 'AFN' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      قیمت (AFN) *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={formData.fiyat}
+                        onChange={(e) => setFormData({ ...formData, fiyat: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="0"
+                        required
+                        min="0"
+                      />
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">؋</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* USD Fiyat */}
+                {formData.para_birimi === 'USD' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        قیمت دالر (USD) *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={formData.fiyat_usd}
+                          onChange={(e) => setFormData({ ...formData, fiyat_usd: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          placeholder="0"
+                          required
+                          min="0"
+                          step="0.01"
+                        />
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        قیمت افغانی (AFN) *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={formData.fiyat}
+                          onChange={(e) => setFormData({ ...formData, fiyat: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="0"
+                          required
+                          min="0"
+                        />
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">؋</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">معادل افغانی برای نمایش</p>
+                    </div>
+                  </>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fiyat Tipi
+                    نوع قیمت (Fiyat Tipi)
                   </label>
                   <select
                     value={formData.fiyat_tipi}
                     onChange={(e) => setFormData({ ...formData, fiyat_tipi: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="negotiable">Pazarlık Yapılabilir</option>
-                    <option value="fixed">Sabit Fiyat</option>
+                    <option value="negotiable">قابل چانه زنی</option>
+                    <option value="fixed">قیمت ثابت</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Durum *
+                    وضعیت (Durum) *
                   </label>
                   <select
                     value={formData.durum}
@@ -379,10 +470,10 @@ export default function IlanVer() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-                    <option value="yeni">Sıfır</option>
-                    <option value="az_kullanilmis">Az Kullanılmış</option>
-                    <option value="kullanilmis">Kullanılmış</option>
-                    <option value="hasarli">Hasarlı</option>
+                    <option value="yeni">نو</option>
+                    <option value="az_kullanilmis">کم استفاده</option>
+                    <option value="kullanilmis">استفاده شده</option>
+                    <option value="hasarli">آسیب دیده</option>
                   </select>
                 </div>
               </div>

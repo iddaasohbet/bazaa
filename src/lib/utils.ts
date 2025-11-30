@@ -28,13 +28,30 @@ export function slugify(text: string): string {
 }
 
 // Fiyat formatlama
-export function formatPrice(price: number): string {
+export function formatPrice(price: number, currency: 'AFN' | 'USD' = 'AFN'): string {
+  if (currency === 'USD') {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(price);
+  }
+  
   return new Intl.NumberFormat('fa-AF', {
     style: 'currency',
     currency: 'AFN',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
+}
+
+// Çift para birimi gösterimi (USD seçildiğinde hem USD hem AFN göster)
+export function formatPriceWithBoth(priceAFN: number, priceUSD?: number | null): string {
+  if (priceUSD && priceUSD > 0) {
+    return `${formatPrice(priceUSD, 'USD')} (${formatPrice(priceAFN, 'AFN')})`;
+  }
+  return formatPrice(priceAFN, 'AFN');
 }
 
 // Tarih formatlama

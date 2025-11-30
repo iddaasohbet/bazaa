@@ -25,7 +25,7 @@ import {
   BadgeCheck,
   ShieldCheck
 } from "lucide-react";
-import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+import { formatPrice, formatPriceWithBoth, formatDate, getImageUrl } from "@/lib/utils";
 
 interface Ilan {
   id: number;
@@ -35,6 +35,8 @@ interface Ilan {
   eski_fiyat?: number;
   indirim_yuzdesi?: number;
   fiyat_tipi: string;
+  para_birimi?: 'AFN' | 'USD';
+  fiyat_usd?: number | null;
   kategori_ad: string;
   kategori_slug: string;
   il_ad: string;
@@ -376,13 +378,29 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                       {/* Eski Fiyat */}
                       {ilan.eski_fiyat && (
                         <div className="text-xl text-gray-500 line-through">
-                          {formatPrice(ilan.eski_fiyat)}
+                          {ilan.fiyat_usd && ilan.fiyat_usd > 0 
+                            ? formatPriceWithBoth(ilan.eski_fiyat, ilan.fiyat_usd)
+                            : formatPrice(ilan.eski_fiyat)
+                          }
                         </div>
                       )}
                       
                       {/* Yeni Fiyat */}
-                      <div className="text-5xl font-bold text-red-600">
-                        {formatPrice(ilan.fiyat)}
+                      <div className="space-y-2">
+                        {ilan.fiyat_usd && ilan.fiyat_usd > 0 ? (
+                          <>
+                            <div className="text-5xl font-bold text-red-600">
+                              {formatPrice(ilan.fiyat_usd, 'USD')}
+                            </div>
+                            <div className="text-2xl font-semibold text-gray-700">
+                              {formatPrice(ilan.fiyat, 'AFN')}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-5xl font-bold text-red-600">
+                            {formatPrice(ilan.fiyat, 'AFN')}
+                          </div>
+                        )}
                       </div>
                       
                       {/* Tasarruf */}
@@ -392,14 +410,28 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                             شما صرفه‌جویی می‌کنید:
                           </div>
                           <div className="text-xl font-bold text-green-600">
-                            {formatPrice(ilan.eski_fiyat - ilan.fiyat)}
+                            {formatPrice(ilan.eski_fiyat - ilan.fiyat, 'AFN')}
                           </div>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="text-4xl font-bold text-gray-900 mb-2">
-                      {formatPrice(ilan.fiyat)}
+                    <div className="space-y-2">
+                      {ilan.fiyat_usd && ilan.fiyat_usd > 0 ? (
+                        <>
+                          <div className="text-4xl font-bold text-green-600 mb-2">
+                            {formatPrice(ilan.fiyat_usd, 'USD')}
+                          </div>
+                          <div className="text-2xl font-semibold text-gray-700">
+                            {formatPrice(ilan.fiyat, 'AFN')}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">قیمت در هر دو واحد پول</div>
+                        </>
+                      ) : (
+                        <div className="text-4xl font-bold text-gray-900 mb-2">
+                          {formatPrice(ilan.fiyat, 'AFN')}
+                        </div>
+                      )}
                     </div>
                   )}
                   

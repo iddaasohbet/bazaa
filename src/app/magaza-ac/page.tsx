@@ -660,7 +660,7 @@ export default function MagazaAcPage() {
                       onClick={() => setStep(1)}
                       className="px-8 py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg transition-all border border-gray-300"
                     >
-                      ← قبلی
+                      قبلی →
                     </button>
                     <button
                       type="submit"
@@ -689,7 +689,7 @@ export default function MagazaAcPage() {
                     type="submit"
                     className="px-12 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all"
                   >
-                    بعدی →
+                    ← بعدی
                   </button>
                 </div>
               )}
