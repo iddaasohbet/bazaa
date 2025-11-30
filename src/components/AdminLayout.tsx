@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -34,8 +34,43 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  // Admin authentication kontrolü
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('admin_token');
+      const user = localStorage.getItem('user');
+
+      if (!token) {
+        router.push('/admin/giris');
+        return;
+      }
+
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          if (userData.rol !== 'admin') {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('user');
+            router.push('/admin/giris');
+            return;
+          }
+          setIsAuthenticated(true);
+        } catch (error) {
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('user');
+          router.push('/admin/giris');
+        }
+      } else {
+        router.push('/admin/giris');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const menuItems = [
     {
@@ -88,8 +123,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
+    localStorage.removeItem('user');
     router.push('/admin/giris');
   };
+
+  // Authentication kontrolü tamamlanana kadar loading göster
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Yetkilendiriliyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

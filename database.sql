@@ -353,10 +353,11 @@ CREATE TABLE IF NOT EXISTS urun_yukseltme_gecmisi (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Admin kullanıcısı oluştur
+-- Email: admin@watanbazaare.com
 -- Şifre: admin123 (production'da değiştirilmeli!)
-INSERT INTO kullanicilar (ad, email, sifre, rol, aktif) VALUES 
-('Admin', 'admin@bazaarewatan.com', '$2a$10$6qYqH5ZN5g5z5g5z5g5z5.KjH5z5g5z5g5z5g5z5g5z5g5z5g5z5g5', 'admin', TRUE)
-ON DUPLICATE KEY UPDATE ad=ad;
+INSERT INTO kullanicilar (ad, email, telefon, sifre, rol, aktif) VALUES 
+('Admin', 'admin@watanbazaare.com', '+93 700 000 000', '$2b$10$AbtD8Qaf9EOBNQGn4g8p2eMQwut.pPTdFxr.xJZ2V4XM5XgbZZ0bi', 'admin', TRUE)
+ON DUPLICATE KEY UPDATE sifre='$2b$10$AbtD8Qaf9EOBNQGn4g8p2eMQwut.pPTdFxr.xJZ2V4XM5XgbZZ0bi', rol='admin', aktif=TRUE;
 
 -- Örnek kategoriler
 INSERT INTO kategoriler (ad, ad_dari, slug, aciklama, ikon, sira) VALUES

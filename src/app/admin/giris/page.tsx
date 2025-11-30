@@ -34,11 +34,14 @@ export default function AdminGirisPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Token'ı localStorage'a kaydet
+        // Token ve kullanıcı bilgilerini localStorage'a kaydet
         localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Admin panele yönlendir
-        router.push('/admin/dashboard');
+        // Kısa bir gecikme ile yönlendir (cookie set edilmesi için)
+        setTimeout(() => {
+          router.push('/admin/dashboard');
+        }, 100);
       } else {
         setError(data.message || 'Giriş başarısız');
       }
