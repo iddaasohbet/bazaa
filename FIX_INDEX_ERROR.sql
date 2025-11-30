@@ -8,3 +8,4 @@ SELECT 'Index hatası düzeltildi! ✅' AS status;
 SELECT COUNT(*) as toplam_paket FROM paketler;
 
 
+

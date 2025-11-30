@@ -30,3 +30,4 @@ ORDER BY store_level, sure_ay;
 SELECT '✅ Eski fiyat kolonu başarıyla eklendi!' AS durum;
 
 
+

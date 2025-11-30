@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ChevronDown, HelpCircle, Search } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
 
 interface FAQ {
   id: number;
@@ -14,17 +14,6 @@ interface FAQ {
 
 export default function SSS() {
   const [openId, setOpenId] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("همه");
-
-  const categories = [
-    "همه",
-    "حساب کاربری",
-    "آگهی دادن",
-    "پرداخت",
-    "امنیت",
-    "مغازه",
-  ];
 
   const faqs: FAQ[] = [
     {
@@ -119,13 +108,6 @@ export default function SSS() {
     },
   ];
 
-  const filteredFAQs = faqs.filter((faq) => {
-    const matchesCategory = selectedCategory === "همه" || faq.category === selectedCategory;
-    const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
   const toggleFAQ = (id: number) => {
     setOpenId(openId === id ? null : id);
   };
@@ -147,56 +129,21 @@ export default function SSS() {
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="mb-8">
-            <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="جستجوی سوالات..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pr-12 pl-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-right"
-              />
-            </div>
-          </div>
-
-          {/* Category Filters */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-2 rounded-lg font-semibold transition-all ${
-                  selectedCategory === category
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
           {/* FAQ List */}
-          <div className="space-y-4">
-            {filteredFAQs.length > 0 ? (
-              filteredFAQs.map((faq) => (
+          <div className="space-y-3">
+            {faqs.map((faq) => (
                 <div
                   key={faq.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg"
+                  className="border-b border-gray-200 pb-3"
                 >
                   <button
                     onClick={() => toggleFAQ(faq.id)}
-                    className="w-full px-6 py-5 flex items-center justify-between text-right hover:bg-gray-50 transition-colors"
+                    className="w-full py-4 flex items-center justify-between text-right hover:opacity-80 transition-opacity"
                   >
                     <div className="flex-1 pr-4">
                       <h3 className="text-lg font-semibold text-gray-900">
                         {faq.question}
                       </h3>
-                      <span className="text-sm text-blue-600 mt-1 inline-block">
-                        {faq.category}
-                      </span>
                     </div>
                     <ChevronDown
                       className={`h-6 w-6 text-gray-400 flex-shrink-0 transition-transform ${
@@ -206,44 +153,14 @@ export default function SSS() {
                   </button>
                   
                   {openId === faq.id && (
-                    <div className="px-6 pb-5 pt-2 border-t border-gray-100">
+                    <div className="pr-4 pb-4 pt-2">
                       <p className="text-gray-700 leading-relaxed text-right">
                         {faq.answer}
                       </p>
                     </div>
                   )}
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">
-                  متاسفانه هیچ نتیجه‌ای یافت نشد
-                </p>
-                <button
-                  onClick={() => {
-                    setSearchTerm("");
-                    setSelectedCategory("همه");
-                  }}
-                  className="mt-4 text-blue-600 hover:text-blue-700 font-semibold"
-                >
-                  پاک کردن فیلترها
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Contact Section */}
-          <div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-center text-white">
-            <h2 className="text-2xl font-bold mb-3">سوال شما پاسخ داده نشد؟</h2>
-            <p className="text-blue-100 mb-6">
-              تیم پشتیبانی ما آماده کمک به شماست
-            </p>
-            <a
-              href="/iletisim"
-              className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-blue-50 transition-colors"
-            >
-              با ما تماس بگیرید
-            </a>
+              ))}
           </div>
         </div>
       </main>

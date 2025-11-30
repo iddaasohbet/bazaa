@@ -60,3 +60,4 @@ async function updateAyarlar() {
 
 updateAyarlar();
 
+

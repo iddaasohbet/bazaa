@@ -39,3 +39,4 @@ CREATE TABLE IF NOT EXISTS basarisiz_girisler (
   INDEX idx_ip (ip_adresi)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
