@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 const fs = require('fs');
 require('dotenv').config();
 
-async function runMigration() {
+async function runMigration(migrationFile = 'GUVENLIK_LOGLARI_MIGRATION.sql') {
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
@@ -13,7 +13,7 @@ async function runMigration() {
   });
 
   try {
-    console.log('🔄 Migration başlatılıyor...');
+    console.log(`🔄 ${migrationFile} migration başlatılıyor...`);
     
     // Önce tabloyu oluştur
     await connection.query(`
