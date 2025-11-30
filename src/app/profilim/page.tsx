@@ -115,10 +115,19 @@ export default function Profilim() {
 
   const loadStats = async (userId: number) => {
     try {
-      // Aktif ilanları say
-      const ilanlarRes = await fetch(`/api/ilanlar?kullanici_id=${userId}`);
+      // Aktif ilanları say - sadece bu kullanıcının ilanları
+      const ilanlarRes = await fetch(`/api/ilanlar`, {
+        headers: {
+          'x-user-id': userId.toString()
+        }
+      });
       const ilanlarData = await ilanlarRes.json();
-      const aktifIlanlar = ilanlarData.success ? ilanlarData.data.length : 0;
+      
+      // Sadece bu kullanıcının ilanlarını filtrele
+      const kullaniciIlanlari = ilanlarData.success 
+        ? ilanlarData.data.filter((ilan: any) => ilan.kullanici_id === userId)
+        : [];
+      const aktifIlanlar = kullaniciIlanlari.length;
 
       // Favorileri say
       const favorilerRes = await fetch('/api/favoriler', {
