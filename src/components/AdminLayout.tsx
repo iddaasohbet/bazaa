@@ -31,6 +31,18 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
+interface MenuItem {
+  icon: any;
+  label: string;
+  href: string;
+  badge?: string;
+}
+
+interface MenuSection {
+  title: string;
+  items: MenuItem[];
+}
+
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -72,7 +84,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     checkAuth();
   }, [router]);
 
-  const menuItems = [
+  const menuItems: MenuSection[] = [
     {
       title: "عمومی",
       items: [
