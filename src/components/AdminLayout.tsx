@@ -83,17 +83,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     {
       title: "مدیریت محتوا",
       items: [
-        { icon: FileText, label: "آگهی‌ها", href: "/admin/ilanlar", badge: "۱۲۳۴" },
+        { icon: FileText, label: "آگهی‌ها", href: "/admin/ilanlar" },
         { icon: Grid, label: "دسته‌بندی‌ها", href: "/admin/kategoriler" },
         { icon: MapPin, label: "شهرها", href: "/admin/iller" },
-        { icon: Star, label: "آگهی‌های ویژه", href: "/admin/onecikan", badge: "۴۵" },
+        { icon: Star, label: "آگهی‌های ویژه", href: "/admin/onecikan" },
       ]
     },
     {
       title: "کاربران و مغازه‌ها",
       items: [
-        { icon: Users, label: "کاربران", href: "/admin/kullanicilar", badge: "۵۶۷۸" },
-        { icon: Store, label: "مغازه‌ها", href: "/admin/magazalar", badge: "۲۳۴" },
+        { icon: Users, label: "کاربران", href: "/admin/kullanicilar" },
+        { icon: Store, label: "مغازه‌ها", href: "/admin/magazalar" },
         { icon: Package, label: "مغازه جوړ کړئ", href: "/admin/magaza-olustur" },
       ]
     },
@@ -103,7 +103,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         { icon: TrendingUp, label: "مدیریت ویترین", href: "/admin/vitrin" },
         { icon: Tag, label: "تبلیغات", href: "/admin/reklamlar" },
         { icon: Package, label: "پکیج‌ها", href: "/admin/paketler" },
-        { icon: CreditCard, label: "پرداخت‌ها", href: "/admin/odemeler", badge: "۱۲" },
+        { icon: CreditCard, label: "پرداخت‌ها", href: "/admin/odemeler" },
       ]
     },
     {
