@@ -7,3 +7,4 @@ DROP INDEX IF EXISTS idx_paketler_ozellikler ON paketler;
 SELECT 'Index hatası düzeltildi! ✅' AS status;
 SELECT COUNT(*) as toplam_paket FROM paketler;
 
+
