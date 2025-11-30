@@ -99,6 +99,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         { icon: Grid, label: "دسته‌بندی‌ها", href: "/admin/kategoriler" },
         { icon: MapPin, label: "شهرها", href: "/admin/iller" },
         { icon: Star, label: "آگهی‌های ویژه", href: "/admin/onecikan" },
+        { icon: FileText, label: "صفحات", href: "/admin/sayfalar" },
       ]
     },
     {

@@ -65,19 +65,19 @@ export function formatDate(date: string | Date): string {
   const days = Math.floor(hours / 24);
 
   if (days > 7) {
-    return d.toLocaleDateString('tr-TR', {
+    return d.toLocaleDateString('fa-AF', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
   } else if (days > 0) {
-    return `${days} gün önce`;
+    return `${days} روز پیش`;
   } else if (hours > 0) {
-    return `${hours} saat önce`;
+    return `${hours} ساعت پیش`;
   } else if (minutes > 0) {
-    return `${minutes} dakika önce`;
+    return `${minutes} دقیقه پیش`;
   } else {
-    return 'Az önce';
+    return 'همین الان';
   }
 }
 

@@ -204,35 +204,35 @@ export default function IlanVer() {
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Yeni İlan Ver</h1>
-            <p className="text-gray-600">İlanınızı detaylı ve eksiksiz doldurun</p>
+          <div className="mb-8" dir="rtl">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">ثبت آگهی جدید</h1>
+            <p className="text-gray-600">آگهی خود را به صورت کامل و دقیق پر کنید</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* İlan Başlığı */}
-            <div className="border border-gray-200 rounded-lg p-6">
+            <div className="border border-gray-200 rounded-lg p-6" dir="rtl">
               <label className="block text-sm font-bold text-gray-900 mb-3">
-                İlan Başlığı *
+                عنوان آگهی *
               </label>
               <input
                 type="text"
                 value={formData.baslik}
                 onChange={(e) => setFormData({ ...formData, baslik: e.target.value })}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Örn: iPhone 13 Pro 256GB Mavi"
+                placeholder="مثال: آیفون ۱۳ پرو ۲۵۶ گیگابایت آبی"
                 required
               />
-              <p className="text-sm text-gray-500 mt-2">Net ve açıklayıcı bir başlık kullanın</p>
+              <p className="text-sm text-gray-500 mt-2">از یک عنوان واضح و توصیفی استفاده کنید</p>
             </div>
 
             {/* Kategori ve Konum */}
-            <div className="border border-gray-200 rounded-lg p-6">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">Kategori ve Konum</h3>
+            <div className="border border-gray-200 rounded-lg p-6" dir="rtl">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">دسته‌بندی و موقعیت</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Kategori *
+                    دسته‌بندی *
                   </label>
                   <select
                     value={formData.kategori_id}
@@ -240,7 +240,7 @@ export default function IlanVer() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-                    <option value="">Kategori seçin</option>
+                    <option value="">دسته‌بندی را انتخاب کنید</option>
                     {kategoriler.map(k => (
                       <option key={k.id} value={k.id}>{k.ad}</option>
                     ))}
@@ -249,7 +249,7 @@ export default function IlanVer() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Şehir *
+                    شهر *
                   </label>
                   <select
                     value={formData.il_id}
@@ -257,7 +257,7 @@ export default function IlanVer() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   >
-                    <option value="">Şehir seçin</option>
+                    <option value="">شهر را انتخاب کنید</option>
                     {iller.map(il => (
                       <option key={il.id} value={il.id}>{il.ad}</option>
                     ))}
@@ -268,7 +268,7 @@ export default function IlanVer() {
                 {kategoriler.find(k => k.id === parseInt(formData.kategori_id))?.ad === 'Emlak' && (
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      نوع ملک (Emlak Tipi) *
+                      نوع ملک *
                     </label>
                     <div className="grid grid-cols-3 gap-4">
                       <button
@@ -283,7 +283,6 @@ export default function IlanVer() {
                         <div className="text-center">
                           <div className="text-xl mb-1">🏷️</div>
                           <div>فروشی</div>
-                          <div className="text-xs text-gray-500">Satılık</div>
                         </div>
                       </button>
 
@@ -299,7 +298,6 @@ export default function IlanVer() {
                         <div className="text-center">
                           <div className="text-xl mb-1">🔑</div>
                           <div>کرایی</div>
-                          <div className="text-xs text-gray-500">Kiralık</div>
                         </div>
                       </button>
 
@@ -315,7 +313,6 @@ export default function IlanVer() {
                         <div className="text-center">
                           <div className="text-xl mb-1">🏦</div>
                           <div>گروی</div>
-                          <div className="text-xs text-gray-500">Rehinli</div>
                         </div>
                       </button>
                     </div>
@@ -325,29 +322,29 @@ export default function IlanVer() {
             </div>
 
             {/* Açıklama */}
-            <div className="border border-gray-200 rounded-lg p-6">
+            <div className="border border-gray-200 rounded-lg p-6" dir="rtl">
               <label className="block text-sm font-bold text-gray-900 mb-3">
-                Açıklama *
+                توضیحات *
               </label>
               <textarea
                 value={formData.aciklama}
                 onChange={(e) => setFormData({ ...formData, aciklama: e.target.value })}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={8}
-                placeholder="Ürününüzü detaylı şekilde açıklayın. Özellikler, kullanım süresi, durumu vb."
+                placeholder="محصول خود را به طور کامل توصیف کنید. ویژگی‌ها، مدت استفاده، وضعیت و غیره"
                 required
               />
-              <p className="text-sm text-gray-500 mt-2">En az 50 karakter giriniz</p>
+              <p className="text-sm text-gray-500 mt-2">حداقل ۵۰ کاراکتر وارد کنید</p>
             </div>
 
             {/* Fiyat ve Durum */}
-            <div className="border border-gray-200 rounded-lg p-6">
-              <h3 className="text-sm font-bold text-gray-900 mb-4">قیمت و وضعیت (Fiyat ve Durum)</h3>
+            <div className="border border-gray-200 rounded-lg p-6" dir="rtl">
+              <h3 className="text-sm font-bold text-gray-900 mb-4">قیمت و وضعیت</h3>
               
               {/* Para Birimi Seçimi */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  واحد پول (Para Birimi) *
+                  واحد پول *
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
@@ -448,7 +445,7 @@ export default function IlanVer() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    نوع قیمت (Fiyat Tipi)
+                    نوع قیمت
                   </label>
                   <select
                     value={formData.fiyat_tipi}
@@ -462,7 +459,7 @@ export default function IlanVer() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    وضعیت (Durum) *
+                    وضعیت *
                   </label>
                   <select
                     value={formData.durum}
@@ -480,9 +477,9 @@ export default function IlanVer() {
             </div>
 
             {/* Fotoğraflar */}
-            <div className="border border-gray-200 rounded-lg p-6">
+            <div className="border border-gray-200 rounded-lg p-6" dir="rtl">
               <label className="block text-sm font-bold text-gray-900 mb-3">
-                Fotoğraflar (En fazla 10)
+                تصاویر (حداکثر ۱۰ عدد)
               </label>
               
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-gray-50 transition-all cursor-pointer">
@@ -496,8 +493,8 @@ export default function IlanVer() {
                 />
                 <label htmlFor="images" className="cursor-pointer">
                   <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-700 font-medium mb-2">Fotoğraf yüklemek için tıklayın</p>
-                  <p className="text-sm text-gray-500">PNG, JPG, JPEG (Maksimum 5MB her biri)</p>
+                  <p className="text-gray-700 font-medium mb-2">برای آپلود تصویر کلیک کنید</p>
+                  <p className="text-sm text-gray-500">PNG, JPG, JPEG (حداکثر ۵ مگابایت هر کدام)</p>
                 </label>
               </div>
 
@@ -520,7 +517,7 @@ export default function IlanVer() {
                       </button>
                       {index === 0 && (
                         <div className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
-                          Ana Resim
+                          تصویر اصلی
                         </div>
                       )}
                     </div>
@@ -530,36 +527,36 @@ export default function IlanVer() {
             </div>
 
             {/* Bilgilendirme */}
-            <div className="border-2 border-blue-200 rounded-lg p-4">
+            <div className="border-2 border-blue-200 rounded-lg p-4" dir="rtl">
               <div className="flex gap-3">
                 <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-gray-700">
-                  <p className="font-semibold text-gray-900 mb-1">İlan Kuralları</p>
+                  <p className="font-semibold text-gray-900 mb-1">قوانین آگهی</p>
                   <ul className="space-y-1 text-gray-600">
-                    <li>• Gerçek ve doğru bilgiler girin</li>
-                    <li>• Ürüne ait net fotoğraflar ekleyin</li>
-                    <li>• Detaylı açıklama yazın</li>
-                    <li>• İletişim bilgilerinizi güncel tutun</li>
+                    <li>• اطلاعات واقعی و صحیح وارد کنید</li>
+                    <li>• تصاویر واضح از محصول اضافه کنید</li>
+                    <li>• توضیحات کامل بنویسید</li>
+                    <li>• اطلاعات تماس خود را به‌روز نگه دارید</li>
                   </ul>
                 </div>
               </div>
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-4 pt-4" dir="rtl">
               <button
                 type="submit"
                 disabled={loading}
                 className="flex-1 border-2 border-blue-600 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'İlan Yayınlanıyor...' : 'İlanı Yayınla'}
+                {loading ? 'در حال انتشار آگهی...' : 'انتشار آگهی'}
               </button>
               <button
                 type="button"
                 className="border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 px-6 py-3.5 rounded-lg font-semibold transition-colors"
                 onClick={() => window.history.back()}
               >
-                İptal
+                لغو
               </button>
             </div>
           </form>
