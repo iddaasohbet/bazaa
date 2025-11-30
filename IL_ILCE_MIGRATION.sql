@@ -16,3 +16,4 @@ ALTER TABLE ilanlar ADD INDEX idx_ilce (ilce);
 
 SELECT 'İl/İlçe alanları başarıyla eklendi!' as sonuc;
 
+

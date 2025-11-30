@@ -183,3 +183,4 @@ UPDATE sayfalar SET icerik = '
 
 SELECT 'Sayfa içerikleri başarıyla güncellendi!' as sonuc;
 
+

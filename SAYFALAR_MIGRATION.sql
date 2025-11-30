@@ -28,3 +28,4 @@ INSERT INTO sayfalar (slug, baslik, baslik_dari, icerik, aktif) VALUES
 
 SELECT 'Sayfalar tablosu başarıyla oluşturuldu!' as sonuc;
 
+

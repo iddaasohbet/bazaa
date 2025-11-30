@@ -49,3 +49,4 @@ async function runSayfalarMigration() {
 
 runSayfalarMigration();
 
+

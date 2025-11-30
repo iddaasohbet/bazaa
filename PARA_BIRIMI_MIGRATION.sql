@@ -16,3 +16,4 @@ UPDATE ilanlar SET para_birimi = 'AFN' WHERE para_birimi IS NULL;
 
 SELECT 'Para birimi migration başarıyla tamamlandı!' as sonuc;
 
+
