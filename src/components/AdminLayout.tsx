@@ -109,8 +109,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     {
       title: "سیستم",
       items: [
-        { icon: Settings, label: "تنظیمات", href: "/admin/ayarlar" },
-        { icon: ShieldCheck, label: "امنیت", href: "/admin/guvenlik" },
+        { icon: Settings, label: "Ayarlar", href: "/admin/ayarlar" },
+        { icon: ShieldCheck, label: "Güvenlik", href: "/admin/guvenlik" },
       ]
     },
     {

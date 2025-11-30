@@ -95,12 +95,12 @@ export default function AyarlarPage() {
   };
 
   const kategoriler = [
-    { key: 'genel', label: 'عمومی تنظیمات', icon: Globe },
-    { key: 'iletisim', label: 'د اړیکو معلومات', icon: Mail },
-    { key: 'sosyal_medya', label: 'ټولنیز رسنۍ', icon: AtSign },
-    { key: 'sistem', label: 'سیستم', icon: Settings },
-    { key: 'entegrasyon', label: 'ادغام', icon: Database },
-    { key: 'email', label: 'بریښنالیک', icon: Mail },
+    { key: 'genel', label: 'Genel Ayarlar', icon: Globe },
+    { key: 'iletisim', label: 'İletişim bilgileri', icon: Mail },
+    { key: 'sosyal_medya', label: 'Sosyal medya', icon: AtSign },
+    { key: 'sistem', label: 'Sistem', icon: Settings },
+    { key: 'entegrasyon', label: 'Entegrasyon', icon: Database },
+    { key: 'email', label: 'e-posta adresi', icon: Mail },
   ];
 
   const renderAyarInput = (ayar: Ayar) => {
@@ -174,8 +174,8 @@ export default function AyarlarPage() {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">تنظیمات</h1>
-            <p className="text-gray-600">د سیستم عمومی تنظیمات او تشکیلات</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Ayarlar</h1>
+            <p className="text-gray-600">Genel sistem ayarları ve organizasyonu</p>
           </div>
           <button
             onClick={handleSave}
@@ -185,12 +185,12 @@ export default function AyarlarPage() {
             {saving ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>خوندی کول...</span>
+                <span>Kaydediliyor...</span>
               </>
             ) : (
               <>
                 <Save className="h-5 w-5" />
-                <span>خوندی کړئ</span>
+                <span>Kaydet bunu.</span>
               </>
             )}
           </button>
@@ -268,12 +268,12 @@ export default function AyarlarPage() {
           {saving ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              <span>خوندی کول...</span>
+              <span>Kaydediliyor...</span>
             </>
           ) : (
             <>
               <Save className="h-5 w-5" />
-              <span>بدلونونه خوندی کړئ</span>
+              <span>Değişiklikleri kaydet.</span>
             </>
           )}
         </button>
