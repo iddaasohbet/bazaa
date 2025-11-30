@@ -191,17 +191,15 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 lg:h-18">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 mr-6 lg:mr-8 group">
-              {/* Icon */}
-              <div className="relative w-10 h-10 lg:w-12 lg:h-12">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-xl rotate-6 group-hover:rotate-12 transition-transform duration-300"></div>
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Store className="h-6 w-6 lg:h-7 lg:w-7 text-white" />
-                </div>
-              </div>
-              {/* Text */}
-              <div className="flex items-center">
-                <span className="text-xl lg:text-2xl font-bold text-gray-900">Bazaare</span>
-                <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Watan</span>
+              <div className="relative h-12 lg:h-14">
+                <Image 
+                  src="/images/logo.png" 
+                  alt="WatanBazaare Logo" 
+                  width={150}
+                  height={56}
+                  className="h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                  priority
+                />
               </div>
             </Link>
 
@@ -367,11 +365,17 @@ export default function Header() {
             {/* Header */}
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between border-b border-blue-500 z-10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Store className="h-6 w-6 text-white" />
+                <div className="bg-white rounded-lg p-2">
+                  <Image 
+                    src="/images/logo.png" 
+                    alt="WatanBazaare Logo" 
+                    width={120}
+                    height={40}
+                    className="h-8 w-auto object-contain"
+                  />
                 </div>
                 <div>
-                  <div className="text-white font-bold text-lg">BazaareWatan</div>
+                  <div className="text-white font-bold text-lg invisible hidden">BazaareWatan</div>
                   <div className="text-blue-100 text-xs">بازار وطن</div>
                 </div>
               </div>
