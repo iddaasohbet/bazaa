@@ -123,8 +123,11 @@ export default function KategorilerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.slug) {
-      alert('Slug الزامی است');
+    // Slug otomatik oluştur
+    const finalSlug = formData.slug || generateSlug(formData.ad || formData.ad_dari || '');
+    
+    if (!finalSlug) {
+      alert('نام و slug الزامی است - لطفاً حداقل یک نام وارد کنید');
       return;
     }
 
@@ -135,7 +138,7 @@ export default function KategorilerPage() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingId ? { id: editingId, ...formData } : formData)
+        body: JSON.stringify(editingId ? { id: editingId, ...formData, slug: finalSlug } : { ...formData, slug: finalSlug })
       });
 
       const data = await response.json();
@@ -156,8 +159,11 @@ export default function KategorilerPage() {
   const handleAltKategoriSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedKategoriId || !altKategoriFormData.slug) {
-      alert('Slug الزامی است');
+    // Slug otomatik oluştur
+    const finalSlug = altKategoriFormData.slug || generateSlug(altKategoriFormData.ad || altKategoriFormData.ad_dari || '');
+    
+    if (!selectedKategoriId || !finalSlug) {
+      alert('نام و slug الزامی است - لطفاً حداقل یک نام وارد کنید');
       return;
     }
 
@@ -166,8 +172,8 @@ export default function KategorilerPage() {
       const method = editingAltKategoriId ? 'PUT' : 'POST';
       
       const body = editingAltKategoriId 
-        ? { id: editingAltKategoriId, ...altKategoriFormData }
-        : { kategori_id: selectedKategoriId, ...altKategoriFormData };
+        ? { id: editingAltKategoriId, ...altKategoriFormData, slug: finalSlug }
+        : { kategori_id: selectedKategoriId, ...altKategoriFormData, slug: finalSlug };
 
       const response = await fetch(url, {
         method,
@@ -344,7 +350,15 @@ export default function KategorilerPage() {
     setFormData({
       ...formData,
       ad: value,
-      slug: value.trim() ? generateSlug(value) : formData.slug
+      slug: generateSlug(value || formData.ad_dari || '')
+    });
+  };
+
+  const handleAdDariChange = (value: string) => {
+    setFormData({
+      ...formData,
+      ad_dari: value,
+      slug: generateSlug(formData.ad || value || '')
     });
   };
 
@@ -352,7 +366,15 @@ export default function KategorilerPage() {
     setAltKategoriFormData({
       ...altKategoriFormData,
       ad: value,
-      slug: value.trim() ? generateSlug(value) : altKategoriFormData.slug
+      slug: generateSlug(value || altKategoriFormData.ad_dari || '')
+    });
+  };
+
+  const handleAltKategoriAdDariChange = (value: string) => {
+    setAltKategoriFormData({
+      ...altKategoriFormData,
+      ad_dari: value,
+      slug: generateSlug(altKategoriFormData.ad || value || '')
     });
   };
 
@@ -429,7 +451,7 @@ export default function KategorilerPage() {
                   <input
                     type="text"
                     value={formData.ad_dari}
-                    onChange={(e) => setFormData({ ...formData, ad_dari: e.target.value })}
+                    onChange={(e) => handleAdDariChange(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="الکترونیک"
                   />
@@ -437,15 +459,14 @@ export default function KategorilerPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Slug <span className="text-red-500">*</span>
+                    Slug <span className="text-xs text-gray-500">(خودکار)</span>
                   </label>
                   <input
                     type="text"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="electronics"
-                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                    placeholder="otomatik oluşturulur..."
                     dir="ltr"
                   />
                 </div>
@@ -763,7 +784,7 @@ export default function KategorilerPage() {
                   <input
                     type="text"
                     value={altKategoriFormData.ad_dari}
-                    onChange={(e) => setAltKategoriFormData({ ...altKategoriFormData, ad_dari: e.target.value })}
+                    onChange={(e) => handleAltKategoriAdDariChange(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="موبایل‌ها"
                   />
@@ -772,15 +793,14 @@ export default function KategorilerPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Slug <span className="text-red-500">*</span>
+                  Slug <span className="text-xs text-gray-500">(خودکار)</span>
                 </label>
                 <input
                   type="text"
                   value={altKategoriFormData.slug}
                   onChange={(e) => setAltKategoriFormData({ ...altKategoriFormData, slug: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="smartphones"
-                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50"
+                  placeholder="otomatik oluşturulur..."
                   dir="ltr"
                 />
               </div>
