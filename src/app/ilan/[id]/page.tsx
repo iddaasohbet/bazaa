@@ -50,6 +50,7 @@ interface Ilan {
   magaza_id?: number;
   magaza_ad?: string;
   store_level?: string;
+  magaza_guvenilir_satici?: boolean;
   resimler: string[];
 }
 
@@ -496,7 +497,8 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                             }`}>
                               {ilan.store_level === 'elite' ? '⭐ پریمیوم' : ilan.store_level === 'pro' ? '💎 پرو' : 'عادی'}
                             </span>
-                            {(ilan.store_level === 'elite' || ilan.store_level === 'pro') && (
+                            {/* Güvenilir Satıcı Rozeti - Sadece Admin Açarsa */}
+                            {ilan.magaza_guvenilir_satici && (
                               <span className="flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">
                                 <ShieldCheck className="h-3 w-3" />
                                 فروشنده معتبر
