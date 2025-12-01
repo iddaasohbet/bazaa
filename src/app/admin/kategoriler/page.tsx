@@ -16,7 +16,33 @@ import {
   Package,
   List,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Car,
+  Home,
+  Laptop,
+  Smartphone,
+  Shirt,
+  Sofa,
+  Tv,
+  Watch,
+  BookOpen,
+  Briefcase,
+  ShoppingCart,
+  Users,
+  Heart,
+  Star,
+  Music,
+  Camera,
+  Bike,
+  Baby,
+  Dog,
+  Wrench,
+  Paintbrush,
+  Trophy,
+  Gamepad2,
+  Bed,
+  UtensilsCrossed,
+  LucideIcon
 } from "lucide-react";
 
 interface Kategori {
@@ -43,6 +69,37 @@ interface AltKategori {
   ilan_sayisi?: number;
 }
 
+// Icon listesi
+const AVAILABLE_ICONS: { name: string; icon: LucideIcon; label: string }[] = [
+  { name: 'car', icon: Car, label: 'خودرو' },
+  { name: 'home', icon: Home, label: 'خانه' },
+  { name: 'laptop', icon: Laptop, label: 'لپ‌تاپ' },
+  { name: 'smartphone', icon: Smartphone, label: 'موبایل' },
+  { name: 'shirt', icon: Shirt, label: 'لباس' },
+  { name: 'sofa', icon: Sofa, label: 'مبل' },
+  { name: 'tv', icon: Tv, label: 'تلویزیون' },
+  { name: 'watch', icon: Watch, label: 'ساعت' },
+  { name: 'book', icon: BookOpen, label: 'کتاب' },
+  { name: 'briefcase', icon: Briefcase, label: 'کیف' },
+  { name: 'cart', icon: ShoppingCart, label: 'خرید' },
+  { name: 'users', icon: Users, label: 'کاربران' },
+  { name: 'heart', icon: Heart, label: 'قلب' },
+  { name: 'star', icon: Star, label: 'ستاره' },
+  { name: 'music', icon: Music, label: 'موسیقی' },
+  { name: 'camera', icon: Camera, label: 'دوربین' },
+  { name: 'bike', icon: Bike, label: 'دوچرخه' },
+  { name: 'baby', icon: Baby, label: 'کودک' },
+  { name: 'dog', icon: Dog, label: 'حیوان' },
+  { name: 'wrench', icon: Wrench, label: 'ابزار' },
+  { name: 'paint', icon: Paintbrush, label: 'نقاشی' },
+  { name: 'trophy', icon: Trophy, label: 'جام' },
+  { name: 'game', icon: Gamepad2, label: 'بازی' },
+  { name: 'bed', icon: Bed, label: 'تخت' },
+  { name: 'food', icon: UtensilsCrossed, label: 'غذا' },
+  { name: 'grid', icon: Grid, label: 'عمومی' },
+  { name: 'package', icon: Package, label: 'بسته' }
+];
+
 export default function KategorilerPage() {
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
   const [altKategoriler, setAltKategoriler] = useState<{ [key: number]: AltKategori[] }>({});
@@ -55,6 +112,9 @@ export default function KategorilerPage() {
   const [showAltKategoriModal, setShowAltKategoriModal] = useState(false);
   const [selectedKategoriId, setSelectedKategoriId] = useState<number | null>(null);
   const [editingAltKategoriId, setEditingAltKategoriId] = useState<number | null>(null);
+  
+  // Icon picker modal
+  const [showIconPicker, setShowIconPicker] = useState(false);
   
   const [formData, setFormData] = useState({
     ad: "",
@@ -131,6 +191,13 @@ export default function KategorilerPage() {
     
     // Slug otomatik oluştur
     const finalSlug = formData.slug || generateSlug(formData.ad_dari);
+    
+    // ad alanı boşsa ad_dari'yi kopyala
+    const finalData = {
+      ...formData,
+      ad: formData.ad || formData.ad_dari,
+      slug: finalSlug
+    };
 
     try {
       const url = '/api/admin/kategoriler';
@@ -139,7 +206,7 @@ export default function KategorilerPage() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingId ? { id: editingId, ...formData, slug: finalSlug } : { ...formData, slug: finalSlug })
+        body: JSON.stringify(editingId ? { id: editingId, ...finalData } : finalData)
       });
 
       const data = await response.json();
@@ -174,14 +241,21 @@ export default function KategorilerPage() {
     
     // Slug otomatik oluştur
     const finalSlug = altKategoriFormData.slug || generateSlug(altKategoriFormData.ad_dari);
+    
+    // ad alanı boşsa ad_dari'yi kopyala
+    const finalData = {
+      ...altKategoriFormData,
+      ad: altKategoriFormData.ad || altKategoriFormData.ad_dari,
+      slug: finalSlug
+    };
 
     try {
       const url = '/api/alt-kategoriler';
       const method = editingAltKategoriId ? 'PUT' : 'POST';
       
       const body = editingAltKategoriId 
-        ? { id: editingAltKategoriId, ...altKategoriFormData, slug: finalSlug }
-        : { kategori_id: selectedKategoriId, ...altKategoriFormData, slug: finalSlug };
+        ? { id: editingAltKategoriId, ...finalData }
+        : { kategori_id: selectedKategoriId, ...finalData };
 
       const response = await fetch(url, {
         method,
@@ -383,6 +457,7 @@ export default function KategorilerPage() {
   const handleAdDariChange = (value: string) => {
     setFormData({
       ...formData,
+      ad: value, // Backend için ad alanını da doldur
       ad_dari: value,
       slug: generateSlug(value)
     });
@@ -391,6 +466,7 @@ export default function KategorilerPage() {
   const handleAltKategoriAdDariChange = (value: string) => {
     setAltKategoriFormData({
       ...altKategoriFormData,
+      ad: value, // Backend için ad alanını da doldur
       ad_dari: value,
       slug: generateSlug(value)
     });
@@ -481,14 +557,27 @@ export default function KategorilerPage() {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     آیکون
                   </label>
-                  <input
-                    type="text"
-                    value={formData.ikon}
-                    onChange={(e) => setFormData({ ...formData, ikon: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="smartphone"
-                    dir="ltr"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowIconPicker(true)}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 transition-colors flex items-center justify-between group"
+                  >
+                    <div className="flex items-center gap-3">
+                      {(() => {
+                        const selectedIcon = AVAILABLE_ICONS.find(i => i.name === formData.ikon);
+                        const IconComponent = selectedIcon?.icon || Grid;
+                        return (
+                          <>
+                            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                              <IconComponent className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <span className="text-gray-700 font-medium">{selectedIcon?.label || 'انتخاب آیکون'}</span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
+                  </button>
                 </div>
               </div>
 
@@ -840,6 +929,50 @@ export default function KategorilerPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Icon Picker Modal */}
+      {showIconPicker && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-3xl w-full p-6" dir="rtl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">انتخاب آیکون</h2>
+              <button
+                onClick={() => setShowIconPicker(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 max-h-96 overflow-y-auto">
+              {AVAILABLE_ICONS.map((iconItem) => {
+                const IconComponent = iconItem.icon;
+                const isSelected = formData.ikon === iconItem.name;
+                
+                return (
+                  <button
+                    key={iconItem.name}
+                    type="button"
+                    onClick={() => {
+                      setFormData({ ...formData, ikon: iconItem.name });
+                      setShowIconPicker(false);
+                    }}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                      isSelected 
+                        ? 'border-blue-600 bg-blue-50 shadow-lg' 
+                        : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
+                    }`}
+                    title={iconItem.label}
+                  >
+                    <IconComponent className={`w-8 h-8 mb-2 ${isSelected ? 'text-blue-600' : 'text-gray-600'}`} />
+                    <span className="text-[10px] text-center text-gray-600 font-medium">{iconItem.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
