@@ -13,9 +13,9 @@ export async function GET(request: NextRequest) {
     const connection = await pool.getConnection();
     
     try {
-      // site_ayarlar tablosundan logo bilgilerini çek
+      // logolar tablosundan logo bilgilerini çek
       const [rows] = await connection.query(
-        `SELECT anahtar, deger FROM site_ayarlar WHERE anahtar IN ('site_header_logo', 'site_footer_logo')`
+        `SELECT tip, logo_data FROM logolar WHERE tip IN ('header', 'footer')`
       );
       
       console.log('📋 API: Database sorgu sonucu:', (rows as any[]).length, 'kayıt bulundu');
@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
       };
       
       (rows as any[]).forEach((row: any) => {
-        console.log('📄 API: Kayıt işleniyor -', row.anahtar, '- Uzunluk:', row.deger?.length || 0);
-        if (row.anahtar === 'site_header_logo') {
-          logos.header_logo = row.deger || '';
-        } else if (row.anahtar === 'site_footer_logo') {
-          logos.footer_logo = row.deger || '';
+        console.log('📄 API: Kayıt işleniyor -', row.tip, '- Uzunluk:', row.logo_data?.length || 0);
+        if (row.tip === 'header') {
+          logos.header_logo = row.logo_data || '';
+        } else if (row.tip === 'footer') {
+          logos.footer_logo = row.logo_data || '';
         }
       });
       
@@ -41,10 +41,10 @@ export async function GET(request: NextRequest) {
       const response = NextResponse.json({
         success: true,
         data: logos,
-        timestamp: Date.now() // Cache kontrolü için timestamp ekle
+        timestamp: Date.now()
       });
       
-      // Cache'i tamamen engelle - Her zaman güncel veriyi getir
+      // Cache'i tamamen engelle
       response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
       response.headers.set('Pragma', 'no-cache');
       response.headers.set('Expires', '0');
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   let connection;
   try {
-    // Body'yi okumaya çalış
+    // Body'yi oku
     let body;
     try {
       const text = await request.text();
@@ -89,14 +89,14 @@ export async function PUT(request: NextRequest) {
     console.log('📊 API PUT: Header logo uzunluk:', header_logo?.length || 0);
     console.log('📊 API PUT: Footer logo uzunluk:', footer_logo?.length || 0);
     
-    // Logo boyut kontrolü - çok büyükse uyar
-    if (header_logo && header_logo.length > 5000000) { // 5MB
+    // Logo boyut kontrolü
+    if (header_logo && header_logo.length > 5000000) {
       return NextResponse.json(
         { success: false, message: 'Header logo çok büyük! Maksimum 5MB olmalı.' },
         { status: 400 }
       );
     }
-    if (footer_logo && footer_logo.length > 5000000) { // 5MB
+    if (footer_logo && footer_logo.length > 5000000) {
       return NextResponse.json(
         { success: false, message: 'Footer logo çok büyük! Maksimum 5MB olmalı.' },
         { status: 400 }
@@ -110,52 +110,24 @@ export async function PUT(request: NextRequest) {
       
       // Header logo güncelle veya ekle
       if (header_logo !== undefined) {
-        const [existing] = await connection.query(
-          `SELECT id FROM site_ayarlar WHERE anahtar = 'site_header_logo'`
+        console.log('🔄 API PUT: Header logo kaydediliyor...');
+        await connection.query(
+          `INSERT INTO logolar (tip, logo_data) VALUES ('header', ?)
+           ON DUPLICATE KEY UPDATE logo_data = VALUES(logo_data)`,
+          [header_logo]
         );
-        
-        if ((existing as any[]).length > 0) {
-          // Güncelle
-          console.log('🔄 API PUT: Header logo güncelleniyor...');
-          await connection.query(
-            `UPDATE site_ayarlar SET deger = ? WHERE anahtar = 'site_header_logo'`,
-            [header_logo]
-          );
-          console.log('✅ API PUT: Header logo güncellendi');
-        } else {
-          // Ekle
-          console.log('➕ API PUT: Header logo ekleniyor...');
-          await connection.query(
-            `INSERT INTO site_ayarlar (anahtar, deger, kategori, aciklama) VALUES (?, ?, 'logo', 'Header Logo')`,
-            ['site_header_logo', header_logo]
-          );
-          console.log('✅ API PUT: Header logo eklendi');
-        }
+        console.log('✅ API PUT: Header logo kaydedildi');
       }
       
       // Footer logo güncelle veya ekle
       if (footer_logo !== undefined) {
-        const [existing] = await connection.query(
-          `SELECT id FROM site_ayarlar WHERE anahtar = 'site_footer_logo'`
+        console.log('🔄 API PUT: Footer logo kaydediliyor...');
+        await connection.query(
+          `INSERT INTO logolar (tip, logo_data) VALUES ('footer', ?)
+           ON DUPLICATE KEY UPDATE logo_data = VALUES(logo_data)`,
+          [footer_logo]
         );
-        
-        if ((existing as any[]).length > 0) {
-          // Güncelle
-          console.log('🔄 API PUT: Footer logo güncelleniyor...');
-          await connection.query(
-            `UPDATE site_ayarlar SET deger = ? WHERE anahtar = 'site_footer_logo'`,
-            [footer_logo]
-          );
-          console.log('✅ API PUT: Footer logo güncellendi');
-        } else {
-          // Ekle
-          console.log('➕ API PUT: Footer logo ekleniyor...');
-          await connection.query(
-            `INSERT INTO site_ayarlar (anahtar, deger, kategori, aciklama) VALUES (?, ?, 'logo', 'Footer Logo')`,
-            ['site_footer_logo', footer_logo]
-          );
-          console.log('✅ API PUT: Footer logo eklendi');
-        }
+        console.log('✅ API PUT: Footer logo kaydedildi');
       }
       
       await connection.commit();
@@ -163,7 +135,7 @@ export async function PUT(request: NextRequest) {
       
       // Doğrulama yap
       const [verification] = await connection.query(
-        `SELECT anahtar, LENGTH(deger) as uzunluk FROM site_ayarlar WHERE anahtar IN ('site_header_logo', 'site_footer_logo')`
+        `SELECT tip, LENGTH(logo_data) as uzunluk FROM logolar WHERE tip IN ('header', 'footer')`
       );
       console.log('🔍 API PUT: Doğrulama sonucu:', verification);
       
