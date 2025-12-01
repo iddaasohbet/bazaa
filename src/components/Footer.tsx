@@ -17,9 +17,12 @@ interface FooterSettings {
   sosyal_instagram: string;
   sosyal_youtube: string;
   sosyal_tiktok: string;
+  android_aktif: string;
+  ios_aktif: string;
   app_baslik: string;
   app_aciklama: string;
   app_google_play_link: string;
+  app_app_store_link: string;
   app_qr_url: string;
   hizli_linkler: string;
   alt_linkler: string;
@@ -126,16 +129,20 @@ export default function Footer() {
   const sosyalInstagram = settings?.sosyal_instagram || '';
   const sosyalYoutube = settings?.sosyal_youtube || '';
   const sosyalTiktok = settings?.sosyal_tiktok || '';
+  const androidAktif = settings?.android_aktif === '1';
+  const iosAktif = settings?.ios_aktif === '1';
   const appBaslik = settings?.app_baslik || 'اپلیکیشن موبایل ما را دانلود کنید';
   const appAciklama = settings?.app_aciklama || 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید';
   const appGooglePlayLink = settings?.app_google_play_link || 'https://play.google.com/store';
+  const appAppStoreLink = settings?.app_app_store_link || 'https://apps.apple.com';
   const appQrUrl = settings?.app_qr_url || 'https://cihatcengiz.com';
 
   return (
     <footer className="bg-white border-t border-gray-200 mt-16">
       {/* Android App Download Section */}
-      <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
-        <div className="container mx-auto px-4 py-8">
+      {androidAktif && (
+        <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
+          <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-right" dir="rtl">
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -173,6 +180,52 @@ export default function Footer() {
           </div>
         </div>
       </div>
+      )}
+
+      {/* iOS App Download Section */}
+      {iosAktif && (
+        <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-indigo-50">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-center md:text-right" dir="rtl">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {appBaslik}
+                </h3>
+                <p className="text-gray-600">
+                  {appAciklama}
+                </p>
+              </div>
+              <div className="flex items-center gap-6">
+                {/* QR Code */}
+                <div className="bg-white p-2 rounded-lg border border-gray-300 shadow-md">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(appQrUrl)}`}
+                    alt="QR Code"
+                    className="w-20 h-20"
+                  />
+                  <p className="text-center text-[10px] text-gray-500 mt-1">اسکن کنید</p>
+                </div>
+                
+                {/* Download Button */}
+                <a
+                  href={appAppStoreLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900 text-white px-8 py-4 rounded-xl transition-all shadow-lg border-2 border-gray-700"
+                >
+                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C1.79 15.25 2.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                  </svg>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-300">دانلود برای iOS</div>
+                    <div className="text-base font-bold">App Store</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-12">

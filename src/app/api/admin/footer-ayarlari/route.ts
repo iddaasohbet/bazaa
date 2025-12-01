@@ -27,9 +27,12 @@ export async function GET() {
         sosyal_twitter: '',
         sosyal_instagram: '',
         sosyal_tiktok: '',
+        android_aktif: '0',
+        ios_aktif: '0',
         app_baslik: 'اپلیکیشن موبایل ما را دانلود کنید',
         app_aciklama: 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید',
         app_google_play_link: 'https://play.google.com/store',
+        app_app_store_link: 'https://apps.apple.com',
         app_qr_url: 'https://cihatcengiz.com',
         hizli_linkler: JSON.stringify([
           { label: "درباره ما", href: "/hakkimizda" },
@@ -77,6 +80,15 @@ export async function GET() {
           case 'tiktok_url':
             settings.sosyal_tiktok = ayar.deger || '';
             break;
+          case 'android_aktif':
+            settings.android_aktif = ayar.deger || '0';
+            break;
+          case 'ios_aktif':
+            settings.ios_aktif = ayar.deger || '0';
+            break;
+          case 'app_app_store_link':
+            settings.app_app_store_link = ayar.deger || '';
+            break;
         }
       });
 
@@ -107,9 +119,12 @@ export async function GET() {
         sosyal_twitter: '',
         sosyal_instagram: '',
         sosyal_tiktok: '',
+        android_aktif: '0',
+        ios_aktif: '0',
         app_baslik: 'اپلیکیشن موبایل ما را دانلود کنید',
         app_aciklama: 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید',
         app_google_play_link: 'https://play.google.com/store',
+        app_app_store_link: 'https://apps.apple.com',
         app_qr_url: 'https://cihatcengiz.com',
         hizli_linkler: JSON.stringify([
           { label: "درباره ما", href: "/hakkimizda" },
@@ -147,7 +162,10 @@ export async function PUT(request: Request) {
         sosyal_twitter: { anahtar: 'twitter_url', kategori: 'sosyal_medya' },
         sosyal_instagram: { anahtar: 'instagram_url', kategori: 'sosyal_medya' },
         sosyal_youtube: { anahtar: 'youtube_url', kategori: 'sosyal_medya' },
-        sosyal_tiktok: { anahtar: 'tiktok_url', kategori: 'sosyal_medya' }
+        sosyal_tiktok: { anahtar: 'tiktok_url', kategori: 'sosyal_medya' },
+        android_aktif: { anahtar: 'android_aktif', kategori: 'genel' },
+        ios_aktif: { anahtar: 'ios_aktif', kategori: 'genel' },
+        app_app_store_link: { anahtar: 'app_app_store_link', kategori: 'genel' }
       };
 
       // Her bir ayarı güncelle veya ekle
