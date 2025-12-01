@@ -28,9 +28,17 @@ interface Kategori {
   ad: string;
 }
 
+interface AltKategori {
+  id: number;
+  ad: string;
+  ad_dari?: string;
+  slug: string;
+}
+
 export default function IlanVer() {
   const router = useRouter();
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
+  const [altKategoriler, setAltKategoriler] = useState<AltKategori[]>([]);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -45,6 +53,7 @@ export default function IlanVer() {
     para_birimi: "AFN",
     fiyat_usd: "",
     kategori_id: "",
+    alt_kategori_id: "",
     il_id: "",
     ilce: "",
     durum: "kullanilmis",
@@ -56,6 +65,23 @@ export default function IlanVer() {
   const handleCityChange = (cityId: string) => {
     setFormData({ ...formData, il_id: cityId, ilce: "" });
     setDistricts(getDistrictsList(cityId));
+  };
+
+  const handleKategoriChange = async (kategoriId: string) => {
+    setFormData({ ...formData, kategori_id: kategoriId, alt_kategori_id: "", emlak_tipi: "" });
+    setAltKategoriler([]);
+    
+    if (kategoriId) {
+      try {
+        const response = await fetch(`/api/alt-kategoriler?kategori_id=${kategoriId}`);
+        const data = await response.json();
+        if (data.success) {
+          setAltKategoriler(data.data);
+        }
+      } catch (error) {
+        console.error('Alt kategoriler yüklenemedi:', error);
+      }
+    }
   };
 
   useEffect(() => {
@@ -189,6 +215,7 @@ export default function IlanVer() {
         para_birimi: formData.para_birimi,
         fiyat_usd: formData.fiyat_usd ? parseFloat(formData.fiyat_usd) : null,
         kategori_id: parseInt(formData.kategori_id),
+        alt_kategori_id: formData.alt_kategori_id ? parseInt(formData.alt_kategori_id) : null,
         il_id: formData.il_id,
         ilce: formData.ilce || null,
         durum: formData.durum,
@@ -260,16 +287,28 @@ export default function IlanVer() {
                 <Tag className="w-4 h-4 text-blue-600" />
                 دسته بندی و موقعیت
               </h3>
-              <div className="grid md:grid-cols-3 gap-3" dir="rtl">
+              <div className="grid md:grid-cols-4 gap-3" dir="rtl">
                 <select
                   value={formData.kategori_id}
-                  onChange={(e) => setFormData({ ...formData, kategori_id: e.target.value, emlak_tipi: "" })}
+                  onChange={(e) => handleKategoriChange(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
                   <option value="">دسته بندی</option>
                   {kategoriler.map(k => (
                     <option key={k.id} value={k.id}>{k.ad}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={formData.alt_kategori_id}
+                  onChange={(e) => setFormData({ ...formData, alt_kategori_id: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  disabled={!formData.kategori_id || altKategoriler.length === 0}
+                >
+                  <option value="">زیر دسته (اختیاری)</option>
+                  {altKategoriler.map(ak => (
+                    <option key={ak.id} value={ak.id}>{ak.ad_dari || ak.ad}</option>
                   ))}
                 </select>
 

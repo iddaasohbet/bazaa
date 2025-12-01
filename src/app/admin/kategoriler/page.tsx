@@ -13,7 +13,10 @@ import {
   ArrowDown,
   Eye,
   EyeOff,
-  Package
+  Package,
+  List,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 
 interface Kategori {
@@ -28,17 +31,45 @@ interface Kategori {
   ilan_sayisi?: number;
 }
 
+interface AltKategori {
+  id: number;
+  kategori_id: number;
+  ad: string;
+  ad_dari?: string;
+  slug: string;
+  aciklama?: string;
+  sira: number;
+  aktif: boolean;
+  ilan_sayisi?: number;
+}
+
 export default function KategorilerPage() {
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
+  const [altKategoriler, setAltKategoriler] = useState<{ [key: number]: AltKategori[] }>({});
+  const [expandedKategori, setExpandedKategori] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  
+  // Alt kategori modal
+  const [showAltKategoriModal, setShowAltKategoriModal] = useState(false);
+  const [selectedKategoriId, setSelectedKategoriId] = useState<number | null>(null);
+  const [editingAltKategoriId, setEditingAltKategoriId] = useState<number | null>(null);
+  
   const [formData, setFormData] = useState({
     ad: "",
     ad_dari: "",
     slug: "",
     aciklama: "",
     ikon: "grid",
+    aktif: true
+  });
+
+  const [altKategoriFormData, setAltKategoriFormData] = useState({
+    ad: "",
+    ad_dari: "",
+    slug: "",
+    aciklama: "",
     aktif: true
   });
 
@@ -62,6 +93,33 @@ export default function KategorilerPage() {
     }
   };
 
+  const fetchAltKategoriler = async (kategoriId: number) => {
+    try {
+      const response = await fetch(`/api/alt-kategoriler?kategori_id=${kategoriId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setAltKategoriler(prev => ({
+          ...prev,
+          [kategoriId]: data.data
+        }));
+      }
+    } catch (error) {
+      console.error('Alt kategoriler yüklenemedi:', error);
+    }
+  };
+
+  const toggleKategori = (kategoriId: number) => {
+    if (expandedKategori === kategoriId) {
+      setExpandedKategori(null);
+    } else {
+      setExpandedKategori(kategoriId);
+      if (!altKategoriler[kategoriId]) {
+        fetchAltKategoriler(kategoriId);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -71,7 +129,7 @@ export default function KategorilerPage() {
     }
 
     try {
-      const url = editingId ? '/api/admin/kategoriler' : '/api/admin/kategoriler';
+      const url = '/api/admin/kategoriler';
       const method = editingId ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -95,6 +153,43 @@ export default function KategorilerPage() {
     }
   };
 
+  const handleAltKategoriSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedKategoriId || !altKategoriFormData.ad || !altKategoriFormData.slug) {
+      alert('تمام فیلدهای الزامی را پر کنید');
+      return;
+    }
+
+    try {
+      const url = '/api/alt-kategoriler';
+      const method = editingAltKategoriId ? 'PUT' : 'POST';
+      
+      const body = editingAltKategoriId 
+        ? { id: editingAltKategoriId, ...altKategoriFormData }
+        : { kategori_id: selectedKategoriId, ...altKategoriFormData };
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(editingAltKategoriId ? 'زیر دسته‌بندی به‌روزرسانی شد' : 'زیر دسته‌بندی جدید ایجاد شد');
+        fetchAltKategoriler(selectedKategoriId);
+        resetAltKategoriForm();
+      } else {
+        alert(data.message || 'خطا در عملیات');
+      }
+    } catch (error) {
+      console.error('İşlem hatası:', error);
+      alert('خطا در عملیات');
+    }
+  };
+
   const handleEdit = (kategori: Kategori) => {
     setEditingId(kategori.id);
     setFormData({
@@ -109,7 +204,6 @@ export default function KategorilerPage() {
   };
 
   const handleDelete = async (id: number) => {
-    // İlanlı kategorileri sil
     const kategori = kategoriler.find(k => k.id === id);
     if (kategori && kategori.ilan_sayisi && kategori.ilan_sayisi > 0) {
       if (!confirm(`این دسته‌بندی ${kategori.ilan_sayisi} آگهی دارد. آیا مطمئن هستید؟`)) {
@@ -129,6 +223,30 @@ export default function KategorilerPage() {
       if (data.success) {
         alert('دسته‌بندی حذف شد');
         fetchKategoriler();
+      } else {
+        alert(data.message || 'خطا در حذف');
+      }
+    } catch (error) {
+      console.error('Silme hatası:', error);
+      alert('خطا در حذف');
+    }
+  };
+
+  const handleDeleteAltKategori = async (id: number) => {
+    if (!confirm('این زیر دسته‌بندی را حذف کنید؟')) return;
+
+    try {
+      const response = await fetch(`/api/alt-kategoriler?id=${id}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('زیر دسته‌بندی حذف شد');
+        if (selectedKategoriId) {
+          fetchAltKategoriler(selectedKategoriId);
+        }
       } else {
         alert(data.message || 'خطا در حذف');
       }
@@ -195,6 +313,18 @@ export default function KategorilerPage() {
     });
   };
 
+  const resetAltKategoriForm = () => {
+    setEditingAltKategoriId(null);
+    setShowAltKategoriModal(false);
+    setAltKategoriFormData({
+      ad: "",
+      ad_dari: "",
+      slug: "",
+      aciklama: "",
+      aktif: true
+    });
+  };
+
   const generateSlug = (text: string) => {
     return text
       .toLowerCase()
@@ -215,6 +345,32 @@ export default function KategorilerPage() {
       ...formData,
       ad: value,
       slug: generateSlug(value)
+    });
+  };
+
+  const handleAltKategoriAdChange = (value: string) => {
+    setAltKategoriFormData({
+      ...altKategoriFormData,
+      ad: value,
+      slug: generateSlug(value)
+    });
+  };
+
+  const openAltKategoriModal = (kategoriId: number) => {
+    setSelectedKategoriId(kategoriId);
+    setShowAltKategoriModal(true);
+    setEditingAltKategoriId(null);
+    resetAltKategoriForm();
+  };
+
+  const handleEditAltKategori = (altKategori: AltKategori) => {
+    setEditingAltKategoriId(altKategori.id);
+    setAltKategoriFormData({
+      ad: altKategori.ad,
+      ad_dari: altKategori.ad_dari || "",
+      slug: altKategori.slug,
+      aciklama: altKategori.aciklama || "",
+      aktif: altKategori.aktif
     });
   };
 
@@ -247,7 +403,6 @@ export default function KategorilerPage() {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
-                {/* Ad */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     نام دسته‌بندی (انگلیسی) <span className="text-red-500">*</span>
@@ -262,7 +417,6 @@ export default function KategorilerPage() {
                   />
                 </div>
 
-                {/* Ad Dari */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     نام دسته‌بندی (دری)
@@ -276,7 +430,6 @@ export default function KategorilerPage() {
                   />
                 </div>
 
-                {/* Slug */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Slug <span className="text-red-500">*</span>
@@ -292,7 +445,6 @@ export default function KategorilerPage() {
                   />
                 </div>
 
-                {/* İkon */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     آیکون
@@ -305,11 +457,9 @@ export default function KategorilerPage() {
                     placeholder="smartphone"
                     dir="ltr"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Lucide icon adı (ör: car, home, smartphone)</p>
                 </div>
               </div>
 
-              {/* Açıklama */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   توضیحات
@@ -323,7 +473,6 @@ export default function KategorilerPage() {
                 />
               </div>
 
-              {/* Aktif */}
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -337,7 +486,6 @@ export default function KategorilerPage() {
                 </label>
               </div>
 
-              {/* Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
@@ -399,93 +547,171 @@ export default function KategorilerPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {kategoriler.map((kategori, index) => (
-                    <tr key={kategori.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleSiraChange(kategori.id, 'up')}
-                            disabled={index === 0}
-                            className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                          >
-                            <ArrowUp className="w-4 h-4" />
-                          </button>
-                          <span className="font-bold text-gray-900">{kategori.sira}</span>
-                          <button
-                            onClick={() => handleSiraChange(kategori.id, 'down')}
-                            disabled={index === kategoriler.length - 1}
-                            className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                          >
-                            <ArrowDown className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                            <Grid className="w-5 h-5 text-blue-600" />
+                    <>
+                      <tr key={kategori.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleSiraChange(kategori.id, 'up')}
+                              disabled={index === 0}
+                              className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              <ArrowUp className="w-4 h-4" />
+                            </button>
+                            <span className="font-bold text-gray-900">{kategori.sira}</span>
+                            <button
+                              onClick={() => handleSiraChange(kategori.id, 'down')}
+                              disabled={index === kategoriler.length - 1}
+                              className="p-1 text-gray-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              <ArrowDown className="w-4 h-4" />
+                            </button>
                           </div>
-                          <div>
-                            <div className="font-semibold text-gray-900">{kategori.ad}</div>
-                            {kategori.ad_dari && (
-                              <div className="text-xs text-gray-500">{kategori.ad_dari}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => toggleKategori(kategori.id)}
+                              className="text-gray-400 hover:text-blue-600"
+                            >
+                              {expandedKategori === kategori.id ? (
+                                <ChevronDown className="w-5 h-5" />
+                              ) : (
+                                <ChevronRight className="w-5 h-5" />
+                              )}
+                            </button>
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                              <Grid className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <div className="font-semibold text-gray-900">{kategori.ad}</div>
+                              {kategori.ad_dari && (
+                                <div className="text-xs text-gray-500">{kategori.ad_dari}</div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <code className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded" dir="ltr">
+                            {kategori.slug}
+                          </code>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <Package className="w-4 h-4 text-gray-400" />
+                            <span className="font-semibold text-gray-900">
+                              {kategori.ilan_sayisi || 0}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() => handleToggleAktif(kategori.id, kategori.aktif)}
+                            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                              kategori.aktif 
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                                : 'bg-red-100 text-red-700 hover:bg-red-200'
+                            }`}
+                          >
+                            {kategori.aktif ? (
+                              <>
+                                <Eye className="w-3 h-3" />
+                                فعال
+                              </>
+                            ) : (
+                              <>
+                                <EyeOff className="w-3 h-3" />
+                                غیرفعال
+                              </>
                             )}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => openAltKategoriModal(kategori.id)}
+                              className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                              title="زیر دسته‌بندی‌ها"
+                            >
+                              <List className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEdit(kategori)}
+                              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="ویرایش"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(kategori.id)}
+                              className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="حذف"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <code className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded" dir="ltr">
-                          {kategori.slug}
-                        </code>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <Package className="w-4 h-4 text-gray-400" />
-                          <span className="font-semibold text-gray-900">
-                            {kategori.ilan_sayisi || 0}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => handleToggleAktif(kategori.id, kategori.aktif)}
-                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-colors ${
-                            kategori.aktif 
-                              ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                              : 'bg-red-100 text-red-700 hover:bg-red-200'
-                          }`}
-                        >
-                          {kategori.aktif ? (
-                            <>
-                              <Eye className="w-3 h-3" />
-                              فعال
-                            </>
-                          ) : (
-                            <>
-                              <EyeOff className="w-3 h-3" />
-                              غیرفعال
-                            </>
-                          )}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleEdit(kategori)}
-                            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="ویرایش"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(kategori.id)}
-                            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="حذف"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                      
+                      {/* Alt Kategoriler Satırı */}
+                      {expandedKategori === kategori.id && altKategoriler[kategori.id] && (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-4 bg-gray-50">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-sm font-bold text-gray-700">زیر دسته‌بندی‌ها</h4>
+                                <button
+                                  onClick={() => openAltKategoriModal(kategori.id)}
+                                  className="flex items-center gap-1 px-3 py-1 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  افزودن زیر دسته
+                                </button>
+                              </div>
+                              
+                              {altKategoriler[kategori.id].length === 0 ? (
+                                <p className="text-sm text-gray-500 text-center py-4">هیچ زیر دسته‌بندی یافت نشد</p>
+                              ) : (
+                                <div className="grid md:grid-cols-2 gap-2">
+                                  {altKategoriler[kategori.id].map((altKat) => (
+                                    <div key={altKat.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                                      <div className="flex items-center gap-2">
+                                        <List className="w-4 h-4 text-purple-600" />
+                                        <div>
+                                          <div className="text-sm font-semibold text-gray-900">{altKat.ad}</div>
+                                          {altKat.ad_dari && (
+                                            <div className="text-xs text-gray-500">{altKat.ad_dari}</div>
+                                          )}
+                                        </div>
+                                        <span className="text-xs text-gray-500">({altKat.ilan_sayisi || 0})</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          onClick={() => {
+                                            setSelectedKategoriId(kategori.id);
+                                            handleEditAltKategori(altKat);
+                                            setShowAltKategoriModal(true);
+                                          }}
+                                          className="p-1 text-gray-600 hover:text-blue-600"
+                                        >
+                                          <Edit className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteAltKategori(altKat.id)}
+                                          className="p-1 text-gray-600 hover:text-red-600"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   ))}
                 </tbody>
               </table>
@@ -493,19 +719,114 @@ export default function KategorilerPage() {
           )}
         </div>
       </div>
+
+      {/* Alt Kategori Modal */}
+      {showAltKategoriModal && selectedKategoriId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6" dir="rtl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">
+                {editingAltKategoriId ? 'ویرایش زیر دسته‌بندی' : 'زیر دسته‌بندی جدید'}
+              </h2>
+              <button
+                onClick={resetAltKategoriForm}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAltKategoriSubmit} className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    نام زیر دسته (انگلیسی) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={altKategoriFormData.ad}
+                    onChange={(e) => handleAltKategoriAdChange(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="Smartphones"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    نام زیر دسته (دری)
+                  </label>
+                  <input
+                    type="text"
+                    value={altKategoriFormData.ad_dari}
+                    onChange={(e) => setAltKategoriFormData({ ...altKategoriFormData, ad_dari: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="موبایل‌ها"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Slug <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={altKategoriFormData.slug}
+                  onChange={(e) => setAltKategoriFormData({ ...altKategoriFormData, slug: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="smartphones"
+                  required
+                  dir="ltr"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  توضیحات
+                </label>
+                <textarea
+                  value={altKategoriFormData.aciklama}
+                  onChange={(e) => setAltKategoriFormData({ ...altKategoriFormData, aciklama: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                  placeholder="توضیحات زیر دسته‌بندی..."
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="alt_aktif"
+                  checked={altKategoriFormData.aktif}
+                  onChange={(e) => setAltKategoriFormData({ ...altKategoriFormData, aktif: e.target.checked })}
+                  className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                />
+                <label htmlFor="alt_aktif" className="text-sm font-semibold text-gray-700 cursor-pointer">
+                  زیر دسته‌بندی فعال باشد
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  {editingAltKategoriId ? 'به‌روزرسانی' : 'ایجاد'}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetAltKategoriForm}
+                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition-colors"
+                >
+                  لغو
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

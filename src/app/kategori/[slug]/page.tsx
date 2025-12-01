@@ -19,6 +19,7 @@ interface Ilan {
   fiyat_tipi: string;
   ana_resim: string;
   kategori_ad: string;
+  alt_kategori_id?: number;
   il_ad: string;
   durum: string;
   goruntulenme: number;
@@ -34,10 +35,21 @@ interface Kategori {
   aciklama?: string;
 }
 
+interface AltKategori {
+  id: number;
+  ad: string;
+  ad_dari?: string;
+  slug: string;
+  ilan_sayisi: number;
+}
+
 export default function KategoriSayfasi({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = use(params);
   const [kategori, setKategori] = useState<Kategori | null>(null);
+  const [altKategoriler, setAltKategoriler] = useState<AltKategori[]>([]);
+  const [selectedAltKategori, setSelectedAltKategori] = useState<number | null>(null);
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
+  const [allIlanlar, setAllIlanlar] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,16 +65,38 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
       const data = await response.json();
       
       if (data.success && data.data.length > 0) {
+        setAllIlanlar(data.data);
         setIlanlar(data.data);
-        setKategori({
+        const kategoriInfo = {
           id: data.data[0].kategori_id,
           ad: data.data[0].kategori_ad,
-        });
+        };
+        setKategori(kategoriInfo);
+        
+        // Alt kategorileri getir
+        if (kategoriInfo.id) {
+          const altKatResponse = await fetch(`/api/alt-kategoriler?kategori_id=${kategoriInfo.id}`);
+          const altKatData = await altKatResponse.json();
+          if (altKatData.success) {
+            setAltKategoriler(altKatData.data);
+          }
+        }
       }
     } catch (error) {
       console.error('Veri yüklenirken hata:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAltKategoriFilter = (altKategoriId: number | null) => {
+    setSelectedAltKategori(altKategoriId);
+    
+    if (altKategoriId === null) {
+      setIlanlar(allIlanlar);
+    } else {
+      const filtered = allIlanlar.filter(ilan => ilan.alt_kategori_id === altKategoriId);
+      setIlanlar(filtered);
     }
   };
 
@@ -94,6 +128,40 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
 
             {/* Main Content - Ads List */}
             <div className="flex-1 min-w-0">
+              {/* Alt Kategoriler */}
+              {altKategoriler.length > 0 && (
+                <div className="mb-6" dir="rtl">
+                  <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                    <h3 className="text-sm font-bold text-gray-900 mb-3">زیر دسته‌بندی‌ها</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => handleAltKategoriFilter(null)}
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                          selectedAltKategori === null
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        همه ({allIlanlar.length})
+                      </button>
+                      {altKategoriler.map(altKat => (
+                        <button
+                          key={altKat.id}
+                          onClick={() => handleAltKategoriFilter(altKat.id)}
+                          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                            selectedAltKategori === altKat.id
+                              ? 'bg-blue-600 text-white shadow-md'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {altKat.ad_dari || altKat.ad} ({altKat.ilan_sayisi || 0})
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Kategori Vitrin İlanları */}
               {kategori && (
                 <div className="mb-8">

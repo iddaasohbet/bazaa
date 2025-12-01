@@ -24,6 +24,7 @@ export default function AdminReklamlarPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingReklam, setEditingReklam] = useState<Reklam | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [formData, setFormData] = useState({
     baslik: '',
     aciklama: '',
@@ -101,7 +102,27 @@ export default function AdminReklamlarPage() {
       bitis: reklam.bitis?.split('T')[0] || '',
       aktif: reklam.aktif
     });
+    setImagePreview(reklam.resim);
     setShowModal(true);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Boyut kontrolü (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('حجم فایل باید کمتر از 5 مگابایت باشد');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setFormData({ ...formData, resim: base64 });
+      setImagePreview(base64);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleDelete = async (id: number) => {
@@ -137,6 +158,7 @@ export default function AdminReklamlarPage() {
       bitis: '',
       aktif: true
     });
+    setImagePreview("");
   };
 
   const handleNewReklam = () => {
@@ -333,20 +355,59 @@ export default function AdminReklamlarPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">آدرس تصویر *</label>
-                <input
-                  type="url"
-                  required
-                  value={formData.resim}
-                  onChange={(e) => setFormData({...formData, resim: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://example.com/image.jpg"
-                />
-                {formData.resim && (
-                  <div className="mt-3 relative aspect-video rounded-lg overflow-hidden bg-gray-100">
-                    <img src={formData.resim} alt="Preview" className="w-full h-full object-cover" />
+                <label className="block text-sm font-bold text-gray-700 mb-2">تصویر تبلیغ *</label>
+                
+                {/* Upload Area */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                  <input
+                    type="file"
+                    id="reklamResim"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <label htmlFor="reklamResim" className="cursor-pointer">
+                    <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-700 font-medium mb-1">برای آپلود تصویر کلیک کنید</p>
+                    <p className="text-xs text-gray-500">PNG, JPG (حداکثر 5MB)</p>
+                  </label>
+                </div>
+
+                {/* Preview */}
+                {imagePreview && (
+                  <div className="mt-3">
+                    <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
+                      <img src={imagePreview} alt="پیش‌نمایش" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, resim: '' });
+                          setImagePreview('');
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 )}
+
+                {/* یا URL وارد کنید */}
+                <div className="mt-3">
+                  <details className="text-sm">
+                    <summary className="cursor-pointer text-gray-600 hover:text-gray-900 font-medium">یا آدرس تصویر (URL) وارد کنید</summary>
+                    <input
+                      type="url"
+                      value={formData.resim.startsWith('http') ? formData.resim : ''}
+                      onChange={(e) => {
+                        setFormData({...formData, resim: e.target.value});
+                        setImagePreview(e.target.value);
+                      }}
+                      className="w-full mt-2 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </details>
+                </div>
               </div>
 
               <div>
