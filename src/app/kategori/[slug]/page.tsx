@@ -133,10 +133,10 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
       <main className="flex-1 pb-16">
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
-          <div className="mb-6 mt-8 text-sm text-gray-600">
-            <Link href="/" className="hover:text-blue-600">Ana Sayfa</Link>
+          <div className="mb-6 mt-8 text-sm text-gray-600" dir="rtl">
+            <Link href="/" className="hover:text-blue-600">صفحه اصلی</Link>
             <span className="mx-2">/</span>
-            <span className="text-gray-900">{kategori?.ad || 'Kategori'}</span>
+            <span className="text-gray-900">{kategori?.ad_dari || kategori?.ad || 'دسته‌بندی'}</span>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
