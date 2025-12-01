@@ -358,9 +358,15 @@ export default function KategorilerPage() {
 
   const openAltKategoriModal = (kategoriId: number) => {
     setSelectedKategoriId(kategoriId);
-    setShowAltKategoriModal(true);
     setEditingAltKategoriId(null);
-    resetAltKategoriForm();
+    setAltKategoriFormData({
+      ad: "",
+      ad_dari: "",
+      slug: "",
+      aciklama: "",
+      aktif: true
+    });
+    setShowAltKategoriModal(true);
   };
 
   const handleEditAltKategori = (altKategori: AltKategori) => {

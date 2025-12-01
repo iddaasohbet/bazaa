@@ -54,6 +54,19 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
 
   useEffect(() => {
     fetchData();
+    
+    // URL'den alt kategori slug'ını al
+    const urlParams = new URLSearchParams(window.location.search);
+    const altSlug = urlParams.get('alt');
+    if (altSlug) {
+      // Alt kategori listesi yüklendikten sonra seçili yap
+      setTimeout(() => {
+        const altKat = altKategoriler.find(ak => ak.slug === altSlug);
+        if (altKat) {
+          handleAltKategoriFilter(altKat.id);
+        }
+      }, 500);
+    }
   }, [resolvedParams.slug]);
 
   const fetchData = async () => {

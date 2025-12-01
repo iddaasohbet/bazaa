@@ -23,6 +23,15 @@ interface Kategori {
   aktif: boolean;
 }
 
+interface AltKategori {
+  id: number;
+  kategori_id: number;
+  ad: string;
+  ad_dari?: string;
+  slug: string;
+  ilan_sayisi: number;
+}
+
 interface Istatistikler {
   aktifIlanlar: number;
   aktifMagazalar: number;
@@ -43,6 +52,8 @@ const iconMap: { [key: string]: any } = {
 
 export default function Sidebar() {
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
+  const [altKategoriler, setAltKategoriler] = useState<{ [key: number]: AltKategori[] }>({});
+  const [expandedKategori, setExpandedKategori] = useState<number | null>(null);
   const [istatistikler, setIstatistikler] = useState<Istatistikler>({
     aktifIlanlar: 0,
     aktifMagazalar: 0,
@@ -82,6 +93,35 @@ export default function Sidebar() {
     }
   };
 
+  const fetchAltKategoriler = async (kategoriId: number) => {
+    try {
+      const response = await fetch(`/api/alt-kategoriler?kategori_id=${kategoriId}`);
+      const data = await response.json();
+      if (data.success) {
+        setAltKategoriler(prev => ({
+          ...prev,
+          [kategoriId]: data.data
+        }));
+      }
+    } catch (error) {
+      console.error('خطا در بارگذاری زیر دسته‌ها:', error);
+    }
+  };
+
+  const toggleKategori = (e: React.MouseEvent, kategoriId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (expandedKategori === kategoriId) {
+      setExpandedKategori(null);
+    } else {
+      setExpandedKategori(kategoriId);
+      if (!altKategoriler[kategoriId]) {
+        fetchAltKategoriler(kategoriId);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <aside className="w-full lg:w-64 bg-white rounded-lg shadow-md p-4">
@@ -108,17 +148,43 @@ export default function Sidebar() {
         
         {kategoriler.map((kategori) => {
           const Icon = iconMap[kategori.ikon || 'grid'] || Grid;
+          const isExpanded = expandedKategori === kategori.id;
+          const altKats = altKategoriler[kategori.id] || [];
           
           return (
-            <Link
-              key={kategori.id}
-              href={`/kategori/${kategori.slug}`}
-              className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
-            >
-              <Icon className="h-5 w-5 text-gray-600" />
-              <span className="flex-1 text-sm font-medium">{kategori.ad}</span>
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            </Link>
+            <div key={kategori.id}>
+              <div className="flex items-center gap-1 mb-1">
+                <button
+                  onClick={(e) => toggleKategori(e, kategori.id)}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                >
+                  <ChevronRight className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                </button>
+                <Link
+                  href={`/kategori/${kategori.slug}`}
+                  className="flex-1 flex items-center gap-3 px-2 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                >
+                  <Icon className="h-5 w-5 text-gray-600" />
+                  <span className="flex-1 text-sm font-medium">{kategori.ad}</span>
+                </Link>
+              </div>
+              
+              {/* Alt Kategoriler */}
+              {isExpanded && altKats.length > 0 && (
+                <div className="mr-9 mb-2 space-y-1">
+                  {altKats.map((altKat) => (
+                    <Link
+                      key={altKat.id}
+                      href={`/kategori/${kategori.slug}?alt=${altKat.slug}`}
+                      className="flex items-center justify-between px-3 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-md transition-colors text-xs"
+                    >
+                      <span>{altKat.ad_dari || altKat.ad}</span>
+                      <span className="text-gray-400">({altKat.ilan_sayisi || 0})</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
