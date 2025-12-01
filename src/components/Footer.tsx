@@ -32,9 +32,34 @@ export default function Footer() {
   const [settings, setSettings] = useState<FooterSettings | null>(null);
   const [hizliLinkler, setHizliLinkler] = useState<FooterLink[]>([]);
   const [altLinkler, setAltLinkler] = useState<FooterLink[]>([]);
+  const [footerLogo, setFooterLogo] = useState<string>("/images/logo.png");
 
   useEffect(() => {
     fetchFooterSettings();
+    loadLogo();
+  }, []);
+
+  const loadLogo = async () => {
+    try {
+      const response = await fetch('/api/admin/logo');
+      const data = await response.json();
+      
+      if (data.success && data.data.footer_logo) {
+        setFooterLogo(data.data.footer_logo);
+      }
+    } catch (error) {
+      console.error('Footer logo yüklenemedi:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Logo güncellendiğinde yeniden yükle
+    const handleLogoUpdate = () => {
+      loadLogo();
+    };
+
+    window.addEventListener('logoUpdated', handleLogoUpdate);
+    return () => window.removeEventListener('logoUpdated', handleLogoUpdate);
   }, []);
 
   const fetchFooterSettings = async () => {
@@ -139,13 +164,21 @@ export default function Footer() {
           <div>
             <Link href="/" className="flex items-center gap-3 mb-4 group">
               <div className="relative h-14">
-                <Image 
-                  src="/images/logo.png" 
-                  alt="WatanBazaare Logo" 
-                  width={160}
-                  height={56}
-                  className="h-14 w-auto object-contain transition-transform group-hover:scale-105"
-                />
+                {footerLogo.startsWith('data:') ? (
+                  <img 
+                    src={footerLogo} 
+                    alt="WatanBazaare Logo" 
+                    className="h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <Image 
+                    src={footerLogo} 
+                    alt="WatanBazaare Logo" 
+                    width={160}
+                    height={56}
+                    className="h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                  />
+                )}
               </div>
             </Link>
             <p className="text-sm text-gray-600 mb-4">

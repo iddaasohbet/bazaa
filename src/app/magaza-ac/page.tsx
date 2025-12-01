@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Store, Upload, MapPin, Phone, Mail, User, FileText, CreditCard, Package, Star, TrendingUp, Award, Zap, Crown, Sparkles, BadgeCheck, Rocket, Gift } from "lucide-react";
+import { getCitiesList, getDistrictsList } from "@/lib/cities";
 
 interface Paket {
   id: number;
@@ -28,6 +29,7 @@ export default function MagazaAcPage() {
   const [redirecting, setRedirecting] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [districts, setDistricts] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     // Mağaza bilgileri
@@ -35,6 +37,7 @@ export default function MagazaAcPage() {
     magaza_ad_dari: '',
     aciklama: '',
     il_id: '',
+    ilce: '',
     adres: '',
     logo: null as File | null,
     kapak_resmi: null as File | null,
@@ -42,6 +45,13 @@ export default function MagazaAcPage() {
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [kapakPreview, setKapakPreview] = useState<string | null>(null);
+
+  const cities = getCitiesList();
+
+  const handleCityChange = (cityId: string) => {
+    setFormData({ ...formData, il_id: cityId, ilce: "" });
+    setDistricts(getDistrictsList(cityId));
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'kapak') => {
     const file = e.target.files?.[0];
@@ -124,6 +134,8 @@ export default function MagazaAcPage() {
             magaza_ad: formData.magaza_ad,
             magaza_ad_dari: formData.magaza_ad_dari,
             aciklama: formData.aciklama,
+            il_id: formData.il_id,
+            ilce: formData.ilce || null,
             adres: formData.adres,
             logo: logoPreview,
             kapak_resmi: kapakPreview,
@@ -159,6 +171,8 @@ export default function MagazaAcPage() {
         magaza_ad: formData.magaza_ad,
         magaza_ad_dari: formData.magaza_ad_dari,
         aciklama: formData.aciklama,
+        il_id: formData.il_id,
+        ilce: formData.ilce || null,
         adres: formData.adres,
         paket_id: selectedPaket,
         store_level: selectedPaketData?.store_level,
@@ -380,17 +394,55 @@ export default function MagazaAcPage() {
                     />
                   </div>
 
+                  {/* İl ve İlçe Seçimi */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">
+                        <MapPin className="inline h-4 w-4 ml-1" />
+                        ولایت (شهر) *
+                      </label>
+                      <select
+                        value={formData.il_id}
+                        onChange={(e) => handleCityChange(e.target.value)}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                        required
+                      >
+                        <option value="">ولایت انتخاب کنید</option>
+                        {cities.map(city => (
+                          <option key={city.id} value={city.id}>{city.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">
+                        ولسوالی (منطقه)
+                      </label>
+                      <select
+                        value={formData.ilce}
+                        onChange={(e) => setFormData({...formData, ilce: e.target.value})}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                        disabled={!formData.il_id}
+                      >
+                        <option value="">اول ولایت انتخاب کنید</option>
+                        {districts.map(district => (
+                          <option key={district} value={district}>{district}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
                       <MapPin className="inline h-4 w-4 ml-1" />
-                      آدرس
+                      آدرس دقیق
                     </label>
                     <input
                       type="text"
                       value={formData.adres}
                       onChange={(e) => setFormData({...formData, adres: e.target.value})}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                      placeholder="آدرس کامل مغازه"
+                      placeholder="آدرس کامل مغازه، خیابان، ساختمان..."
                     />
                   </div>
                 </div>

@@ -140,44 +140,20 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Son İlanlar</h2>
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
-                  <div>
-                    <div className="font-semibold text-gray-900">Örnek İlan {i}</div>
-                    <div className="text-sm text-gray-600">2 saat önce</div>
-                  </div>
-                  <Link href={`/admin/ilanlar/${i}`} className="text-blue-600 hover:underline text-sm">
-                    Düzenle
-                  </Link>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Son İlanlar</h2>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                <div>
+                  <div className="font-semibold text-gray-900">Örnek İlan {i}</div>
+                  <div className="text-sm text-gray-600">2 saat önce</div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Yönetim Menüsü</h2>
-            <nav className="space-y-2">
-              <Link href="/admin/ilanlar" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50">
-                <FileText className="h-5 w-5 text-gray-600" />
-                <span className="font-medium">İlanlar</span>
-              </Link>
-              <Link href="/admin/onecikan" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50">
-                <Star className="h-5 w-5 text-gray-600" />
-                <span className="font-medium">Öne Çıkan İlanlar</span>
-              </Link>
-              <Link href="/admin/kategoriler" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50">
-                <Grid className="h-5 w-5 text-gray-600" />
-                <span className="font-medium">Kategoriler</span>
-              </Link>
-              <Link href="/admin/kullanicilar" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50">
-                <Users className="h-5 w-5 text-gray-600" />
-                <span className="font-medium">Kullanıcılar</span>
-              </Link>
-            </nav>
+                <Link href={`/admin/ilanlar/${i}`} className="text-blue-600 hover:underline text-sm">
+                  Düzenle
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </div>

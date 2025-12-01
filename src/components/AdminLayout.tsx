@@ -10,7 +10,6 @@ import {
   Users,
   Store,
   Star,
-  BarChart3,
   CreditCard,
   Settings,
   LogOut,
@@ -20,7 +19,6 @@ import {
   Search,
   ChevronDown,
   Package,
-  MapPin,
   ShieldCheck,
   Tag,
   TrendingUp,
@@ -89,7 +87,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       title: "عمومی",
       items: [
         { icon: LayoutDashboard, label: "داشبورد", href: "/admin/dashboard" },
-        { icon: BarChart3, label: "آمار و گزارشات", href: "/admin/istatistikler" },
       ]
     },
     {
@@ -97,7 +94,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { icon: FileText, label: "آگهی‌ها", href: "/admin/ilanlar" },
         { icon: Grid, label: "دسته‌بندی‌ها", href: "/admin/kategoriler" },
-        { icon: MapPin, label: "شهرها", href: "/admin/iller" },
         { icon: Star, label: "آگهی‌های ویژه", href: "/admin/onecikan" },
         { icon: FileText, label: "صفحات", href: "/admin/sayfalar" },
       ]

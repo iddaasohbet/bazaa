@@ -13,11 +13,6 @@ export default function Profilim() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [stats, setStats] = useState({
-    aktifIlanlar: 0,
-    favoriler: 0,
-    mesajlar: 0,
-  });
 
   const startEdit = (field: string, currentValue: string) => {
     setEditing(field);
@@ -96,9 +91,6 @@ export default function Profilim() {
         // API'den yüklenemezse localStorage'dan yükle
         setUserData(localUser);
       }
-
-      // İstatistikleri yükle
-      await loadStats(localUser.id);
     } catch (error) {
       console.error('Kullanıcı bilgileri yüklenirken hata:', error);
       // Hata durumunda localStorage'dan yükle
@@ -110,50 +102,6 @@ export default function Profilim() {
       }
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadStats = async (userId: number) => {
-    try {
-      // Aktif ilanları say - sadece bu kullanıcının ilanları
-      const ilanlarRes = await fetch(`/api/ilanlar`, {
-        headers: {
-          'x-user-id': userId.toString()
-        }
-      });
-      const ilanlarData = await ilanlarRes.json();
-      
-      // Sadece bu kullanıcının ilanlarını filtrele
-      const kullaniciIlanlari = ilanlarData.success 
-        ? ilanlarData.data.filter((ilan: any) => ilan.kullanici_id === userId)
-        : [];
-      const aktifIlanlar = kullaniciIlanlari.length;
-
-      // Favorileri say
-      const favorilerRes = await fetch('/api/favoriler', {
-        headers: {
-          'x-user-id': userId.toString()
-        }
-      });
-      const favorilerData = await favorilerRes.json();
-      const favoriler = favorilerData.success ? favorilerData.data.length : 0;
-
-      // Mesajları say
-      const mesajlarRes = await fetch('/api/mesajlar', {
-        headers: {
-          'x-user-id': userId.toString()
-        }
-      });
-      const mesajlarData = await mesajlarRes.json();
-      const mesajlar = mesajlarData.success ? mesajlarData.data.length : 0;
-
-      setStats({
-        aktifIlanlar,
-        favoriler,
-        mesajlar,
-      });
-    } catch (error) {
-      console.error('İstatistik yükleme hatası:', error);
     }
   };
 
@@ -430,25 +378,6 @@ export default function Profilim() {
                       </button>
                     )}
                   </div>
-                </div>
-              </div>
-
-              {/* İstatistikler */}
-              <div className="border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-6">آمار حساب</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <Link href="/ilanlarim" className="border border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
-                    <div className="text-2xl font-bold text-blue-600 mb-1">{stats.aktifIlanlar}</div>
-                    <div className="text-sm text-gray-600">آگهی فعال</div>
-                  </Link>
-                  <Link href="/favoriler" className="border border-gray-200 rounded-lg p-4 text-center hover:border-red-500 hover:bg-red-50 transition-all cursor-pointer">
-                    <div className="text-2xl font-bold text-red-600 mb-1">{stats.favoriler}</div>
-                    <div className="text-sm text-gray-600">علاقه‌مندی</div>
-                  </Link>
-                  <Link href="/mesajlar" className="border border-gray-200 rounded-lg p-4 text-center hover:border-green-500 hover:bg-green-50 transition-all cursor-pointer">
-                    <div className="text-2xl font-bold text-green-600 mb-1">{stats.mesajlar}</div>
-                    <div className="text-sm text-gray-600">پیام</div>
-                  </Link>
                 </div>
               </div>
 

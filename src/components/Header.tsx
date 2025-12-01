@@ -27,6 +27,7 @@ export default function Header() {
   const [favoriSayisi, setFavoriSayisi] = useState(0);
   const [hasMagaza, setHasMagaza] = useState(false);
   const [magazaId, setMagazaId] = useState<number | null>(null);
+  const [headerLogo, setHeaderLogo] = useState<string>("/images/logo.png");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,6 +35,32 @@ export default function Header() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Logo'yu API'den yükle
+    const loadLogo = async () => {
+      try {
+        const response = await fetch('/api/admin/logo');
+        const data = await response.json();
+        
+        if (data.success && data.data.header_logo) {
+          setHeaderLogo(data.data.header_logo);
+        }
+      } catch (error) {
+        console.error('Header logo yüklenemedi:', error);
+      }
+    };
+
+    loadLogo();
+
+    // Logo güncellendiğinde yeniden yükle
+    const handleLogoUpdate = () => {
+      loadLogo();
+    };
+
+    window.addEventListener('logoUpdated', handleLogoUpdate);
+    return () => window.removeEventListener('logoUpdated', handleLogoUpdate);
   }, []);
 
   useEffect(() => {
@@ -193,14 +220,22 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 mr-6 lg:mr-8 group">
               <div className="relative h-12 lg:h-14">
-                <Image 
-                  src="/images/logo.png" 
-                  alt="WatanBazaare Logo" 
-                  width={150}
-                  height={56}
-                  className="h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105"
-                  priority
-                />
+                {headerLogo.startsWith('data:') ? (
+                  <img 
+                    src={headerLogo} 
+                    alt="WatanBazaare Logo" 
+                    className="h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <Image 
+                    src={headerLogo} 
+                    alt="WatanBazaare Logo" 
+                    width={150}
+                    height={56}
+                    className="h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                    priority
+                  />
+                )}
               </div>
             </Link>
 
@@ -367,13 +402,21 @@ export default function Header() {
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between border-b border-blue-500 z-10">
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-lg p-2">
-                  <Image 
-                    src="/images/logo.png" 
-                    alt="WatanBazaare Logo" 
-                    width={120}
-                    height={40}
-                    className="h-8 w-auto object-contain"
-                  />
+                  {headerLogo.startsWith('data:') ? (
+                    <img 
+                      src={headerLogo} 
+                      alt="WatanBazaare Logo" 
+                      className="h-8 w-auto object-contain"
+                    />
+                  ) : (
+                    <Image 
+                      src={headerLogo} 
+                      alt="WatanBazaare Logo" 
+                      width={120}
+                      height={40}
+                      className="h-8 w-auto object-contain"
+                    />
+                  )}
                 </div>
                 <div>
                   <div className="text-white font-bold text-lg invisible hidden">BazaareWatan</div>

@@ -17,7 +17,9 @@ import {
   AtSign,
   Key,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Upload,
+  Image as ImageIcon
 } from "lucide-react";
 
 interface Ayar {
@@ -33,10 +35,15 @@ export default function AyarlarPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
-  const [activeTab, setActiveTab] = useState('genel');
+  const [activeTab, setActiveTab] = useState('logo');
+  const [headerLogo, setHeaderLogo] = useState<string>('');
+  const [footerLogo, setFooterLogo] = useState<string>('');
+  const [headerLogoPreview, setHeaderLogoPreview] = useState<string>('');
+  const [footerLogoPreview, setFooterLogoPreview] = useState<string>('');
 
   useEffect(() => {
     fetchAyarlar();
+    fetchLogos();
   }, []);
 
   const fetchAyarlar = async () => {
@@ -54,6 +61,51 @@ export default function AyarlarPage() {
     }
   };
 
+  const fetchLogos = async () => {
+    try {
+      const response = await fetch('/api/admin/logo');
+      const data = await response.json();
+      
+      if (data.success) {
+        const { header_logo, footer_logo } = data.data;
+        if (header_logo) {
+          setHeaderLogo(header_logo);
+          setHeaderLogoPreview(header_logo);
+        }
+        if (footer_logo) {
+          setFooterLogo(footer_logo);
+          setFooterLogoPreview(footer_logo);
+        }
+      }
+    } catch (error) {
+      console.error('Logolar yüklenirken hata:', error);
+    }
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'header' | 'footer') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Dosya boyutu kontrolü (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        setMessage({ type: 'error', text: 'فایل خیلی بزرگ است! حداکثر ۲ مگابایت' });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        if (type === 'header') {
+          setHeaderLogo(base64String);
+          setHeaderLogoPreview(base64String);
+        } else {
+          setFooterLogo(base64String);
+          setFooterLogoPreview(base64String);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleChange = (anahtar: string, yeniDeger: string) => {
     setAyarlar(prev => prev.map(ayar => 
       ayar.anahtar === anahtar ? { ...ayar, deger: yeniDeger } : ayar
@@ -65,6 +117,27 @@ export default function AyarlarPage() {
     setMessage(null);
 
     try {
+      // Logoları API'ye kaydet
+      const logoResponse = await fetch('/api/admin/logo', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          header_logo: headerLogo,
+          footer_logo: footerLogo
+        }),
+      });
+
+      const logoData = await logoResponse.json();
+      
+      if (!logoData.success) {
+        setMessage({ type: 'error', text: 'Logolar kaydedilemedi' });
+        setSaving(false);
+        return;
+      }
+
+      // Diğer ayarları kaydet
       const response = await fetch('/api/admin/ayarlar', {
         method: 'PUT',
         headers: {
@@ -78,12 +151,15 @@ export default function AyarlarPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'Ayarlar başarıyla kaydedildi!' });
+        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند!' });
+        // Header ve Footer'ı güncelle
+        window.dispatchEvent(new Event('logoUpdated'));
         setTimeout(() => setMessage(null), 3000);
       } else {
         setMessage({ type: 'error', text: data.message || 'Bir hata oluştu' });
       }
     } catch (error) {
+      console.error('Kaydetme hatası:', error);
       setMessage({ type: 'error', text: 'Ayarlar kaydedilirken hata oluştu' });
     } finally {
       setSaving(false);
@@ -126,6 +202,7 @@ export default function AyarlarPage() {
   };
 
   const kategoriler = [
+    { key: 'logo', label: 'لوگوها', icon: ImageIcon },
     { key: 'genel', label: 'عمومی تنظیمات', icon: Globe },
     { key: 'iletisim', label: 'د اړیکو معلومات', icon: Mail },
     { key: 'sosyal_medya', label: 'ټولنیز رسنۍ', icon: AtSign },
@@ -266,26 +343,143 @@ export default function AyarlarPage() {
 
         {/* Settings Content */}
         <div className="p-6">
-          <div className="space-y-6">
-            {ayarlar
-              .filter(ayar => ayar.kategori === activeTab)
-              .map((ayar) => (
-                <div key={ayar.id} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                  <label className="block mb-2">
-                    <span className="text-sm font-medium text-gray-700">{getAyarLabel(ayar.anahtar)}</span>
-                    <span className="text-xs text-gray-500 ml-2">({ayar.anahtar})</span>
-                  </label>
-                  {renderAyarInput(ayar)}
-                </div>
-              ))}
+          {/* Logo Yönetimi */}
+          {activeTab === 'logo' && (
+            <div className="space-y-8" dir="rtl">
+              {/* Header Logo */}
+              <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5" />
+                  لوگوی Header (سرصفحه)
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-6">
+                    {/* Preview */}
+                    <div className="flex-shrink-0">
+                      <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden">
+                        {headerLogoPreview ? (
+                          <img src={headerLogoPreview} alt="Header Logo" className="w-full h-full object-contain p-2" />
+                        ) : (
+                          <div className="text-center">
+                            <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-xs text-gray-500">بدون لوگو</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-            {ayarlar.filter(ayar => ayar.kategori === activeTab).length === 0 && (
-              <div className="text-center py-12 text-gray-500">
-                <Settings className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p>په دې کټګورۍ کې تنظیمات نشته</p>
+                    {/* Upload Button */}
+                    <div className="flex-1">
+                      <label className="cursor-pointer">
+                        <div className="border-2 border-blue-300 border-dashed rounded-lg p-6 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                          <div className="flex items-center justify-center gap-3">
+                            <Upload className="h-6 w-6 text-blue-600" />
+                            <div className="text-center">
+                              <p className="text-sm font-medium text-gray-900">برای آپلود لوگو کلیک کنید</p>
+                              <p className="text-xs text-gray-500 mt-1">PNG, JPG, SVG (حداکثر ۲MB)</p>
+                            </div>
+                          </div>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleLogoUpload(e, 'header')}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-xs text-gray-600 mt-2">توصیه: ابعاد ۱۸۰×۶۰ پیکسل</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Footer Logo */}
+              <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5" />
+                  لوگوی Footer (پاورقی)
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-6">
+                    {/* Preview */}
+                    <div className="flex-shrink-0">
+                      <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden">
+                        {footerLogoPreview ? (
+                          <img src={footerLogoPreview} alt="Footer Logo" className="w-full h-full object-contain p-2" />
+                        ) : (
+                          <div className="text-center">
+                            <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-xs text-gray-500">بدون لوگو</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Upload Button */}
+                    <div className="flex-1">
+                      <label className="cursor-pointer">
+                        <div className="border-2 border-blue-300 border-dashed rounded-lg p-6 hover:border-blue-400 hover:bg-blue-50 transition-all">
+                          <div className="flex items-center justify-center gap-3">
+                            <Upload className="h-6 w-6 text-blue-600" />
+                            <div className="text-center">
+                              <p className="text-sm font-medium text-gray-900">برای آپلود لوگو کلیک کنید</p>
+                              <p className="text-xs text-gray-500 mt-1">PNG, JPG, SVG (حداکثر ۲MB)</p>
+                            </div>
+                          </div>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleLogoUpload(e, 'footer')}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-xs text-gray-600 mt-2">توصیه: ابعاد ۱۸۰×۶۰ پیکسل</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Info Box */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex gap-3">
+                  <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-gray-700">
+                    <p className="font-semibold text-gray-900 mb-1">نکته</p>
+                    <ul className="space-y-1 text-gray-600">
+                      <li>• پس از آپلود لوگو، حتماً دکمه "خوندی کړئ" را بزنید</li>
+                      <li>• فرمت‌های PNG و SVG برای کیفیت بهتر توصیه می‌شوند</li>
+                      <li>• لوگو با پس‌زمینه شفاف بهتر است</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Diğer Ayarlar */}
+          {activeTab !== 'logo' && (
+            <div className="space-y-6">
+              {ayarlar
+                .filter(ayar => ayar.kategori === activeTab)
+                .map((ayar) => (
+                  <div key={ayar.id} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
+                    <label className="block mb-2">
+                      <span className="text-sm font-medium text-gray-700">{getAyarLabel(ayar.anahtar)}</span>
+                      <span className="text-xs text-gray-500 ml-2">({ayar.anahtar})</span>
+                    </label>
+                    {renderAyarInput(ayar)}
+                  </div>
+                ))}
+
+              {ayarlar.filter(ayar => ayar.kategori === activeTab).length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  <Settings className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                  <p>په دې کټګورۍ کې تنظیمات نشته</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
