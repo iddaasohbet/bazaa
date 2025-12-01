@@ -182,6 +182,13 @@ export default function AyarlarPage() {
       const logoData = await logoResponse.json();
       console.log('📋 Kaydet: API yanıtı:', logoData);
       
+      if (logoData.verification) {
+        console.log('🔍 Verification:', logoData.verification);
+        logoData.verification.forEach((v: any) => {
+          console.log(`  ${v.anahtar}: ${v.uzunluk} bytes`);
+        });
+      }
+      
       if (!logoData.success) {
         setMessage({ type: 'error', text: 'Logolar kaydedilemedi: ' + (logoData.message || 'Bilinmeyen hata') });
         setSaving(false);
@@ -205,13 +212,23 @@ export default function AyarlarPage() {
         setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند! برای دیدن تغییرات صفحه را رفرش کنید.' });
         setLogoChanged(false);
         
+        // Logoları hemen state'e set et (verification'dan)
+        if (logoData.verification) {
+          const headerVerif = logoData.verification.find((v: any) => v.anahtar === 'site_header_logo');
+          const footerVerif = logoData.verification.find((v: any) => v.anahtar === 'site_footer_logo');
+          console.log('✅ Verification sonrası state güncelleniyor');
+          console.log('  Header:', headerVerif?.uzunluk || 0, 'bytes');
+          console.log('  Footer:', footerVerif?.uzunluk || 0, 'bytes');
+        }
+        
         // Header ve Footer'ı güncelle
         window.dispatchEvent(new Event('logoUpdated'));
         
-        // Logoları yeniden yükle
+        // Logoları yeniden yükle (1 saniye bekle - database commit için)
         setTimeout(() => {
+          console.log('⏰ 1 saniye sonra logolar yeniden yükleniyor...');
           fetchLogos();
-        }, 500);
+        }, 1000);
         
         setTimeout(() => setMessage(null), 5000);
       } else {

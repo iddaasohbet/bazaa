@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-// Next.js body size limitini artır
-export const maxDuration = 60; // 60 saniye
+// Next.js cache ve runtime config
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const maxDuration = 60;
 
 // GET - Logo bilgilerini getir
 export async function GET(request: NextRequest) {
