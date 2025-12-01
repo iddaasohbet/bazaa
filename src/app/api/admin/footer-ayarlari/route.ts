@@ -27,8 +27,8 @@ export async function GET() {
         sosyal_twitter: '',
         sosyal_instagram: '',
         sosyal_tiktok: '',
-        android_aktif: '0',
-        ios_aktif: '0',
+        android_aktif: '1',
+        ios_aktif: '1',
         app_baslik: 'اپلیکیشن موبایل ما را دانلود کنید',
         app_aciklama: 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید',
         app_google_play_link: 'https://play.google.com/store',
@@ -81,10 +81,10 @@ export async function GET() {
             settings.sosyal_tiktok = ayar.deger || '';
             break;
           case 'android_aktif':
-            settings.android_aktif = ayar.deger || '0';
+            settings.android_aktif = ayar.deger || '1';
             break;
           case 'ios_aktif':
-            settings.ios_aktif = ayar.deger || '0';
+            settings.ios_aktif = ayar.deger || '1';
             break;
           case 'app_app_store_link':
             settings.app_app_store_link = ayar.deger || '';
@@ -119,8 +119,8 @@ export async function GET() {
         sosyal_twitter: '',
         sosyal_instagram: '',
         sosyal_tiktok: '',
-        android_aktif: '0',
-        ios_aktif: '0',
+        android_aktif: '1',
+        ios_aktif: '1',
         app_baslik: 'اپلیکیشن موبایل ما را دانلود کنید',
         app_aciklama: 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید',
         app_google_play_link: 'https://play.google.com/store',

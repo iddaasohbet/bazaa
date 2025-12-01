@@ -129,8 +129,9 @@ export default function Footer() {
   const sosyalInstagram = settings?.sosyal_instagram || '';
   const sosyalYoutube = settings?.sosyal_youtube || '';
   const sosyalTiktok = settings?.sosyal_tiktok || '';
-  const androidAktif = settings?.android_aktif === '1';
-  const iosAktif = settings?.ios_aktif === '1';
+  // Varsayılan olarak açık, admin panelden kapatılabilir
+  const androidAktif = settings?.android_aktif !== '0';
+  const iosAktif = settings?.ios_aktif !== '0';
   const appBaslik = settings?.app_baslik || 'اپلیکیشن موبایل ما را دانلود کنید';
   const appAciklama = settings?.app_aciklama || 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید';
   const appGooglePlayLink = settings?.app_google_play_link || 'https://play.google.com/store';
@@ -179,7 +180,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
       )}
 
       {/* iOS App Download Section */}
