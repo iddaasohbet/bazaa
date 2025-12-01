@@ -143,120 +143,86 @@ export default function Footer() {
     <footer className="bg-white border-t border-gray-200 mt-16">
       {/* Kurumsal Mobil Uygulama İndirme Alanı */}
       {(androidAktif || iosAktif) && (
-        <div className="relative border-b border-gray-200 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden">
-          {/* Arka plan deseni */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0" style={{
-              backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-              backgroundSize: '40px 40px'
-            }}></div>
-          </div>
-
-          <div className="container mx-auto px-4 py-12 relative">
+        <div className="relative border-b border-gray-200 bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800">
+          <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-              {/* Sol taraf - Başlık ve açıklama */}
-              <div className="text-center lg:text-right max-w-xl" dir="rtl">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 rounded-full text-blue-200 text-sm font-medium mb-4">
-                  <QrCode className="h-4 w-4" />
-                  <span>اپلیکیشن موبایل</span>
+              {/* Sol taraf - Başlık */}
+              <div className="text-center lg:text-right" dir="rtl">
+                <div className="inline-flex items-center gap-2 mb-2">
+                  <QrCode className="h-5 w-5 text-blue-400" />
+                  <h3 className="text-xl md:text-2xl font-bold text-white">
+                    {appBaslik}
+                  </h3>
                 </div>
-                <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-                  {appBaslik}
-                </h3>
-                <p className="text-blue-100 text-lg mb-6">
+                <p className="text-blue-200 text-sm">
                   {appAciklama}
                 </p>
-                <div className="flex flex-wrap gap-4 justify-center lg:justify-end text-sm text-blue-200">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span>دسترسی سریع</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span>امن و مطمئن</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span>رایگان</span>
-                  </div>
+                <div className="flex flex-wrap gap-3 justify-center lg:justify-end text-xs text-blue-300 mt-3">
+                  <span>• دسترسی سریع</span>
+                  <span>• امن و مطمئن</span>
+                  <span>• رایگان</span>
                 </div>
               </div>
 
-              {/* Sağ taraf - Download butonları ve QR kodlar */}
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                {/* QR Kodlar - Gerçek QR kod üreticisi */}
-                <div className="flex flex-col gap-4">
-                  {androidAktif && (
-                    <div className="bg-white p-3 rounded-2xl shadow-2xl border-4 border-blue-500/30 hover:border-blue-400 transition-all duration-300 hover:scale-105">
-                      <div className="text-center mb-2">
-                        <p className="text-xs font-bold text-gray-700">Android</p>
-                      </div>
-                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(appGooglePlayLink)}&bgcolor=ffffff&color=000000&margin=0`}
-                        alt="Android QR Code"
-                        className="w-28 h-28"
-                      />
-                      <p className="text-center text-[10px] text-gray-500 mt-2 font-medium">اسکن برای دانلود</p>
-                    </div>
-                  )}
-                  
-                  {iosAktif && (
-                    <div className="bg-white p-3 rounded-2xl shadow-2xl border-4 border-blue-500/30 hover:border-blue-400 transition-all duration-300 hover:scale-105">
-                      <div className="text-center mb-2">
-                        <p className="text-xs font-bold text-gray-700">iOS</p>
-                      </div>
-                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(appAppStoreLink)}&bgcolor=ffffff&color=000000&margin=0`}
-                        alt="iOS QR Code"
-                        className="w-28 h-28"
-                      />
-                      <p className="text-center text-[10px] text-gray-500 mt-2 font-medium">اسکن برای دانلود</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* İndirme Butonları */}
-                <div className="flex flex-col gap-4">
-                  {androidAktif && (
+              {/* Sağ taraf - Download butonları */}
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                {/* Android */}
+                {androidAktif && (
+                  <div className="flex flex-col items-center gap-2">
                     <a
                       href={appGooglePlayLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-center gap-4 bg-white hover:bg-gray-50 text-gray-900 px-6 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-blue-500/50 hover:scale-105 min-w-[200px]"
+                      className="group flex items-center gap-3 bg-white hover:bg-gray-50 text-gray-900 px-5 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
                     >
-                      <div className="bg-gradient-to-br from-green-400 to-blue-500 p-3 rounded-xl group-hover:scale-110 transition-transform">
-                        <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
-                        </svg>
-                      </div>
+                      <svg className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+                      </svg>
                       <div className="text-right">
-                        <div className="text-xs text-gray-500 font-medium">دانلود از</div>
-                        <div className="text-base font-bold">Google Play</div>
+                        <div className="text-[10px] text-gray-500">دانلود از</div>
+                        <div className="text-sm font-bold">Google Play</div>
                       </div>
-                      <Download className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                      <Download className="h-4 w-4 text-gray-400" />
                     </a>
-                  )}
+                    <div className="bg-white p-2 rounded-lg shadow-md">
+                      <img 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(appGooglePlayLink)}&bgcolor=ffffff&color=000000&margin=0`}
+                        alt="Android QR"
+                        className="w-16 h-16"
+                      />
+                      <p className="text-center text-[9px] text-gray-500 mt-1">اسکن برای دانلود</p>
+                    </div>
+                  </div>
+                )}
 
-                  {iosAktif && (
+                {/* iOS */}
+                {iosAktif && (
+                  <div className="flex flex-col items-center gap-2">
                     <a
                       href={appAppStoreLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-center gap-4 bg-white hover:bg-gray-50 text-gray-900 px-6 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-blue-500/50 hover:scale-105 min-w-[200px]"
+                      className="group flex items-center gap-3 bg-white hover:bg-gray-50 text-gray-900 px-5 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
                     >
-                      <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl group-hover:scale-110 transition-transform">
-                        <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C1.79 15.25 2.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-                        </svg>
-                      </div>
+                      <svg className="h-8 w-8 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C1.79 15.25 2.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                      </svg>
                       <div className="text-right">
-                        <div className="text-xs text-gray-500 font-medium">دانلود از</div>
-                        <div className="text-base font-bold">App Store</div>
+                        <div className="text-[10px] text-gray-500">دانلود از</div>
+                        <div className="text-sm font-bold">App Store</div>
                       </div>
-                      <Download className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                      <Download className="h-4 w-4 text-gray-400" />
                     </a>
-                  )}
-                </div>
+                    <div className="bg-white p-2 rounded-lg shadow-md">
+                      <img 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(appAppStoreLink)}&bgcolor=ffffff&color=000000&margin=0`}
+                        alt="iOS QR"
+                        className="w-16 h-16"
+                      />
+                      <p className="text-center text-[9px] text-gray-500 mt-1">اسکن برای دانلود</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
