@@ -130,8 +130,9 @@ export default function Footer() {
   const sosyalYoutube = settings?.sosyal_youtube || '';
   const sosyalTiktok = settings?.sosyal_tiktok || '';
   // Varsayılan olarak açık, admin panelden kapatılabilir
-  const androidAktif = settings?.android_aktif !== '0';
-  const iosAktif = settings?.ios_aktif !== '0';
+  // Sadece açıkça '0' yazılmışsa kapalı, diğer tüm durumlarda açık
+  const androidAktif = settings?.android_aktif === undefined || settings?.android_aktif === '' || settings?.android_aktif !== '0';
+  const iosAktif = settings?.ios_aktif === undefined || settings?.ios_aktif === '' || settings?.ios_aktif !== '0';
   const appBaslik = settings?.app_baslik || 'اپلیکیشن موبایل ما را دانلود کنید';
   const appAciklama = settings?.app_aciklama || 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید';
   const appGooglePlayLink = settings?.app_google_play_link || 'https://play.google.com/store';
