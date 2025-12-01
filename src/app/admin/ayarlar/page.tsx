@@ -209,26 +209,29 @@ export default function AyarlarPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند! برای دیدن تغییرات صفحه را رفرش کنید.' });
+        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند! صفحه به زودی به‌روزرسانی می‌شود.' });
         setLogoChanged(false);
         
-        // Logoları hemen state'e set et (verification'dan)
+        // Logoları verification'dan al ve state'e set et
         if (logoData.verification) {
           const headerVerif = logoData.verification.find((v: any) => v.anahtar === 'site_header_logo');
           const footerVerif = logoData.verification.find((v: any) => v.anahtar === 'site_footer_logo');
           console.log('✅ Verification sonrası state güncelleniyor');
           console.log('  Header:', headerVerif?.uzunluk || 0, 'bytes');
           console.log('  Footer:', footerVerif?.uzunluk || 0, 'bytes');
+          
+          // State'leri sakla çünkü fetchLogos cache'den döndürüyor
+          // Verification database'den direkt geliyor, güncel!
         }
         
         // Header ve Footer'ı güncelle
         window.dispatchEvent(new Event('logoUpdated'));
         
-        // Logoları yeniden yükle (1 saniye bekle - database commit için)
+        // Sayfayı otomatik yenile (3 saniye sonra)
         setTimeout(() => {
-          console.log('⏰ 1 saniye sonra logolar yeniden yükleniyor...');
-          fetchLogos();
-        }, 1000);
+          console.log('🔄 Sayfa yenileniyor...');
+          window.location.reload();
+        }, 2000);
         
         setTimeout(() => setMessage(null), 5000);
       } else {
