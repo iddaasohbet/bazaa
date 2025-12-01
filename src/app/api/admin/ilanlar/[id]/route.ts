@@ -54,7 +54,8 @@ export async function PUT(
       fiyat, 
       kategori_id, 
       alt_kategori_id,
-      aktif 
+      aktif,
+      onecikan
     } = body;
 
     // Validasyon
@@ -98,6 +99,11 @@ export async function PUT(
     if (aktif !== undefined) {
       updateQuery += first ? ' aktif = ?' : ', aktif = ?';
       params_array.push(aktif ? 1 : 0);
+      first = false;
+    }
+    if (onecikan !== undefined) {
+      updateQuery += first ? ' onecikan = ?' : ', onecikan = ?';
+      params_array.push(onecikan ? 1 : 0);
       first = false;
     }
 
