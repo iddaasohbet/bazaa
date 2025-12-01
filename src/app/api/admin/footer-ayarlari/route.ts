@@ -26,6 +26,7 @@ export async function GET() {
         sosyal_facebook: '',
         sosyal_twitter: '',
         sosyal_instagram: '',
+        sosyal_tiktok: '',
         app_baslik: 'اپلیکیشن موبایل ما را دانلود کنید',
         app_aciklama: 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید',
         app_google_play_link: 'https://play.google.com/store',
@@ -73,6 +74,9 @@ export async function GET() {
           case 'youtube_url':
             settings.sosyal_youtube = ayar.deger || '';
             break;
+          case 'tiktok_url':
+            settings.sosyal_tiktok = ayar.deger || '';
+            break;
         }
       });
 
@@ -102,6 +106,7 @@ export async function GET() {
         sosyal_facebook: '',
         sosyal_twitter: '',
         sosyal_instagram: '',
+        sosyal_tiktok: '',
         app_baslik: 'اپلیکیشن موبایل ما را دانلود کنید',
         app_aciklama: 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید',
         app_google_play_link: 'https://play.google.com/store',
@@ -141,7 +146,8 @@ export async function PUT(request: Request) {
         sosyal_facebook: { anahtar: 'facebook_url', kategori: 'sosyal_medya' },
         sosyal_twitter: { anahtar: 'twitter_url', kategori: 'sosyal_medya' },
         sosyal_instagram: { anahtar: 'instagram_url', kategori: 'sosyal_medya' },
-        sosyal_youtube: { anahtar: 'youtube_url', kategori: 'sosyal_medya' }
+        sosyal_youtube: { anahtar: 'youtube_url', kategori: 'sosyal_medya' },
+        sosyal_tiktok: { anahtar: 'tiktok_url', kategori: 'sosyal_medya' }
       };
 
       // Her bir ayarı güncelle veya ekle

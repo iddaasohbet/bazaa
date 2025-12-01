@@ -264,6 +264,7 @@ export default function AyarlarPage() {
       'twitter_url': 'توییتر لینک',
       'instagram_url': 'انستاگرام لینک',
       'youtube_url': 'یوټیوب لینک',
+      'tiktok_url': 'تیک تاک لینک',
       'ilan_onay_gerektir': 'اعلانات تایید ته اړتیا لري؟ (0: نه 1: هو)',
       'kayit_aktif': 'د کارونکو ثبت فعال دی؟ (0: نه 1: هو)',
       'magaza_acma_aktif': 'دوکان جوړول فعال دی؟ (0: نه 1: هو)',
