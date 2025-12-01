@@ -15,6 +15,9 @@ interface VitrinIlan {
   kategori_ad: string;
   il_ad: string;
   goruntulenme: number;
+  store_level?: string;
+  magaza_id?: number;
+  magaza_slug?: string;
   magaza_ad?: string;
   magaza_logo?: string;
   vitrin_turu: string;
@@ -157,10 +160,21 @@ export default function VitrinAds({
                       <MapPin className="h-3 w-3" />
                       <span className="truncate">{ilan.il_ad}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Eye className="h-3 w-3" />
-                      <span>{ilan.goruntulenme}</span>
-                    </div>
+                    {/* Mağaza Butonu - Pro/Elite Vitrin İlanları */}
+                    {(ilan.store_level === 'pro' || ilan.store_level === 'elite') && ilan.magaza_slug && (
+                      <Link
+                        href={`/magaza/${ilan.magaza_slug}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-colors ${
+                          ilan.store_level === 'elite'
+                            ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        }`}
+                      >
+                        <Eye className="h-3 w-3" />
+                        <span className="font-semibold">مغازه</span>
+                      </Link>
+                    )}
                   </div>
 
                   {/* Kategori Badge */}

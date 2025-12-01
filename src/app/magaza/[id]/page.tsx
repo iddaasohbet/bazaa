@@ -366,31 +366,34 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             </Link>
                           )}
                           
-                          {/* Doğrulama Rozeti - Ücretli Paketler için */}
-                          <div className="flex items-center gap-2 mb-4 flex-wrap">
-                            {(isElite || isPro) && (
-                              <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-lg border-2 ${
-                                isElite
-                                  ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-yellow-300'
-                                  : 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-300'
-                              }`}>
-                                <BadgeCheck className={`h-4 w-4 sm:h-5 sm:w-5 ${isElite ? 'text-yellow-600' : 'text-blue-600'}`} />
-                                <span className={`text-xs sm:text-sm font-bold ${isElite ? 'text-yellow-800' : 'text-blue-800'}`}>
-                                  مغازه تأیید شده
-                                </span>
-                              </div>
-                            )}
-                            
-                            {/* Güvenilir Satıcı Rozeti - Sadece Admin Tanımlıysa */}
-                            {magaza.guvenilir_satici && (
-                              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-md bg-green-100 border-2 border-green-300">
-                                <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-                                <span className="text-xs sm:text-sm font-bold text-green-800">
-                                  فروشنده معتبر
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                          {/* Rozetler */}
+                          {((isElite || isPro) || magaza.guvenilir_satici) && (
+                            <div className="flex items-center gap-2 mb-4 flex-wrap">
+                              {/* Doğrulama Rozeti - Sadece Elite/Pro */}
+                              {(isElite || isPro) && (
+                                <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-lg border-2 ${
+                                  isElite
+                                    ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-yellow-300'
+                                    : 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-300'
+                                }`}>
+                                  <BadgeCheck className={`h-4 w-4 sm:h-5 sm:w-5 ${isElite ? 'text-yellow-600' : 'text-blue-600'}`} />
+                                  <span className={`text-xs sm:text-sm font-bold ${isElite ? 'text-yellow-800' : 'text-blue-800'}`}>
+                                    مغازه تأیید شده
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* Güvenilir Satıcı Rozeti - Sadece Admin Açarsa */}
+                              {magaza.guvenilir_satici && (
+                                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-md bg-green-100 border-2 border-green-300">
+                                  <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                                  <span className="text-xs sm:text-sm font-bold text-green-800">
+                                    فروشنده معتبر
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           
                           <p className={`mb-4 leading-relaxed ${
                             isElite ? 'text-gray-800 text-sm sm:text-base md:text-lg lg:text-xl' : 'text-gray-700 text-sm sm:text-base md:text-lg'

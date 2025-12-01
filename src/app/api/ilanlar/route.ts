@@ -149,6 +149,7 @@ export async function GET(request: Request) {
         i.fiyat_usd,
         i.ana_resim,
         i.alt_kategori_id,
+        i.magaza_id,
         i.durum,
         i.goruntulenme,
         i.created_at,
@@ -156,6 +157,7 @@ export async function GET(request: Request) {
         k.slug as kategori_slug,
         il.ad as il_ad,
         m.store_level,
+        m.slug as magaza_slug,
         m.ad as magaza_ad
       FROM ilanlar i
       LEFT JOIN kategoriler k ON i.kategori_id = k.id

@@ -19,6 +19,8 @@ interface Ilan {
   goruntulenme: number;
   resimler?: string[];
   store_level?: string;
+  magaza_id?: number;
+  magaza_slug?: string;
   magaza_ad?: string;
 }
 
@@ -168,10 +170,17 @@ export default function ProIlanlar() {
                       <MapPin className="h-3.5 w-3.5 text-blue-600" />
                       <span className="text-xs truncate">{ilan.il_ad}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <Eye className="h-3.5 w-3.5 text-blue-600" />
-                      <span className="text-xs">{ilan.goruntulenme}</span>
-                    </div>
+                    {/* Mağaza Butonu - Pro İlanlar */}
+                    {ilan.magaza_slug && (
+                      <Link
+                        href={`/magaza/${ilan.magaza_slug}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        <span className="text-xs font-semibold">مغازه</span>
+                      </Link>
+                    )}
                   </div>
                 </div>
 

@@ -24,6 +24,9 @@ interface Ilan {
   resimler?: string[];
   resim_sayisi: number;
   store_level?: string;
+  magaza_id?: number;
+  magaza_slug?: string;
+  magaza_ad?: string;
 }
 
 export default function AdList() {
@@ -282,10 +285,23 @@ export default function AdList() {
                         <span className="truncate">{ilan.il_ad}</span>
                       </div>
                       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-3.5 w-3.5 text-gray-400" />
-                          <span>{ilan.goruntulenme}</span>
-                        </div>
+                        {/* Göz ikonu - Sadece Pro/Elite mağazalarda */}
+                        {(ilan.store_level === 'pro' || ilan.store_level === 'elite') && ilan.magaza_slug ? (
+                          <Link
+                            href={`/magaza/${ilan.magaza_slug}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-colors ${
+                              ilan.store_level === 'elite'
+                                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                            }`}
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            <span className="font-semibold">مغازه</span>
+                          </Link>
+                        ) : (
+                          <div></div>
+                        )}
                         <div className="flex items-center gap-1">
                           <Clock className="h-3.5 w-3.5 text-gray-400" />
                           <span>{formatDate(ilan.created_at)}</span>
