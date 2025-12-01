@@ -27,7 +27,8 @@ export default function Header() {
   const [favoriSayisi, setFavoriSayisi] = useState(0);
   const [hasMagaza, setHasMagaza] = useState(false);
   const [magazaId, setMagazaId] = useState<number | null>(null);
-  const [headerLogo, setHeaderLogo] = useState<string>("/images/logo.png");
+  const [headerLogo, setHeaderLogo] = useState<string>("");
+  const [logoLoading, setLogoLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,14 +42,26 @@ export default function Header() {
     // Logo'yu API'den yükle
     const loadLogo = async () => {
       try {
+        console.log('🔍 Header: Logo yükleniyor...');
+        setLogoLoading(true);
+        
         const response = await fetch('/api/admin/logo');
         const data = await response.json();
         
-        if (data.success && data.data.header_logo) {
+        console.log('📥 Header: API Response:', data);
+        
+        if (data.success && data.data.header_logo && data.data.header_logo.trim() !== '') {
+          console.log('✅ Header: Custom logo bulundu, uzunluk:', data.data.header_logo.length);
           setHeaderLogo(data.data.header_logo);
+        } else {
+          console.log('⚠️ Header: Custom logo yok, default kullanılıyor (/images/logo.png)');
+          setHeaderLogo('/images/logo.png');
         }
       } catch (error) {
-        console.error('Header logo yüklenemedi:', error);
+        console.error('❌ Header logo yüklenemedi, default kullanılıyor:', error);
+        setHeaderLogo('/images/logo.png');
+      } finally {
+        setLogoLoading(false);
       }
     };
 
@@ -56,6 +69,7 @@ export default function Header() {
 
     // Logo güncellendiğinde yeniden yükle
     const handleLogoUpdate = () => {
+      console.log('🔄 Header: Logo güncelleme eventi alındı, yeniden yükleniyor...');
       loadLogo();
     };
 
@@ -220,7 +234,9 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 mr-6 lg:mr-8 group">
               <div className="relative h-12 lg:h-14">
-                {headerLogo.startsWith('data:') ? (
+                {logoLoading ? (
+                  <div className="h-12 lg:h-14 w-32 bg-gray-200 animate-pulse rounded"></div>
+                ) : headerLogo.startsWith('data:') ? (
                   <img 
                     src={headerLogo} 
                     alt="WatanBazaare Logo" 
@@ -228,7 +244,7 @@ export default function Header() {
                   />
                 ) : (
                   <Image 
-                    src={headerLogo} 
+                    src={headerLogo || '/images/logo.png'} 
                     alt="WatanBazaare Logo" 
                     width={150}
                     height={56}
@@ -402,7 +418,9 @@ export default function Header() {
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between border-b border-blue-500 z-10">
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-lg p-2">
-                  {headerLogo.startsWith('data:') ? (
+                  {logoLoading ? (
+                    <div className="h-8 w-24 bg-gray-200 animate-pulse rounded"></div>
+                  ) : headerLogo.startsWith('data:') ? (
                     <img 
                       src={headerLogo} 
                       alt="WatanBazaare Logo" 
@@ -410,7 +428,7 @@ export default function Header() {
                     />
                   ) : (
                     <Image 
-                      src={headerLogo} 
+                      src={headerLogo || '/images/logo.png'} 
                       alt="WatanBazaare Logo" 
                       width={120}
                       height={40}

@@ -32,7 +32,8 @@ export default function Footer() {
   const [settings, setSettings] = useState<FooterSettings | null>(null);
   const [hizliLinkler, setHizliLinkler] = useState<FooterLink[]>([]);
   const [altLinkler, setAltLinkler] = useState<FooterLink[]>([]);
-  const [footerLogo, setFooterLogo] = useState<string>("/images/logo.png");
+  const [footerLogo, setFooterLogo] = useState<string>("");
+  const [logoLoading, setLogoLoading] = useState(true);
 
   useEffect(() => {
     fetchFooterSettings();
@@ -41,14 +42,26 @@ export default function Footer() {
 
   const loadLogo = async () => {
     try {
+      console.log('🔍 Footer: Logo yükleniyor...');
+      setLogoLoading(true);
+      
       const response = await fetch('/api/admin/logo');
       const data = await response.json();
       
-      if (data.success && data.data.footer_logo) {
+      console.log('📥 Footer: API Response:', data);
+      
+      if (data.success && data.data.footer_logo && data.data.footer_logo.trim() !== '') {
+        console.log('✅ Footer: Custom logo bulundu, uzunluk:', data.data.footer_logo.length);
         setFooterLogo(data.data.footer_logo);
+      } else {
+        console.log('⚠️ Footer: Custom logo yok, default kullanılıyor (/images/logo.png)');
+        setFooterLogo('/images/logo.png');
       }
     } catch (error) {
-      console.error('Footer logo yüklenemedi:', error);
+      console.error('❌ Footer logo yüklenemedi, default kullanılıyor:', error);
+      setFooterLogo('/images/logo.png');
+    } finally {
+      setLogoLoading(false);
     }
   };
 
@@ -164,7 +177,9 @@ export default function Footer() {
           <div>
             <Link href="/" className="flex items-center gap-3 mb-4 group">
               <div className="relative h-14">
-                {footerLogo.startsWith('data:') ? (
+                {logoLoading ? (
+                  <div className="h-14 w-36 bg-gray-200 animate-pulse rounded"></div>
+                ) : footerLogo.startsWith('data:') ? (
                   <img 
                     src={footerLogo} 
                     alt="WatanBazaare Logo" 
@@ -172,7 +187,7 @@ export default function Footer() {
                   />
                 ) : (
                   <Image 
-                    src={footerLogo} 
+                    src={footerLogo || '/images/logo.png'} 
                     alt="WatanBazaare Logo" 
                     width={160}
                     height={56}

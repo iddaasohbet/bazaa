@@ -85,8 +85,11 @@ export default function AyarlarPage() {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'header' | 'footer') => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('📤 Upload: Dosya seçildi -', file.name, '- Boyut:', file.size, 'bytes');
+      
       // Dosya boyutu kontrolü (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
+        console.log('❌ Upload: Dosya çok büyük');
         setMessage({ type: 'error', text: 'فایل خیلی بزرگ است! حداکثر ۲ مگابایت' });
         return;
       }
@@ -94,6 +97,7 @@ export default function AyarlarPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
+        console.log('✅ Upload: Base64 hazır -', type, '- Uzunluk:', base64String.length);
         if (type === 'header') {
           setHeaderLogo(base64String);
           setHeaderLogoPreview(base64String);
@@ -117,6 +121,10 @@ export default function AyarlarPage() {
     setMessage(null);
 
     try {
+      console.log('💾 Kaydet: Logo kaydetme başladı');
+      console.log('📏 Kaydet: Header logo uzunluk:', headerLogo.length);
+      console.log('📏 Kaydet: Footer logo uzunluk:', footerLogo.length);
+      
       // Logoları API'ye kaydet
       const logoResponse = await fetch('/api/admin/logo', {
         method: 'PUT',
@@ -130,6 +138,7 @@ export default function AyarlarPage() {
       });
 
       const logoData = await logoResponse.json();
+      console.log('📥 Kaydet: API yanıtı:', logoData);
       
       if (!logoData.success) {
         setMessage({ type: 'error', text: 'Logolar kaydedilemedi' });
