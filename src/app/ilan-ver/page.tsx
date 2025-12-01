@@ -297,113 +297,112 @@ export default function IlanVer() {
                 <Tag className="w-4 h-4 text-blue-600" />
                 دسته بندی و موقعیت
               </h3>
-              <div className="grid md:grid-cols-4 gap-3" dir="rtl">
-                <select
-                  value={formData.kategori_id}
-                  onChange={(e) => handleKategoriChange(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">دسته بندی</option>
-                  {kategoriler.map(k => (
-                    <option key={k.id} value={k.id}>{k.ad}</option>
-                  ))}
-                </select>
+              <div className="space-y-3">
+                {/* Kategori Seçimi */}
+                <div dir="rtl">
+                  <select
+                    value={formData.kategori_id}
+                    onChange={(e) => handleKategoriChange(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">دسته بندی را انتخاب کنید</option>
+                    {kategoriler.map(k => (
+                      <option key={k.id} value={k.id}>{k.ad}</option>
+                    ))}
+                  </select>
+                </div>
 
-                <select
-                  value={formData.alt_kategori_id}
-                  onChange={(e) => setFormData({ ...formData, alt_kategori_id: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  disabled={!formData.kategori_id || altKategoriler.length === 0}
-                >
-                  <option value="">زیر دسته (اختیاری)</option>
-                  {altKategoriler.map(ak => (
-                    <option key={ak.id} value={ak.id}>{ak.ad_dari || ak.ad}</option>
-                  ))}
-                </select>
-
-                <select
-                  value={formData.il_id}
-                  onChange={(e) => handleCityChange(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">شهر</option>
-                  {cities.map(city => (
-                    <option key={city.id} value={city.id}>{city.name}</option>
-                  ))}
-                </select>
-
-                <select
-                  value={formData.ilce}
-                  onChange={(e) => setFormData({ ...formData, ilce: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  disabled={!formData.il_id}
-                >
-                  <option value="">ناحیه (اختیاری)</option>
-                  {districts.map(district => (
-                    <option key={district} value={district}>{district}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Alt Kategoriler - Tüm Kategoriler için */}
-              {altKategoriler.length > 0 && (
-                <div className="mt-3" dir="rtl">
-                  <label className="block text-xs font-semibold text-gray-700 mb-2">
-                    زیر دسته‌بندی انتخاب کنید:
-                  </label>
-                  <div className={`grid gap-2 ${
-                    altKategoriler.length <= 3 ? 'grid-cols-3' : 
-                    altKategoriler.length <= 4 ? 'grid-cols-4' : 
-                    'grid-cols-5'
-                  }`}>
-                    {altKategoriler.map(altKat => {
-                      const IconComponent = altKategoriIcons[altKat.slug] || Package;
-                      return (
+                {/* Alt Kategoriler - Kategori seçildiğinde hemen görünsün */}
+                {altKategoriler.length > 0 && (
+                  <div dir="rtl">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2">
+                      زیر دسته‌بندی انتخاب کنید:
+                    </label>
+                    <div className={`grid gap-2 ${
+                      altKategoriler.length <= 3 ? 'grid-cols-3' : 
+                      altKategoriler.length <= 4 ? 'grid-cols-4' : 
+                      'grid-cols-5'
+                    }`}>
+                      {altKategoriler.map(altKat => {
+                        const IconComponent = altKategoriIcons[altKat.slug] || Package;
+                        return (
+                          <button
+                            key={altKat.id}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, alt_kategori_id: altKat.id.toString() })}
+                            className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all flex items-center justify-center gap-1 ${
+                              formData.alt_kategori_id === altKat.id.toString()
+                                ? 'border-blue-600 bg-blue-50 text-blue-700'
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            <IconComponent className="w-4 h-4" />
+                            {altKat.ad_dari || altKat.ad}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Emlak Tipi - Sadece Emlak kategorisi için */}
+                {selectedKategori?.ad === 'Emlak' && (
+                  <div dir="rtl">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2">
+                      نوع ملکیت:
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { value: 'satilik', label: 'فروشی', icon: Home },
+                        { value: 'kiralik', label: 'کرایی', icon: Key },
+                        { value: 'rehinli', label: 'رهنی', icon: FileCheck }
+                      ].map(tip => (
                         <button
-                          key={altKat.id}
+                          key={tip.value}
                           type="button"
-                          onClick={() => setFormData({ ...formData, alt_kategori_id: altKat.id.toString() })}
+                          onClick={() => setFormData({ ...formData, emlak_tipi: tip.value })}
                           className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all flex items-center justify-center gap-1 ${
-                            formData.alt_kategori_id === altKat.id.toString()
-                              ? 'border-blue-600 bg-blue-50 text-blue-700'
+                            formData.emlak_tipi === tip.value
+                              ? 'border-purple-600 bg-purple-50 text-purple-700'
                               : 'border-gray-300 hover:border-gray-400'
                           }`}
                         >
-                          <IconComponent className="w-4 h-4" />
-                          {altKat.ad_dari || altKat.ad}
+                          <tip.icon className="w-4 h-4" />
+                          {tip.label}
                         </button>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
+                )}
+
+                {/* Şehir ve İlçe */}
+                <div className="grid md:grid-cols-2 gap-3" dir="rtl">
+                  <select
+                    value={formData.il_id}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">شهر</option>
+                    {cities.map(city => (
+                      <option key={city.id} value={city.id}>{city.name}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={formData.ilce}
+                    onChange={(e) => setFormData({ ...formData, ilce: e.target.value })}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    disabled={!formData.il_id}
+                  >
+                    <option value="">ناحیه (اختیاری)</option>
+                    {districts.map(district => (
+                      <option key={district} value={district}>{district}</option>
+                    ))}
+                  </select>
                 </div>
-              )}
-              
-              {/* Emlak Tipi - Sadece Emlak kategorisi için */}
-              {selectedKategori?.ad === 'Emlak' && (
-                <div className="mt-3 grid grid-cols-3 gap-2" dir="rtl">
-                  {[
-                    { value: 'satilik', label: 'فروشی', icon: Home },
-                    { value: 'kiralik', label: 'کرایی', icon: Key },
-                    { value: 'rehinli', label: 'رهنی', icon: FileCheck }
-                  ].map(tip => (
-                    <button
-                      key={tip.value}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, emlak_tipi: tip.value })}
-                      className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all flex items-center justify-center gap-1 ${
-                        formData.emlak_tipi === tip.value
-                          ? 'border-purple-600 bg-purple-50 text-purple-700'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <tip.icon className="w-4 h-4" />
-                      {tip.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+              </div>
             </div>
 
             {/* Başlık & Açıklama */}
