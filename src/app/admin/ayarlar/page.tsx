@@ -68,9 +68,15 @@ export default function AyarlarPage() {
 
   const fetchLogos = async () => {
     try {
-      const timestamp = new Date().getTime();
-      const response = await fetch(`/api/admin/logo?t=${timestamp}`, {
-        cache: 'no-store'
+      // Her zaman güncel veriyi al - cache'i tamamen bypass et
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/admin/logo?t=${timestamp}&r=${random}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       });
       const data = await response.json();
       
@@ -194,6 +200,13 @@ export default function AyarlarPage() {
         setSaving(false);
         return;
       }
+      
+      // ÖNEMLİ: State'i direkt güncelle - reload'a gerek yok!
+      // Çünkü headerLogo ve footerLogo zaten doğru değerlere sahip
+      // Sadece preview'ları güncelle
+      console.log('✅ State güncelleniyor - Header:', headerLogo.length, 'Footer:', footerLogo.length);
+      setHeaderLogoPreview(headerLogo);
+      setFooterLogoPreview(footerLogo);
 
       // Diğer ayarları kaydet
       const response = await fetch('/api/admin/ayarlar', {
@@ -209,29 +222,18 @@ export default function AyarlarPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند! صفحه به زودی به‌روزرسانی می‌شود.' });
+        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند!' });
         setLogoChanged(false);
         
-        // Logoları verification'dan al ve state'e set et
-        if (logoData.verification) {
-          const headerVerif = logoData.verification.find((v: any) => v.anahtar === 'site_header_logo');
-          const footerVerif = logoData.verification.find((v: any) => v.anahtar === 'site_footer_logo');
-          console.log('✅ Verification sonrası state güncelleniyor');
-          console.log('  Header:', headerVerif?.uzunluk || 0, 'bytes');
-          console.log('  Footer:', footerVerif?.uzunluk || 0, 'bytes');
-          
-          // State'leri sakla çünkü fetchLogos cache'den döndürüyor
-          // Verification database'den direkt geliyor, güncel!
-        }
-        
-        // Header ve Footer'ı güncelle
+        // Header ve Footer componentlerini güncelle
+        // logoUpdated event'i Header ve Footer'da dinleniyor
         window.dispatchEvent(new Event('logoUpdated'));
         
-        // Sayfayı otomatik yenile (3 saniye sonra)
+        // 500ms sonra logoları tekrar yükle (cache bypass için)
         setTimeout(() => {
-          console.log('🔄 Sayfa yenileniyor...');
-          window.location.reload();
-        }, 2000);
+          console.log('🔄 Logolar yeniden yükleniyor (cache bypass)...');
+          fetchLogos();
+        }, 500);
         
         setTimeout(() => setMessage(null), 5000);
       } else {
