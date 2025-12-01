@@ -87,6 +87,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       title: "عمومی",
       items: [
         { icon: LayoutDashboard, label: "داشبورد", href: "/admin/dashboard" },
+        { icon: TrendingUp, label: "آمار و گزارشات", href: "/admin/istatistikler" },
       ]
     },
     {

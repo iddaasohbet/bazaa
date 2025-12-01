@@ -83,7 +83,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* آمار بازدید سایت - 3 کارت */}
+        {/* آمار بازدید سایت - 3 کارت بزرگ */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* امروز */}
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
