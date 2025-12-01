@@ -5,16 +5,14 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Search, Menu, X, Plus, User, Heart, MessageSquare, ChevronDown, MapPin, Store } from "lucide-react";
 
-const kategoriler = [
-  { href: "/kategori/araclar", label: "خودرو", icon: "🚗" },
-  { href: "/kategori/emlak", label: "املاک", icon: "🏠" },
-  { href: "/kategori/elektronik", label: "لوازم الکترونیکی", icon: "📱" },
-  { href: "/kategori/ev-esyalari", label: "لوازم خانه", icon: "🛋️" },
-  { href: "/kategori/giyim", label: "پوشاک و اکسسوری", icon: "👕" },
-  { href: "/kategori/hobi", label: "ورزش و سرگرمی", icon: "⚽" },
-  { href: "/kategori/is-makineleri", label: "ماشین آلات", icon: "🚜" },
-  { href: "/kategori/diger", label: "سایر", icon: "📦" },
-];
+interface Kategori {
+  id: number;
+  ad: string;
+  ad_dari?: string;
+  slug: string;
+  ikon: string;
+  aktif: boolean;
+}
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -29,6 +27,7 @@ export default function Header() {
   const [magazaId, setMagazaId] = useState<number | null>(null);
   const [headerLogo, setHeaderLogo] = useState<string>("");
   const [logoLoading, setLogoLoading] = useState(true);
+  const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,6 +35,23 @@ export default function Header() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Kategorileri yükle
+    const fetchKategoriler = async () => {
+      try {
+        const response = await fetch('/api/kategoriler');
+        const data = await response.json();
+        if (data.success) {
+          setKategoriler(data.data.filter((k: Kategori) => k.aktif));
+        }
+      } catch (error) {
+        console.error('Kategoriler yüklenemedi:', error);
+      }
+    };
+
+    fetchKategoriler();
   }, []);
 
   useEffect(() => {
@@ -267,11 +283,13 @@ export default function Header() {
                   <div className="w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2">
                     {kategoriler.map((kat) => (
                       <Link
-                        key={kat.href}
-                        href={kat.href}
+                        key={kat.id}
+                        href={`/kategori/${kat.slug}`}
                         className="block px-4 py-2.5 hover:bg-gray-50 transition-colors"
                       >
-                        <span className="text-sm font-medium text-gray-700 hover:text-blue-600">{kat.label}</span>
+                        <span className="text-sm font-medium text-gray-700 hover:text-blue-600">
+                          {kat.ad_dari || kat.ad}
+                        </span>
                       </Link>
                     ))}
                   </div>
@@ -512,13 +530,14 @@ export default function Header() {
                 <div className="space-y-1">
                   {kategoriler.map((kat) => (
                     <Link
-                      key={kat.href}
-                      href={kat.href}
+                      key={kat.id}
+                      href={`/kategori/${kat.slug}`}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors group"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <span className="text-2xl">{kat.icon}</span>
-                      <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">{kat.label}</span>
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">
+                        {kat.ad_dari || kat.ad}
+                      </span>
                       <ChevronDown className="h-4 w-4 text-gray-400 mr-auto -rotate-90" />
                     </Link>
                   ))}
