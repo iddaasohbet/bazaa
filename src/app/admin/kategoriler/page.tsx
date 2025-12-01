@@ -123,14 +123,14 @@ export default function KategorilerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // En az bir isim girilmiş mi kontrol et
-    if (!formData.ad && !formData.ad_dari) {
-      alert('لطفاً حداقل یک نام وارد کنید (فارسی یا انگلیسی)');
+    // İsim kontrolü
+    if (!formData.ad_dari || !formData.ad_dari.trim()) {
+      alert('لطفاً نام دسته‌بندی را وارد کنید');
       return;
     }
     
     // Slug otomatik oluştur
-    const finalSlug = formData.slug || generateSlug(formData.ad || formData.ad_dari || '');
+    const finalSlug = formData.slug || generateSlug(formData.ad_dari);
 
     try {
       const url = '/api/admin/kategoriler';
@@ -160,19 +160,20 @@ export default function KategorilerPage() {
   const handleAltKategoriSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // En az bir isim girilmiş mi kontrol et
+    // Kategori kontrolü
     if (!selectedKategoriId) {
       alert('خطا: دسته‌بندی انتخاب نشده است');
       return;
     }
     
-    if (!altKategoriFormData.ad && !altKategoriFormData.ad_dari) {
-      alert('لطفاً حداقل یک نام وارد کنید (فارسی یا انگلیسی)');
+    // İsim kontrolü
+    if (!altKategoriFormData.ad_dari || !altKategoriFormData.ad_dari.trim()) {
+      alert('لطفاً نام زیر دسته را وارد کنید');
       return;
     }
     
     // Slug otomatik oluştur
-    const finalSlug = altKategoriFormData.slug || generateSlug(altKategoriFormData.ad || altKategoriFormData.ad_dari || '');
+    const finalSlug = altKategoriFormData.slug || generateSlug(altKategoriFormData.ad_dari);
 
     try {
       const url = '/api/alt-kategoriler';
@@ -379,27 +380,11 @@ export default function KategorilerPage() {
     return slug || 'kategori-' + Date.now(); // Boşsa timestamp ekle
   };
 
-  const handleAdChange = (value: string) => {
-    setFormData({
-      ...formData,
-      ad: value,
-      slug: generateSlug(value || formData.ad_dari || '')
-    });
-  };
-
   const handleAdDariChange = (value: string) => {
     setFormData({
       ...formData,
       ad_dari: value,
-      slug: generateSlug(formData.ad || value || '')
-    });
-  };
-
-  const handleAltKategoriAdChange = (value: string) => {
-    setAltKategoriFormData({
-      ...altKategoriFormData,
-      ad: value,
-      slug: generateSlug(value || altKategoriFormData.ad_dari || '')
+      slug: generateSlug(value)
     });
   };
 
@@ -407,7 +392,7 @@ export default function KategorilerPage() {
     setAltKategoriFormData({
       ...altKategoriFormData,
       ad_dari: value,
-      slug: generateSlug(altKategoriFormData.ad || value || '')
+      slug: generateSlug(value)
     });
   };
 
@@ -466,27 +451,15 @@ export default function KategorilerPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    نام دسته‌بندی (اختیاری)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.ad}
-                    onChange={(e) => handleAdChange(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Electronics"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    نام دسته‌بندی (دری)
+                    نام دسته‌بندی <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.ad_dari}
                     onChange={(e) => handleAdDariChange(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="الکترونیک"
+                    placeholder="مثال: الکترونیک، وسایط نقلیه، لوازم خانه"
+                    required
                   />
                 </div>
 
@@ -796,33 +769,20 @@ export default function KategorilerPage() {
             </div>
 
             <form onSubmit={handleAltKategoriSubmit} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    نام زیر دسته (اختیاری)
-                  </label>
-                  <input
-                    type="text"
-                    value={altKategoriFormData.ad}
-                    onChange={(e) => handleAltKategoriAdChange(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    placeholder="Smartphones"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    نام زیر دسته (دری)
+                    نام زیر دسته <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={altKategoriFormData.ad_dari}
                     onChange={(e) => handleAltKategoriAdDariChange(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    placeholder="موبایل‌ها"
+                    placeholder="مثال: موبایل‌ها، کامپیوتر، تبلت"
+                    required
                   />
                 </div>
-              </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
