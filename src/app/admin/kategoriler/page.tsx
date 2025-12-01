@@ -332,18 +332,44 @@ export default function KategorilerPage() {
   };
 
   const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
+    // Dari/Farsça karakterleri Latin harflere çevir
+    const persianToLatin: { [key: string]: string } = {
+      'ا': 'a', 'ب': 'b', 'پ': 'p', 'ت': 't', 'ث': 's', 'ج': 'j', 'چ': 'ch', 'ح': 'h',
+      'خ': 'kh', 'د': 'd', 'ذ': 'z', 'ر': 'r', 'ز': 'z', 'ژ': 'zh', 'س': 's', 'ش': 'sh',
+      'ص': 's', 'ض': 'z', 'ط': 't', 'ظ': 'z', 'ع': 'a', 'غ': 'gh', 'ف': 'f', 'ق': 'q',
+      'ک': 'k', 'گ': 'g', 'ل': 'l', 'م': 'm', 'ن': 'n', 'و': 'w', 'ه': 'h', 'ی': 'y',
+      'ئ': 'y', 'ء': '', 'آ': 'a', 'أ': 'a', 'ؤ': 'o', 'إ': 'i', 'ة': 'h',
+      '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4', '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
+      // Arapça sayılar
+      '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+      // Özel karakterler
+      'ً': '', 'ٌ': '', 'ٍ': '', 'َ': '', 'ُ': '', 'ِ': '', 'ّ': '', 'ْ': '', 'ٰ': ''
+    };
+
+    let slug = text.toLowerCase();
+    
+    // Dari/Farsça karakterleri çevir
+    for (const [persian, latin] of Object.entries(persianToLatin)) {
+      slug = slug.replace(new RegExp(persian, 'g'), latin);
+    }
+    
+    // Türkçe karakterleri çevir
+    slug = slug
       .replace(/ı/g, 'i')
       .replace(/ğ/g, 'g')
       .replace(/ü/g, 'u')
       .replace(/ş/g, 's')
       .replace(/ö/g, 'o')
-      .replace(/ç/g, 'c')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
+      .replace(/ç/g, 'c');
+    
+    // Temizlik
+    slug = slug
+      .replace(/[^a-z0-9\s-]/g, '') // Sadece harf, rakam, boşluk ve tire
+      .replace(/\s+/g, '-') // Boşlukları tire yap
+      .replace(/-+/g, '-') // Çoklu tireleri tek tire yap
+      .replace(/^-+|-+$/g, ''); // Baştaki ve sondaki tireleri kaldır
+    
+    return slug || 'kategori-' + Date.now(); // Boşsa timestamp ekle
   };
 
   const handleAdChange = (value: string) => {
