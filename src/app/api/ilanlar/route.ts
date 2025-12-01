@@ -162,7 +162,7 @@ export async function GET(request: Request) {
       FROM ilanlar i
       LEFT JOIN kategoriler k ON i.kategori_id = k.id
       LEFT JOIN iller il ON i.il_id = il.id
-      LEFT JOIN magazalar m ON i.magaza_id = m.id
+      LEFT JOIN magazalar m ON i.magaza_id = m.id AND m.aktif = TRUE
       WHERE i.aktif = TRUE
     `;
 

@@ -14,7 +14,7 @@ export async function GET(
     let magazaData;
     try {
       magazaData = await query(
-        `SELECT m.* FROM magazalar m WHERE m.id = ? LIMIT 1`,
+        `SELECT m.* FROM magazalar m WHERE m.id = ? AND m.aktif = TRUE LIMIT 1`,
         [parseInt(id)]
       );
       console.log('📦 API /magazalar/[id] - Mağaza bulundu (basit):', magazaData);
@@ -58,9 +58,9 @@ export async function GET(
     console.log('✅ API /magazalar/[id] - Mağaza bulundu:', magaza ? 'Evet' : 'Hayır');
     
     if (!magaza) {
-      console.log('❌ API /magazalar/[id] - Mağaza bulunamadı!');
+      console.log('❌ API /magazalar/[id] - Mağaza bulunamadı veya pasif!');
       return NextResponse.json(
-        { success: false, message: 'Mağaza bulunamadı' },
+        { success: false, message: 'این مغازه موجود نیست یا غیرفعال شده است' },
         { status: 404 }
       );
     }
@@ -85,10 +85,15 @@ export async function GET(
       console.log('⚠️ Görüntülenme sayısı artırılamadı');
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: magaza
     });
+    
+    // Cache bypass - Her zaman güncel veriyi getir
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    
+    return response;
   } catch (error: any) {
     console.error('❌ API /magazalar/[id] - HATA:', error);
     // Artık mock döndürme, hata döndür
