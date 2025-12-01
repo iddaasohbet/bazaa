@@ -11,6 +11,7 @@ interface PaketProps {
   store_level: "basic" | "pro" | "elite";
   sure_ay: number;
   fiyat: number;
+  eski_fiyat?: number;
   product_limit: number;
   category_limit: number;
   ozellikler: {
@@ -83,8 +84,32 @@ export default function PaketCard({ paket, onay = false }: { paket: PaketProps; 
             <div className="text-4xl font-bold text-gray-900">رایگان</div>
           ) : (
             <>
-              {/* 3 Aylık paket indirim gösterimi */}
-              {paket.sure_ay === 3 && (
+              {/* Eski Fiyat - Eğer varsa göster */}
+              {paket.eski_fiyat && paket.eski_fiyat > 0 && paket.eski_fiyat > paket.fiyat && (
+                <div className="mb-3">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <div className="text-2xl font-bold line-through text-gray-400" dir="ltr">
+                      {paket.eski_fiyat.toLocaleString("fa-AF")} AFN
+                    </div>
+                  </div>
+                  {(() => {
+                    const indirimYuzde = Math.round(((paket.eski_fiyat - paket.fiyat) / paket.eski_fiyat) * 100);
+                    const tasarruf = paket.eski_fiyat - paket.fiyat;
+                    return (
+                      <div className="flex items-center justify-center">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-1.5 text-sm font-bold shadow-lg">
+                          <span>🎉</span>
+                          <span>{indirimYuzde}٪ تخفیف</span>
+                          <span className="hidden sm:inline">- صرفه‌جویی {tasarruf.toLocaleString("fa-AF")} افغانی</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+              
+              {/* 3 Aylık paket indirim gösterimi - Sadece eski_fiyat yoksa */}
+              {!paket.eski_fiyat && paket.sure_ay === 3 && (
                 <div className="mb-2">
                   <div className="text-lg line-through text-gray-400" dir="ltr">
                     {Math.round(normalFiyat).toLocaleString("fa-AF")} AFN

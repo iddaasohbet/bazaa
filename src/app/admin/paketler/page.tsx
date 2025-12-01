@@ -359,17 +359,21 @@ export default function AdminPaketlerPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">قیمت قبلی (اختیاری)</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    قیمت قبلی (قبل از تخفیف) <span className="text-orange-600">*</span>
+                  </label>
                   <input
                     type="number"
                     min="0"
                     step="0.01"
-                    value={formData.eski_fiyat}
-                    onChange={(e) => setFormData({...formData, eski_fiyat: parseFloat(e.target.value) || 0})}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="500"
+                    value={formData.eski_fiyat || ''}
+                    onChange={(e) => setFormData({...formData, eski_fiyat: e.target.value ? parseFloat(e.target.value) : 0})}
+                    className="w-full px-4 py-2.5 border-2 border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-orange-50"
+                    placeholder="قیمت اصلی (مثال: 700)"
                   />
-                  <p className="text-xs text-gray-500 mt-1">خط‌خورده نمایش داده می‌شود</p>
+                  <p className="text-xs text-orange-600 mt-1 font-semibold">
+                    ⚠️ اگر قیمت قبلی بیشتر از قیمت فعلی باشد، تخفیف نمایش داده می‌شود
+                  </p>
                 </div>
               </div>
 

@@ -14,6 +14,7 @@ interface Paket {
   store_level: "basic" | "pro" | "elite";
   sure_ay: number;
   fiyat: number;
+  eski_fiyat?: number;
   product_limit: number;
   category_limit: number;
   ozellikler: {
