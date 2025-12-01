@@ -109,32 +109,39 @@ export async function PUT(request: Request) {
       );
     }
 
-    let updateQuery = 'UPDATE alt_kategoriler SET updated_at = NOW()';
+    let updateQuery = 'UPDATE alt_kategoriler SET';
     const params: any[] = [];
+    let first = true;
 
     if (ad !== undefined) {
-      updateQuery += ', ad = ?';
+      updateQuery += first ? ' ad = ?' : ', ad = ?';
       params.push(ad);
+      first = false;
     }
     if (ad_dari !== undefined) {
-      updateQuery += ', ad_dari = ?';
+      updateQuery += first ? ' ad_dari = ?' : ', ad_dari = ?';
       params.push(ad_dari);
+      first = false;
     }
     if (slug !== undefined) {
-      updateQuery += ', slug = ?';
+      updateQuery += first ? ' slug = ?' : ', slug = ?';
       params.push(slug);
+      first = false;
     }
     if (aciklama !== undefined) {
-      updateQuery += ', aciklama = ?';
+      updateQuery += first ? ' aciklama = ?' : ', aciklama = ?';
       params.push(aciklama);
+      first = false;
     }
     if (sira !== undefined) {
-      updateQuery += ', sira = ?';
+      updateQuery += first ? ' sira = ?' : ', sira = ?';
       params.push(sira);
+      first = false;
     }
     if (aktif !== undefined) {
-      updateQuery += ', aktif = ?';
+      updateQuery += first ? ' aktif = ?' : ', aktif = ?';
       params.push(aktif ? 1 : 0);
+      first = false;
     }
 
     updateQuery += ' WHERE id = ?';
