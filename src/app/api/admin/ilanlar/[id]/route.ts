@@ -4,9 +4,10 @@ import { query } from '@/lib/db';
 // Tek ilan detayı getir
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const id = params.id;
 
     const ilanlar = await query(
@@ -41,9 +42,10 @@ export async function GET(
 // İlan güncelle
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const id = params.id;
     const body = await request.json();
     const { 
@@ -120,9 +122,10 @@ export async function PUT(
 // İlan sil
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     const id = params.id;
 
     // Önce resimleri sil (opsiyonel)
