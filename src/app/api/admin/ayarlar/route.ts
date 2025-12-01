@@ -1,23 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
-
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'afghanistan_ilanlar'
-};
+import pool from '@/lib/db';
 
 // GET - Tüm ayarları getir
 export async function GET() {
   let connection;
   
   try {
-    connection = await mysql.createConnection(dbConfig);
+    connection = await pool.getConnection();
     
-    const [rows] = await connection.execute(
+    const [rows] = await connection.query(
       'SELECT * FROM site_ayarlar ORDER BY kategori, anahtar'
     );
+    
+    connection.release();
     
     return NextResponse.json({
       success: true,
@@ -25,13 +20,12 @@ export async function GET() {
     });
     
   } catch (error: any) {
-    console.error('Ayarlar getirme hatası:', error);
+    console.error('❌ Ayarlar getirme hatası:', error);
+    if (connection) connection.release();
     return NextResponse.json({
       success: false,
       message: error.message
     }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
 
@@ -50,15 +44,22 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
     
-    connection = await mysql.createConnection(dbConfig);
+    connection = await pool.getConnection();
+    
+    await connection.beginTransaction();
     
     // Her ayarı güncelle
     for (const ayar of ayarlar) {
-      await connection.execute(
+      await connection.query(
         'UPDATE site_ayarlar SET deger = ? WHERE anahtar = ?',
         [ayar.deger, ayar.anahtar]
       );
     }
+    
+    await connection.commit();
+    connection.release();
+    
+    console.log(`✅ ${ayarlar.length} ayar güncellendi`);
     
     return NextResponse.json({
       success: true,
@@ -66,13 +67,15 @@ export async function PUT(request: NextRequest) {
     });
     
   } catch (error: any) {
-    console.error('Ayarlar güncelleme hatası:', error);
+    console.error('❌ Ayarlar güncelleme hatası:', error);
+    if (connection) {
+      await connection.rollback();
+      connection.release();
+    }
     return NextResponse.json({
       success: false,
       message: error.message
     }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
 
@@ -91,12 +94,14 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    connection = await mysql.createConnection(dbConfig);
+    connection = await pool.getConnection();
     
-    await connection.execute(
-      'INSERT INTO site_ayarlar (anahtar, deger, kategori, aciklama) VALUES (?, ?, ?, ?)',
+    await connection.query(
+      'INSERT INTO site_ayarlar (anahtar, deger, kategori, aciklama) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE deger = VALUES(deger)',
       [anahtar, deger || '', kategori || 'genel', aciklama || '']
     );
+    
+    connection.release();
     
     return NextResponse.json({
       success: true,
@@ -104,17 +109,11 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error: any) {
-    console.error('Ayar ekleme hatası:', error);
+    console.error('❌ Ayar ekleme hatası:', error);
+    if (connection) connection.release();
     return NextResponse.json({
       success: false,
       message: error.message
     }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
-
-
-
-
-
