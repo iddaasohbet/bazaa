@@ -123,8 +123,8 @@ export default function KategorilerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.ad || !formData.slug) {
-      alert('نام و slug الزامی است');
+    if (!formData.slug) {
+      alert('Slug الزامی است');
       return;
     }
 
@@ -156,8 +156,8 @@ export default function KategorilerPage() {
   const handleAltKategoriSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedKategoriId || !altKategoriFormData.ad || !altKategoriFormData.slug) {
-      alert('تمام فیلدهای الزامی را پر کنید');
+    if (!selectedKategoriId || !altKategoriFormData.slug) {
+      alert('Slug الزامی است');
       return;
     }
 
@@ -344,7 +344,7 @@ export default function KategorilerPage() {
     setFormData({
       ...formData,
       ad: value,
-      slug: generateSlug(value)
+      slug: value.trim() ? generateSlug(value) : formData.slug
     });
   };
 
@@ -352,7 +352,7 @@ export default function KategorilerPage() {
     setAltKategoriFormData({
       ...altKategoriFormData,
       ad: value,
-      slug: generateSlug(value)
+      slug: value.trim() ? generateSlug(value) : altKategoriFormData.slug
     });
   };
 
@@ -411,7 +411,7 @@ export default function KategorilerPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    نام دسته‌بندی (انگلیسی) <span className="text-red-500">*</span>
+                    نام دسته‌بندی (اختیاری)
                   </label>
                   <input
                     type="text"
@@ -419,7 +419,6 @@ export default function KategorilerPage() {
                     onChange={(e) => handleAdChange(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Electronics"
-                    required
                   />
                 </div>
 
@@ -746,7 +745,7 @@ export default function KategorilerPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    نام زیر دسته (انگلیسی) <span className="text-red-500">*</span>
+                    نام زیر دسته (اختیاری)
                   </label>
                   <input
                     type="text"
@@ -754,7 +753,6 @@ export default function KategorilerPage() {
                     onChange={(e) => handleAltKategoriAdChange(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Smartphones"
-                    required
                   />
                 </div>
 
