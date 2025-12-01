@@ -35,10 +35,17 @@ interface AltKategori {
   slug: string;
 }
 
+const altKategoriIcons: Record<string, any> = {
+  'satilik': Home,
+  'kiralik': Key,
+  'rehinli': FileCheck,
+};
+
 export default function IlanVer() {
   const router = useRouter();
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
   const [altKategoriler, setAltKategoriler] = useState<AltKategori[]>([]);
+  const [loadingAltKategoriler, setLoadingAltKategoriler] = useState(false);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -72,14 +79,17 @@ export default function IlanVer() {
     setAltKategoriler([]);
     
     if (kategoriId) {
+      setLoadingAltKategoriler(true);
       try {
         const response = await fetch(`/api/alt-kategoriler?kategori_id=${kategoriId}`);
         const data = await response.json();
-        if (data.success) {
+        if (data.success && data.data.length > 0) {
           setAltKategoriler(data.data);
         }
       } catch (error) {
         console.error('Alt kategoriler yüklenemedi:', error);
+      } finally {
+        setLoadingAltKategoriler(false);
       }
     }
   };
@@ -337,7 +347,40 @@ export default function IlanVer() {
                 </select>
               </div>
 
-              {/* Emlak Tipi */}
+              {/* Alt Kategoriler - Tüm Kategoriler için */}
+              {altKategoriler.length > 0 && (
+                <div className="mt-3" dir="rtl">
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">
+                    زیر دسته‌بندی انتخاب کنید:
+                  </label>
+                  <div className={`grid gap-2 ${
+                    altKategoriler.length <= 3 ? 'grid-cols-3' : 
+                    altKategoriler.length <= 4 ? 'grid-cols-4' : 
+                    'grid-cols-5'
+                  }`}>
+                    {altKategoriler.map(altKat => {
+                      const IconComponent = altKategoriIcons[altKat.slug] || Package;
+                      return (
+                        <button
+                          key={altKat.id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, alt_kategori_id: altKat.id.toString() })}
+                          className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all flex items-center justify-center gap-1 ${
+                            formData.alt_kategori_id === altKat.id.toString()
+                              ? 'border-blue-600 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                        >
+                          <IconComponent className="w-4 h-4" />
+                          {altKat.ad_dari || altKat.ad}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              {/* Emlak Tipi - Sadece Emlak kategorisi için */}
               {selectedKategori?.ad === 'Emlak' && (
                 <div className="mt-3 grid grid-cols-3 gap-2" dir="rtl">
                   {[
@@ -351,7 +394,7 @@ export default function IlanVer() {
                       onClick={() => setFormData({ ...formData, emlak_tipi: tip.value })}
                       className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all flex items-center justify-center gap-1 ${
                         formData.emlak_tipi === tip.value
-                          ? 'border-blue-600 bg-blue-50 text-blue-700'
+                          ? 'border-purple-600 bg-purple-50 text-purple-700'
                           : 'border-gray-300 hover:border-gray-400'
                       }`}
                     >
