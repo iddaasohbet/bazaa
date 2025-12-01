@@ -233,6 +233,51 @@ export async function POST(request: Request) {
       );
     }
 
+    // Eğer il_id string ise (slug), integer id'ye çevir
+    let ilIdInteger = il_id;
+    if (typeof il_id === 'string' && isNaN(parseInt(il_id))) {
+      // Slug to ID mapping
+      const citySlugToId: Record<string, number> = {
+        'kabul': 1, 'kabil': 1,
+        'kandahar': 2, 'qandahar': 2,
+        'herat': 3,
+        'balkh': 4, 'mazar-i-sharif': 4, 'mazar': 4,
+        'nangarhar': 5, 'jalalabad': 5,
+        'kunduz': 6,
+        'takhar': 7,
+        'baghlan': 8,
+        'badakhshan': 9,
+        'faryab': 10,
+        'helmand': 11,
+        'ghazni': 12,
+        'paktia': 13,
+        'jawzjan': 14,
+        'logar': 15,
+        'kunar': 16,
+        'khost': 17,
+        'badghis': 18,
+        'samangan': 19,
+        'paktika': 20,
+        'nimroz': 21,
+        'sari-pul': 22,
+        'ghor': 23,
+        'daykundi': 24,
+        'urozgan': 25,
+        'zabul': 26,
+        'nuristan': 27,
+        'laghman': 28,
+        'kapisa': 29,
+        'bamyan': 30,
+        'panjshir': 31,
+        'wardak': 32,
+        'parwan': 33,
+        'farah': 34
+      };
+      
+      ilIdInteger = citySlugToId[il_id.toLowerCase()] || 1; // Default Kabil
+      console.log(`🔄 City slug '${il_id}' converted to ID: ${ilIdInteger}`);
+    }
+
     // Kullanıcının mağazasını kontrol et
     let magazaId = null;
     const magazalar = await query(
@@ -254,7 +299,7 @@ export async function POST(request: Request) {
         baslik, aciklama, fiyat, fiyat_tipi, para_birimi, fiyat_usd, kategori_id, alt_kategori_id, il_id, ilce, durum, emlak_tipi,
         kullanici_id, magaza_id, ana_resim, aktif, goruntulenme
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 0)`,
-      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', para_birimi || 'AFN', fiyat_usd || null, kategori_id, alt_kategori_id || null, il_id, ilce || null, durum || 'kullanilmis', emlak_tipi || null, kullanici_id, magazaId, anaResim]
+      [baslik, aciklama, fiyat, fiyat_tipi || 'negotiable', para_birimi || 'AFN', fiyat_usd || null, kategori_id, alt_kategori_id || null, ilIdInteger, ilce || null, durum || 'kullanilmis', emlak_tipi || null, kullanici_id, magazaId, anaResim]
     );
 
     const ilanId = (result as any).insertId;

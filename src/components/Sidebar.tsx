@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { 
   Car, 
   Home, 
@@ -51,6 +52,7 @@ const iconMap: { [key: string]: any } = {
 };
 
 export default function Sidebar() {
+  const pathname = usePathname();
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
   const [altKategoriler, setAltKategoriler] = useState<{ [key: number]: AltKategori[] }>({});
   const [expandedKategori, setExpandedKategori] = useState<number | null>(null);
@@ -66,6 +68,20 @@ export default function Sidebar() {
     fetchKategoriler();
     fetchIstatistikler();
   }, []);
+
+  // URL'den aktif kategoriyi algıla ve alt kategorilerini aç
+  useEffect(() => {
+    if (pathname?.startsWith('/kategori/') && kategoriler.length > 0) {
+      const slug = pathname.split('/kategori/')[1];
+      const aktifKategori = kategoriler.find(k => k.slug === slug);
+      if (aktifKategori) {
+        setExpandedKategori(aktifKategori.id);
+        if (!altKategoriler[aktifKategori.id]) {
+          fetchAltKategoriler(aktifKategori.id);
+        }
+      }
+    }
+  }, [pathname, kategoriler]);
 
   const fetchKategoriler = async () => {
     try {
@@ -150,22 +166,27 @@ export default function Sidebar() {
           const Icon = iconMap[kategori.ikon || 'grid'] || Grid;
           const isExpanded = expandedKategori === kategori.id;
           const altKats = altKategoriler[kategori.id] || [];
+          const isActive = pathname?.includes(`/kategori/${kategori.slug}`);
           
           return (
             <div key={kategori.id}>
-              <div className="flex items-center gap-1 mb-1">
-                <button
-                  onClick={(e) => toggleKategori(e, kategori.id)}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <ChevronRight className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                </button>
+              <div className={`flex items-center gap-1 mb-1 ${isActive ? 'bg-blue-50' : ''} rounded-md`}>
+                {altKats.length > 0 && (
+                  <button
+                    onClick={(e) => toggleKategori(e, kategori.id)}
+                    className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  >
+                    <ChevronRight className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                  </button>
+                )}
                 <Link
                   href={`/kategori/${kategori.slug}`}
-                  className="flex-1 flex items-center gap-3 px-2 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                  className={`flex-1 flex items-center gap-3 px-2 py-2.5 hover:bg-gray-50 rounded-md transition-colors ${
+                    isActive ? 'text-blue-700 font-semibold' : 'text-gray-700'
+                  } ${altKats.length === 0 ? 'mr-6' : ''}`}
                 >
-                  <Icon className="h-5 w-5 text-gray-600" />
-                  <span className="flex-1 text-sm font-medium">{kategori.ad}</span>
+                  <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-600'}`} />
+                  <span className="flex-1 text-sm">{kategori.ad}</span>
                 </Link>
               </div>
               
