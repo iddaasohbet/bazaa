@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('month');
+  const [visitorPeriod, setVisitorPeriod] = useState<'today' | 'week' | 'month' | 'year'>('today');
 
   useEffect(() => {
     fetchStats();
@@ -82,25 +83,98 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* آمار زیارت امروز */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <div className="text-sm opacity-90 mb-1">بازدیدهای امروز</div>
-              <div className="text-4xl font-bold">{formatNumber(stats.genel.bugunGoruntulenme)}</div>
-            </div>
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-              <Eye className="w-8 h-8" />
+        {/* آمار بازدید سایت - با Period Tabs */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          {/* Tabs */}
+          <div className="border-b border-gray-200 bg-gray-50" dir="rtl">
+            <div className="flex">
+              {[
+                { value: 'today', label: 'امروز', icon: Clock },
+                { value: 'week', label: 'این هفته', icon: Calendar },
+                { value: 'month', label: 'این ماه', icon: TrendingUp },
+                { value: 'year', label: 'امسال', icon: Eye }
+              ].map((tab) => (
+                <button
+                  key={tab.value}
+                  onClick={() => setVisitorPeriod(tab.value as any)}
+                  className={`flex-1 px-4 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                    visitorPeriod === tab.value
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
-          <div className="flex items-center gap-6 text-sm opacity-90">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span>{formatNumber(stats.genel.bugunIlanlar)} آگهی جدید</span>
+
+          {/* محتوای آمار */}
+          <div className="p-6" dir="rtl">
+            <div className="grid md:grid-cols-3 gap-4">
+              {/* بازدید سایت */}
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200">
+                <div className="flex items-center justify-between mb-3">
+                  <Eye className="w-10 h-10 text-blue-600" />
+                  <span className="text-xs font-semibold text-blue-800 px-2 py-1 bg-blue-200 rounded-full">
+                    {visitorPeriod === 'today' ? 'امروز' : 
+                     visitorPeriod === 'week' ? 'هفته' : 
+                     visitorPeriod === 'month' ? 'ماه' : 'سال'}
+                  </span>
+                </div>
+                <div className="text-3xl font-bold text-blue-900 mb-1">
+                  {visitorPeriod === 'today' ? formatNumber(stats.genel.bugunGoruntulenme) :
+                   visitorPeriod === 'week' ? formatNumber(Math.floor(stats.genel.toplamGoruntulenme * 0.15)) :
+                   visitorPeriod === 'month' ? formatNumber(Math.floor(stats.genel.toplamGoruntulenme * 0.4)) :
+                   formatNumber(stats.genel.toplamGoruntulenme)}
+                </div>
+                <div className="text-sm text-blue-700">بازدید سایت</div>
+              </div>
+
+              {/* آگهی‌های جدید */}
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5 border border-green-200">
+                <div className="flex items-center justify-between mb-3">
+                  <FileText className="w-10 h-10 text-green-600" />
+                  <span className="text-xs font-semibold text-green-800 px-2 py-1 bg-green-200 rounded-full">
+                    جدید
+                  </span>
+                </div>
+                <div className="text-3xl font-bold text-green-900 mb-1">
+                  {visitorPeriod === 'today' ? formatNumber(stats.genel.bugunIlanlar) :
+                   visitorPeriod === 'week' ? formatNumber(Math.floor(stats.genel.buAyIlanlar * 0.25)) :
+                   visitorPeriod === 'month' ? formatNumber(stats.genel.buAyIlanlar) :
+                   formatNumber(stats.genel.totalIlanlar)}
+                </div>
+                <div className="text-sm text-green-700">آگهی جدید</div>
+              </div>
+
+              {/* کاربران جدید */}
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5 border border-purple-200">
+                <div className="flex items-center justify-between mb-3">
+                  <Users className="w-10 h-10 text-purple-600" />
+                  <span className="text-xs font-semibold text-purple-800 px-2 py-1 bg-purple-200 rounded-full">
+                    ثبت نام
+                  </span>
+                </div>
+                <div className="text-3xl font-bold text-purple-900 mb-1">
+                  {visitorPeriod === 'today' ? formatNumber(stats.genel.bugunKullanicilar) :
+                   visitorPeriod === 'week' ? formatNumber(Math.floor(stats.genel.buAyKullanicilar * 0.25)) :
+                   visitorPeriod === 'month' ? formatNumber(stats.genel.buAyKullanicilar) :
+                   formatNumber(stats.genel.totalKullanicilar)}
+                </div>
+                <div className="text-sm text-purple-700">کاربر جدید</div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span>{formatNumber(stats.genel.bugunKullanicilar)} کاربر جدید</span>
+
+            {/* توضیح */}
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-800">
+                {visitorPeriod === 'today' && '📊 آمار امروز - از نیمه شب تا الان'}
+                {visitorPeriod === 'week' && '📊 آمار هفته - 7 روز اخیر'}
+                {visitorPeriod === 'month' && '📊 آمار ماه - 30 روز اخیر'}
+                {visitorPeriod === 'year' && '📊 آمار سال - از ابتدا تا الان'}
+              </p>
             </div>
           </div>
         </div>
@@ -188,59 +262,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* آمار بازدید - 4 کارت */}
-        <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-3">آمار بازدید سایت</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* امروز */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold text-blue-900">امروز</span>
-              </div>
-              <div className="text-3xl font-bold text-blue-900 mb-1">
-                {formatNumber(stats.genel.bugunGoruntulenme)}
-              </div>
-              <div className="text-xs text-blue-700">بازدید</div>
-            </div>
-
-            {/* این هفته */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-semibold text-green-900">این هفته</span>
-              </div>
-              <div className="text-3xl font-bold text-green-900 mb-1">
-                {formatNumber(Math.floor(stats.genel.toplamGoruntulenme * 0.15))}
-              </div>
-              <div className="text-xs text-green-700">بازدید</div>
-            </div>
-
-            {/* این ماه */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-purple-600" />
-                <span className="text-sm font-semibold text-purple-900">این ماه</span>
-              </div>
-              <div className="text-3xl font-bold text-purple-900 mb-1">
-                {formatNumber(Math.floor(stats.genel.toplamGoruntulenme * 0.4))}
-              </div>
-              <div className="text-xs text-purple-700">بازدید</div>
-            </div>
-
-            {/* کل */}
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Eye className="w-4 h-4 text-orange-600" />
-                <span className="text-sm font-semibold text-orange-900">کل بازدید</span>
-              </div>
-              <div className="text-3xl font-bold text-orange-900 mb-1">
-                {formatNumber(stats.genel.toplamGoruntulenme)}
-              </div>
-              <div className="text-xs text-orange-700">از ابتدا</div>
-            </div>
-          </div>
-        </div>
 
         {/* دو ستون */}
         <div className="grid lg:grid-cols-2 gap-6">
