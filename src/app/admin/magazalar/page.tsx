@@ -18,7 +18,8 @@ import {
   Clock,
   TrendingUp,
   Star,
-  Award
+  Award,
+  ShieldCheck
 } from "lucide-react";
 
 interface Magaza {
@@ -33,6 +34,7 @@ interface Magaza {
   store_level: 'basic' | 'pro' | 'elite';
   onay_durumu: 'beklemede' | 'onaylandi' | 'reddedildi';
   aktif: boolean;
+  guvenilir_satici: boolean;
   goruntulenme: number;
   ilan_sayisi?: number;
   created_at: string;
@@ -109,6 +111,50 @@ export default function MagazalarPage() {
       }
     } catch (error) {
       console.error('Onay hatası:', error);
+      alert('خطا در تغییر وضعیت');
+    }
+  };
+
+  const toggleGuvenilirSatici = async (id: number, currentValue: boolean) => {
+    try {
+      const response = await fetch('/api/admin/magazalar', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, guvenilir_satici: !currentValue })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(!currentValue ? '✅ روزت فروشنده معتبر فعال شد' : '❌ روزت فروشنده معتبر غیرفعال شد');
+        fetchMagazalar();
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Toggle hatası:', error);
+      alert('خطا در تغییر وضعیت روزت');
+    }
+  };
+
+  const toggleAktif = async (id: number, currentValue: boolean) => {
+    try {
+      const response = await fetch('/api/admin/magazalar', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, aktif: !currentValue })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(!currentValue ? '✅ مغازه فعال شد' : '❌ مغازه غیرفعال شد');
+        fetchMagazalar();
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Toggle hatası:', error);
       alert('خطا در تغییر وضعیت');
     }
   };
@@ -276,6 +322,12 @@ export default function MagazalarPage() {
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                       وضعیت
                     </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      فعال/غیرفعال
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      روزت معتبر
+                    </th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                       بازدید
                     </th>
@@ -349,6 +401,43 @@ export default function MagazalarPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
+                          <div className="flex justify-center">
+                            <button
+                              onClick={() => toggleAktif(magaza.id, magaza.aktif)}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                magaza.aktif ? 'bg-blue-600' : 'bg-gray-300'
+                              }`}
+                              title={magaza.aktif ? 'مغازه فعال' : 'مغازه غیرفعال'}
+                            >
+                              <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  magaza.aktif ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                              />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex justify-center">
+                            <button
+                              onClick={() => toggleGuvenilirSatici(magaza.id, magaza.guvenilir_satici)}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                magaza.guvenilir_satici ? 'bg-green-600' : 'bg-gray-300'
+                              }`}
+                              title={magaza.guvenilir_satici ? 'فروشنده معتبر فعال' : 'فروشنده معتبر غیرفعال'}
+                            >
+                              <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  magaza.guvenilir_satici ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                              />
+                              {magaza.guvenilir_satici && (
+                                <ShieldCheck className="absolute left-1 w-3 h-3 text-white" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
                           <div className="flex items-center gap-1 text-gray-600">
                             <Eye className="w-4 h-4" />
                             <span className="font-medium">{magaza.goruntulenme}</span>
@@ -410,6 +499,7 @@ export default function MagazalarPage() {
     </AdminLayout>
   );
 }
+
 
 
 

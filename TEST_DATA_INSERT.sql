@@ -109,3 +109,4 @@ SELECT COUNT(*) as 'Toplam Kullanıcı' FROM kullanicilar WHERE aktif = TRUE;
 
 
 
+

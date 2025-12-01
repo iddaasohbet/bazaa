@@ -19,6 +19,7 @@ import {
   Type
 } from "lucide-react";
 import Link from "next/link";
+import { getCitiesList, getDistrictsList } from "@/lib/cities";
 
 interface Kullanici {
   id: number;
@@ -26,18 +27,14 @@ interface Kullanici {
   email: string;
 }
 
-interface Il {
-  id: number;
-  ad: string;
-}
-
 export default function YeniMagazaPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [kullanicilar, setKullanicilar] = useState<Kullanici[]>([]);
-  const [iller, setIller] = useState<Il[]>([]);
   const [logo, setLogo] = useState<string>("");
   const [kapakResmi, setKapakResmi] = useState<string>("");
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [ilce, setIlce] = useState("");
 
   const [formData, setFormData] = useState({
     kullanici_id: "",
@@ -53,9 +50,10 @@ export default function YeniMagazaPage() {
     onay_durumu: "onaylandi"
   });
 
+  const cities = getCitiesList();
+
   useEffect(() => {
     fetchKullanicilar();
-    fetchIller();
   }, []);
 
   const fetchKullanicilar = async () => {
@@ -70,16 +68,10 @@ export default function YeniMagazaPage() {
     }
   };
 
-  const fetchIller = async () => {
-    try {
-      const response = await fetch('/api/iller');
-      const data = await response.json();
-      if (data.success) {
-        setIller(data.data);
-      }
-    } catch (error) {
-      console.error('İller yüklenemedi:', error);
-    }
+  const handleCityChange = (cityId: string) => {
+    setFormData({ ...formData, il_id: cityId });
+    setIlce("");
+    setDistricts(getDistrictsList(cityId));
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'kapak') => {
@@ -265,44 +257,62 @@ export default function YeniMagazaPage() {
                     />
                   </div>
 
-                  {/* İletişim */}
+                  {/* İletişim ve Konum */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      تلفن
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        type="tel"
+                        name="telefon"
+                        value={formData.telefon}
+                        onChange={handleChange}
+                        className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        placeholder="+93 700 000 000"
+                        dir="ltr"
+                      />
+                    </div>
+                  </div>
+
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        تلفن
-                      </label>
-                      <div className="relative">
-                        <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input
-                          type="tel"
-                          name="telefon"
-                          value={formData.telefon}
-                          onChange={handleChange}
-                          className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                          placeholder="+93 700 000 000"
-                          dir="ltr"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        شهر <span className="text-red-500">*</span>
+                        شهر (ولایت) <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <select
                           name="il_id"
                           value={formData.il_id}
-                          onChange={handleChange}
+                          onChange={(e) => handleCityChange(e.target.value)}
                           className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           required
                         >
-                          <option value="">انتخاب شهر</option>
-                          {iller.map((il) => (
-                            <option key={il.id} value={il.id}>
-                              {il.ad}
-                            </option>
+                          <option value="">شهر را انتخاب کنید...</option>
+                          {cities.map(city => (
+                            <option key={city.id} value={city.id}>{city.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        ناحیه (ولسوالی)
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <select
+                          value={ilce}
+                          onChange={(e) => setIlce(e.target.value)}
+                          className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          disabled={!formData.il_id}
+                        >
+                          <option value="">ناحیه را انتخاب کنید...</option>
+                          {districts.map(district => (
+                            <option key={district} value={district}>{district}</option>
                           ))}
                         </select>
                       </div>
@@ -511,6 +521,7 @@ export default function YeniMagazaPage() {
     </AdminLayout>
   );
 }
+
 
 
 

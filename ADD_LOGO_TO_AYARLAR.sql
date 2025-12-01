@@ -17,3 +17,4 @@ WHERE NOT EXISTS (
 -- Kontrol sorgusu
 SELECT * FROM site_ayarlar WHERE kategori = 'logo';
 
+

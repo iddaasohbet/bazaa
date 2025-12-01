@@ -49,3 +49,4 @@ ON DUPLICATE KEY UPDATE deger=deger;
 -- Kontrol sorgusu
 SELECT anahtar, kategori, aciklama FROM ayarlar ORDER BY kategori, anahtar;
 
+

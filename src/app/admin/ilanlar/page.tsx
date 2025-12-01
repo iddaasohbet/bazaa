@@ -12,7 +12,8 @@ import {
   Filter,
   MoreVertical,
   TrendingUp,
-  Star
+  Star,
+  Power
 } from "lucide-react";
 
 interface Ilan {
@@ -78,6 +79,28 @@ export default function IlanlarPage() {
     } catch (error) {
       console.error('Silme hatası:', error);
       alert('خطا در حذف آگهی');
+    }
+  };
+
+  const toggleAktif = async (id: number, currentValue: boolean) => {
+    try {
+      const response = await fetch('/api/admin/ilanlar', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, aktif: !currentValue })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(!currentValue ? '✅ آگهی فعال شد' : '❌ آگهی غیرفعال شد');
+        fetchIlanlar();
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Toggle hatası:', error);
+      alert('خطا در تغییر وضعیت');
     }
   };
 
@@ -177,6 +200,9 @@ export default function IlanlarPage() {
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                       وضعیت
                     </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      فعال/غیرفعال
+                    </th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                       بازدید
                     </th>
@@ -238,13 +264,30 @@ export default function IlanlarPage() {
                       <td className="px-6 py-4">
                         <div className="space-y-1">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            ilan.aktif ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                            ilan.aktif ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                           }`}>
                             {ilan.aktif ? 'فعال' : 'غیرفعال'}
                           </span>
                           <div className="text-xs text-gray-500">
                             {durumText[ilan.durum] || ilan.durum}
                           </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-center">
+                          <button
+                            onClick={() => toggleAktif(ilan.id, ilan.aktif)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                              ilan.aktif ? 'bg-green-600' : 'bg-gray-300'
+                            }`}
+                            title={ilan.aktif ? 'آگهی فعال' : 'آگهی غیرفعال'}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                ilan.aktif ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -290,6 +333,7 @@ export default function IlanlarPage() {
     </AdminLayout>
   );
 }
+
 
 
 

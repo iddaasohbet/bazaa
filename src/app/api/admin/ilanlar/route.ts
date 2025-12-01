@@ -200,26 +200,70 @@ export async function PUT(request: Request) {
       );
     }
 
-    // İndirim yüzdesini hesapla
-    let indirimYuzdesi = 0;
-    if (eski_fiyat && eski_fiyat > fiyat) {
-      indirimYuzdesi = Math.round(((eski_fiyat - fiyat) / eski_fiyat) * 100);
+    // Esnek güncelleme - sadece gönderilen alanları güncelle
+    let updateQuery = 'UPDATE ilanlar SET updated_at = NOW()';
+    const params: any[] = [];
+
+    if (baslik !== undefined) {
+      updateQuery += ', baslik = ?';
+      params.push(baslik);
+    }
+    if (aciklama !== undefined) {
+      updateQuery += ', aciklama = ?';
+      params.push(aciklama);
+    }
+    if (fiyat !== undefined) {
+      updateQuery += ', fiyat = ?';
+      params.push(fiyat);
+    }
+    if (eski_fiyat !== undefined) {
+      updateQuery += ', eski_fiyat = ?';
+      params.push(eski_fiyat || null);
+      
+      // İndirim yüzdesini hesapla
+      if (eski_fiyat && fiyat && eski_fiyat > fiyat) {
+        const indirimYuzdesi = Math.round(((eski_fiyat - fiyat) / eski_fiyat) * 100);
+        updateQuery += ', indirim_yuzdesi = ?';
+        params.push(indirimYuzdesi);
+      }
+    }
+    if (fiyat_tipi !== undefined) {
+      updateQuery += ', fiyat_tipi = ?';
+      params.push(fiyat_tipi);
+    }
+    if (kategori_id !== undefined) {
+      updateQuery += ', kategori_id = ?';
+      params.push(kategori_id);
+    }
+    if (il_id !== undefined) {
+      updateQuery += ', il_id = ?';
+      params.push(il_id);
+    }
+    if (durum !== undefined) {
+      updateQuery += ', durum = ?';
+      params.push(durum);
+    }
+    if (stok_miktari !== undefined) {
+      updateQuery += ', stok_miktari = ?';
+      params.push(stok_miktari);
+    }
+    if (video_url !== undefined) {
+      updateQuery += ', video_url = ?';
+      params.push(video_url || null);
+    }
+    if (aktif !== undefined) {
+      updateQuery += ', aktif = ?';
+      params.push(aktif ? 1 : 0);
+    }
+    if (onecikan !== undefined) {
+      updateQuery += ', onecikan = ?';
+      params.push(onecikan ? 1 : 0);
     }
 
-    await query(
-      `UPDATE ilanlar SET 
-        baslik = ?, aciklama = ?, fiyat = ?, eski_fiyat = ?, indirim_yuzdesi = ?,
-        fiyat_tipi = ?, kategori_id = ?, il_id = ?, durum = ?,
-        stok_miktari = ?, video_url = ?, aktif = ?, onecikan = ?,
-        updated_at = NOW()
-      WHERE id = ?`,
-      [
-        baslik, aciklama, fiyat, eski_fiyat || null, indirimYuzdesi,
-        fiyat_tipi, kategori_id, il_id, durum,
-        stok_miktari, video_url || null, aktif ? 1 : 0, onecikan ? 1 : 0,
-        id
-      ]
-    );
+    updateQuery += ' WHERE id = ?';
+    params.push(id);
+
+    await query(updateQuery, params);
 
     return NextResponse.json({
       success: true,

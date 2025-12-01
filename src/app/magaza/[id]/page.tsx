@@ -23,6 +23,7 @@ interface Magaza {
   il_ad: string;
   paket_turu: "normal" | "pro" | "premium";
   store_level?: "basic" | "pro" | "elite";
+  guvenilir_satici: boolean;
   goruntulenme: number;
   ilan_sayisi: number;
 }
@@ -366,8 +367,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           )}
                           
                           {/* Doğrulama Rozeti - Ücretli Paketler için */}
-                          {(isElite || isPro) && (
-                            <div className="flex items-center gap-2 mb-4 flex-wrap">
+                          <div className="flex items-center gap-2 mb-4 flex-wrap">
+                            {(isElite || isPro) && (
                               <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-lg border-2 ${
                                 isElite
                                   ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-yellow-300'
@@ -378,18 +379,18 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                                   مغازه تأیید شده
                                 </span>
                               </div>
-                              <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-md ${
-                                isElite
-                                  ? 'bg-green-100 border-2 border-green-300'
-                                  : 'bg-green-100 border-2 border-green-300'
-                              }`}>
+                            )}
+                            
+                            {/* Güvenilir Satıcı Rozeti - Sadece Admin Tanımlıysa */}
+                            {magaza.guvenilir_satici && (
+                              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-md bg-green-100 border-2 border-green-300">
                                 <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                                 <span className="text-xs sm:text-sm font-bold text-green-800">
                                   فروشنده معتبر
                                 </span>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
                           
                           <p className={`mb-4 leading-relaxed ${
                             isElite ? 'text-gray-800 text-sm sm:text-base md:text-lg lg:text-xl' : 'text-gray-700 text-sm sm:text-base md:text-lg'

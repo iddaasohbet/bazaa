@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     let sql = `
       SELECT 
         m.id, m.ad, m.ad_dari, m.slug, m.logo, m.telefon, m.store_level,
-        m.onay_durumu, m.aktif, m.goruntulenme, m.created_at,
+        m.onay_durumu, m.aktif, m.guvenilir_satici, m.goruntulenme, m.created_at,
         u.ad as kullanici_ad,
         u.email as kullanici_email,
         il.ad as il_ad,
@@ -179,7 +179,8 @@ export async function PUT(request: Request) {
       store_level,
       tema_renk,
       aktif,
-      onay_durumu
+      onay_durumu,
+      guvenilir_satici
     } = body;
 
     if (!id) {
@@ -240,6 +241,10 @@ export async function PUT(request: Request) {
       updateQuery += ', onay_durumu = ?';
       params.push(onay_durumu);
     }
+    if (guvenilir_satici !== undefined) {
+      updateQuery += ', guvenilir_satici = ?';
+      params.push(guvenilir_satici ? 1 : 0);
+    }
 
     // Store level değişirse limitler de değişsin
     if (store_level !== undefined) {
@@ -299,6 +304,7 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
 
 
 
