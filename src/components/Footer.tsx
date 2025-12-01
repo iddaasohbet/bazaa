@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Download, Store } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, Store } from "lucide-react";
 
 interface FooterSettings {
   site_baslik: string;
@@ -15,6 +15,7 @@ interface FooterSettings {
   sosyal_facebook: string;
   sosyal_twitter: string;
   sosyal_instagram: string;
+  sosyal_youtube: string;
   sosyal_tiktok: string;
   app_baslik: string;
   app_aciklama: string;
@@ -123,6 +124,7 @@ export default function Footer() {
   const sosyalFacebook = settings?.sosyal_facebook || '';
   const sosyalTwitter = settings?.sosyal_twitter || '';
   const sosyalInstagram = settings?.sosyal_instagram || '';
+  const sosyalYoutube = settings?.sosyal_youtube || '';
   const sosyalTiktok = settings?.sosyal_tiktok || '';
   const appBaslik = settings?.app_baslik || 'اپلیکیشن موبایل ما را دانلود کنید';
   const appAciklama = settings?.app_aciklama || 'آگهی ها را سریعتر کشف کنید، از هر جا دسترسی داشته باشید';
@@ -211,6 +213,11 @@ export default function Footer() {
               {sosyalInstagram && sosyalInstagram.trim() !== '' && (
                 <a href={sosyalInstagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-colors">
                   <Instagram className="h-4 w-4" />
+                </a>
+              )}
+              {sosyalYoutube && sosyalYoutube.trim() !== '' && (
+                <a href={sosyalYoutube} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors">
+                  <Youtube className="h-4 w-4" />
                 </a>
               )}
               {sosyalTiktok && sosyalTiktok.trim() !== '' && (
