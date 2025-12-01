@@ -556,12 +556,27 @@ export default function MagazaAcPage() {
                                 } animate-pulse`}></div>
                               )}
                               <div className="relative z-10">
-                                {/* Eski Fiyat - Database'den veya otomatik hesaplama */}
-                                {(paket.eski_fiyat && paket.eski_fiyat > paket.fiyat) && (
-                                  <div className="mb-2">
-                                    <span className="text-lg text-gray-500 line-through decoration-red-500 decoration-2" dir="ltr">
-                                      {paket.eski_fiyat.toLocaleString('fa-AF')} AFN
-                                    </span>
+                                {/* Eski Fiyat - Database'den */}
+                                {paket.eski_fiyat && paket.eski_fiyat > 0 && paket.eski_fiyat > paket.fiyat && (
+                                  <div className="mb-3">
+                                    <div className="flex items-center justify-center gap-2 mb-2">
+                                      <span className="text-2xl font-bold text-gray-400 line-through decoration-red-500 decoration-2" dir="ltr">
+                                        {paket.eski_fiyat.toLocaleString('fa-AF')} AFN
+                                      </span>
+                                    </div>
+                                    {(() => {
+                                      const indirimYuzde = Math.round(((paket.eski_fiyat - paket.fiyat) / paket.eski_fiyat) * 100);
+                                      const tasarruf = paket.eski_fiyat - paket.fiyat;
+                                      return (
+                                        <div className="flex items-center justify-center">
+                                          <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold bg-gradient-to-r from-red-500 to-red-600 px-3 py-1.5 rounded-full shadow-lg">
+                                            <Zap className="h-3.5 w-3.5" />
+                                            <span>{indirimYuzde}٪ تخفیف ویژه</span>
+                                            <span className="hidden sm:inline">- صرفه‌جویی {tasarruf.toLocaleString('fa-AF')} افغانی</span>
+                                          </span>
+                                        </div>
+                                      );
+                                    })()}
                                   </div>
                                 )}
                                 
@@ -570,17 +585,6 @@ export default function MagazaAcPage() {
                                   {paket.fiyat.toLocaleString('fa-AF')}
                                   <span className="text-lg text-gray-600 mr-2">AFN</span>
                                 </div>
-                                
-                                {/* İndirim Badge - Otomatik hesaplama */}
-                                {paket.eski_fiyat && paket.eski_fiyat > paket.fiyat && (
-                                  <div className="mt-3">
-                                    <span className="inline-flex items-center gap-1.5 text-sm text-white font-bold bg-gradient-to-r from-red-500 to-red-600 px-4 py-2 rounded-full shadow-lg shadow-red-300/50 border-2 border-red-400 animate-pulse">
-                                      <Zap className="h-4 w-4" />
-                                      <span>{Math.round(((paket.eski_fiyat - paket.fiyat) / paket.eski_fiyat) * 100)}٪ تخفیف ویژه</span>
-                                      <Sparkles className="h-4 w-4" />
-                                    </span>
-                                  </div>
-                                )}
                               </div>
                             </div>
 
