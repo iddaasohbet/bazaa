@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import { 
   Save, 
@@ -19,7 +19,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Trash2
 } from "lucide-react";
 
 interface Ayar {
@@ -40,6 +41,10 @@ export default function AyarlarPage() {
   const [footerLogo, setFooterLogo] = useState<string>('');
   const [headerLogoPreview, setHeaderLogoPreview] = useState<string>('');
   const [footerLogoPreview, setFooterLogoPreview] = useState<string>('');
+  const [logoChanged, setLogoChanged] = useState(false);
+  
+  const headerInputRef = useRef<HTMLInputElement>(null);
+  const footerInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchAyarlar();
@@ -63,27 +68,30 @@ export default function AyarlarPage() {
 
   const fetchLogos = async () => {
     try {
-      // Cache bypass için timestamp ekle
       const timestamp = new Date().getTime();
-      const response = await fetch(`/api/admin/logo?t=${timestamp}`);
+      const response = await fetch(`/api/admin/logo?t=${timestamp}`, {
+        cache: 'no-store'
+      });
       const data = await response.json();
       
-      console.log('🔍 Ayarlar: Logo API yanıtı:', data);
+      console.log('📊 Ayarlar: Logo API yanıtı:', data);
       
       if (data.success) {
         const { header_logo, footer_logo } = data.data;
-        console.log('📥 Ayarlar: Header logo uzunluk:', header_logo?.length || 0);
-        console.log('📥 Ayarlar: Footer logo uzunluk:', footer_logo?.length || 0);
+        console.log('📋 Ayarlar: Header logo uzunluk:', header_logo?.length || 0);
+        console.log('📋 Ayarlar: Footer logo uzunluk:', footer_logo?.length || 0);
         
-        if (header_logo && header_logo.trim() !== '') {
-          setHeaderLogo(header_logo);
-          setHeaderLogoPreview(header_logo);
-          console.log('✅ Ayarlar: Header logo preview ayarlandı');
+        // Her durumda state'i güncelle
+        setHeaderLogo(header_logo || '');
+        setHeaderLogoPreview(header_logo || '');
+        setFooterLogo(footer_logo || '');
+        setFooterLogoPreview(footer_logo || '');
+        
+        if (header_logo) {
+          console.log('✅ Ayarlar: Header logo yüklendi');
         }
-        if (footer_logo && footer_logo.trim() !== '') {
-          setFooterLogo(footer_logo);
-          setFooterLogoPreview(footer_logo);
-          console.log('✅ Ayarlar: Footer logo preview ayarlandı');
+        if (footer_logo) {
+          console.log('✅ Ayarlar: Footer logo yüklendi');
         }
       }
     } catch (error) {
@@ -94,12 +102,12 @@ export default function AyarlarPage() {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'header' | 'footer') => {
     const file = e.target.files?.[0];
     if (file) {
-      console.log('📤 Upload: Dosya seçildi -', file.name, '- Boyut:', file.size, 'bytes');
+      console.log('📁 Upload: Dosya seçildi -', file.name, '- Boyut:', file.size, 'bytes');
       
       // Dosya boyutu kontrolü (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
         console.log('❌ Upload: Dosya çok büyük');
-        setMessage({ type: 'error', text: 'فایل خیلی بزرگ است! حداکثر ۲ مگابایت' });
+        setMessage({ type: 'error', text: 'فایل خیلی بزرگ است! حداکثر 2 مگابایت' });
         return;
       }
 
@@ -107,6 +115,7 @@ export default function AyarlarPage() {
       reader.onloadend = () => {
         const base64String = reader.result as string;
         console.log('✅ Upload: Base64 hazır -', type, '- Uzunluk:', base64String.length);
+        
         if (type === 'header') {
           setHeaderLogo(base64String);
           setHeaderLogoPreview(base64String);
@@ -114,9 +123,29 @@ export default function AyarlarPage() {
           setFooterLogo(base64String);
           setFooterLogoPreview(base64String);
         }
+        setLogoChanged(true);
       };
       reader.readAsDataURL(file);
     }
+    
+    // Input'u resetle - aynı dosyayı tekrar seçebilmek için
+    if (type === 'header' && headerInputRef.current) {
+      headerInputRef.current.value = '';
+    }
+    if (type === 'footer' && footerInputRef.current) {
+      footerInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveLogo = (type: 'header' | 'footer') => {
+    if (type === 'header') {
+      setHeaderLogo('');
+      setHeaderLogoPreview('');
+    } else {
+      setFooterLogo('');
+      setFooterLogoPreview('');
+    }
+    setLogoChanged(true);
   };
 
   const handleChange = (anahtar: string, yeniDeger: string) => {
@@ -131,26 +160,30 @@ export default function AyarlarPage() {
 
     try {
       console.log('💾 Kaydet: Logo kaydetme başladı');
-      console.log('📏 Kaydet: Header logo uzunluk:', headerLogo.length);
-      console.log('📏 Kaydet: Footer logo uzunluk:', footerLogo.length);
+      console.log('📊 Kaydet: Header logo uzunluk:', headerLogo.length);
+      console.log('📊 Kaydet: Footer logo uzunluk:', footerLogo.length);
       
       // Logoları API'ye kaydet
+      const logoPayload = {
+        header_logo: headerLogo,
+        footer_logo: footerLogo
+      };
+      
+      console.log('📤 Kaydet: Gönderilen payload boyutu:', JSON.stringify(logoPayload).length);
+      
       const logoResponse = await fetch('/api/admin/logo', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          header_logo: headerLogo,
-          footer_logo: footerLogo
-        }),
+        body: JSON.stringify(logoPayload),
       });
 
       const logoData = await logoResponse.json();
-      console.log('📥 Kaydet: API yanıtı:', logoData);
+      console.log('📋 Kaydet: API yanıtı:', logoData);
       
       if (!logoData.success) {
-        setMessage({ type: 'error', text: 'Logolar kaydedilemedi' });
+        setMessage({ type: 'error', text: 'Logolar kaydedilemedi: ' + (logoData.message || 'Bilinmeyen hata') });
         setSaving(false);
         return;
       }
@@ -169,11 +202,13 @@ export default function AyarlarPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند! لطفا صفحه اصلی را بازخوانی کنید.' });
+        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند! برای دیدن تغییرات صفحه را رفرش کنید.' });
+        setLogoChanged(false);
+        
         // Header ve Footer'ı güncelle
         window.dispatchEvent(new Event('logoUpdated'));
         
-        // Logoları yeniden yükle (preview güncellenmesi için)
+        // Logoları yeniden yükle
         setTimeout(() => {
           fetchLogos();
         }, 500);
@@ -194,32 +229,31 @@ export default function AyarlarPage() {
     return ayarlar.find(a => a.anahtar === anahtar)?.deger || '';
   };
 
-  // Ayar açıklamalarını Dari/Pashto'ya çevir
   const getAyarLabel = (anahtar: string): string => {
     const labels: { [key: string]: string } = {
-      'site_adi': 'د سایټ نوم',
-      'site_slogan': 'د سایټ شعار',
-      'site_aciklama': 'د سایټ تفصیل',
-      'site_anahtar_kelimeler': 'SEO کلیدي کلمې',
-      'site_email': 'بریښنالیک پته',
-      'site_telefon': 'ټیلیفون شمیره',
-      'site_adres': 'پته',
+      'site_adi': 'د سایت نوم',
+      'site_slogan': 'د سایت شعار',
+      'site_aciklama': 'د سایت توضیحات',
+      'site_anahtar_kelimeler': 'SEO کلیدی کلمې',
+      'site_email': 'بریښنالیک ایمیل',
+      'site_telefon': 'تلیفون شمیره',
+      'site_adres': 'آدرس',
       'facebook_url': 'فیسبوک لینک',
-      'twitter_url': 'ټویټر لینک',
-      'instagram_url': 'انستاګرام لینک',
+      'twitter_url': 'توییتر لینک',
+      'instagram_url': 'انستاگرام لینک',
       'youtube_url': 'یوټیوب لینک',
-      'ilan_onay_gerektir': 'اعلان تایید ته اړتیا لري؟ (0: نه، 1: هو)',
-      'kayit_aktif': 'د کارونکي ثبت فعال دی؟ (0: نه، 1: هو)',
-      'magaza_acma_aktif': 'دوکان جوړول فعال دی؟ (0: نه، 1: هو)',
-      'varsayilan_ilan_suresi': 'د اعلان ډیفالټ موده (ورځې)',
+      'ilan_onay_gerektir': 'اعلانات تایید ته اړتیا لري؟ (0: نه 1: هو)',
+      'kayit_aktif': 'د کارونکو ثبت فعال دی؟ (0: نه 1: هو)',
+      'magaza_acma_aktif': 'دوکان جوړول فعال دی؟ (0: نه 1: هو)',
+      'varsayilan_ilan_suresi': 'د اعلان اعتبار موده (ورځې)',
       'maksimum_resim_sayisi': 'د اعلان لپاره اعظمي عکسونه',
       'google_analytics_id': 'Google Analytics ID',
       'google_maps_api_key': 'Google Maps API Key',
-      'smtp_host': 'SMTP سرور',
-      'smtp_port': 'SMTP پورټ',
+      'smtp_host': 'SMTP هوست',
+      'smtp_port': 'SMTP پورت',
       'smtp_kullanici': 'SMTP کارونکی',
-      'smtp_sifre': 'SMTP پټنوم',
-      'bakim_modu': 'د ساتنې حالت فعال دی؟ (0: نه، 1: هو)',
+      'smtp_sifre': 'SMTP رمز',
+      'bakim_modu': 'د ساتنې حالت فعال دی؟ (0: نه 1: هو)',
       'bakim_mesaji': 'د ساتنې پیغام'
     };
     return labels[anahtar] || anahtar;
@@ -294,7 +328,7 @@ export default function AyarlarPage() {
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">بارول...</p>
+            <p className="text-gray-600">بارگذاری...</p>
           </div>
         </div>
       </AdminLayout>
@@ -317,7 +351,7 @@ export default function AyarlarPage() {
             {saving ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>خوندی کول...</span>
+                <span>ذخیره کول...</span>
               </>
             ) : (
               <>
@@ -380,9 +414,18 @@ export default function AyarlarPage() {
                   <div className="flex items-center gap-6">
                     {/* Preview */}
                     <div className="flex-shrink-0">
-                      <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden">
+                      <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden relative">
                         {headerLogoPreview ? (
-                          <img src={headerLogoPreview} alt="Header Logo" className="w-full h-full object-contain p-2" />
+                          <>
+                            <img src={headerLogoPreview} alt="Header Logo" className="w-full h-full object-contain p-2" />
+                            <button
+                              onClick={() => handleRemoveLogo('header')}
+                              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                              title="لوگو را حذف کنید"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
                         ) : (
                           <div className="text-center">
                             <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -400,18 +443,19 @@ export default function AyarlarPage() {
                             <Upload className="h-6 w-6 text-blue-600" />
                             <div className="text-center">
                               <p className="text-sm font-medium text-gray-900">برای آپلود لوگو کلیک کنید</p>
-                              <p className="text-xs text-gray-500 mt-1">PNG, JPG, SVG (حداکثر ۲MB)</p>
+                              <p className="text-xs text-gray-500 mt-1">PNG, JPG, SVG (حداکثر 2MB)</p>
                             </div>
                           </div>
                         </div>
                         <input
+                          ref={headerInputRef}
                           type="file"
                           accept="image/*"
                           onChange={(e) => handleLogoUpload(e, 'header')}
                           className="hidden"
                         />
                       </label>
-                      <p className="text-xs text-gray-600 mt-2">توصیه: ابعاد ۱۸۰×۶۰ پیکسل</p>
+                      <p className="text-xs text-gray-600 mt-2">توصیه: ابعاد 180×60 پیکسل</p>
                     </div>
                   </div>
                 </div>
@@ -427,9 +471,18 @@ export default function AyarlarPage() {
                   <div className="flex items-center gap-6">
                     {/* Preview */}
                     <div className="flex-shrink-0">
-                      <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden">
+                      <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden relative">
                         {footerLogoPreview ? (
-                          <img src={footerLogoPreview} alt="Footer Logo" className="w-full h-full object-contain p-2" />
+                          <>
+                            <img src={footerLogoPreview} alt="Footer Logo" className="w-full h-full object-contain p-2" />
+                            <button
+                              onClick={() => handleRemoveLogo('footer')}
+                              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                              title="لوگو را حذف کنید"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
                         ) : (
                           <div className="text-center">
                             <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -447,18 +500,19 @@ export default function AyarlarPage() {
                             <Upload className="h-6 w-6 text-blue-600" />
                             <div className="text-center">
                               <p className="text-sm font-medium text-gray-900">برای آپلود لوگو کلیک کنید</p>
-                              <p className="text-xs text-gray-500 mt-1">PNG, JPG, SVG (حداکثر ۲MB)</p>
+                              <p className="text-xs text-gray-500 mt-1">PNG, JPG, SVG (حداکثر 2MB)</p>
                             </div>
                           </div>
                         </div>
                         <input
+                          ref={footerInputRef}
                           type="file"
                           accept="image/*"
                           onChange={(e) => handleLogoUpload(e, 'footer')}
                           className="hidden"
                         />
                       </label>
-                      <p className="text-xs text-gray-600 mt-2">توصیه: ابعاد ۱۸۰×۶۰ پیکسل</p>
+                      <p className="text-xs text-gray-600 mt-2">توصیه: ابعاد 180×60 پیکسل</p>
                     </div>
                   </div>
                 </div>
@@ -499,7 +553,7 @@ export default function AyarlarPage() {
               {ayarlar.filter(ayar => ayar.kategori === activeTab).length === 0 && (
                 <div className="text-center py-12 text-gray-500">
                   <Settings className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>په دې کټګورۍ کې تنظیمات نشته</p>
+                  <p>په دې کټګوری کې تنظیمات نشته</p>
                 </div>
               )}
             </div>
@@ -517,12 +571,12 @@ export default function AyarlarPage() {
           {saving ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              <span>خوندی کول...</span>
+              <span>ذخیره کول...</span>
             </>
           ) : (
             <>
               <Save className="h-5 w-5" />
-              <span>بدلونونه خوندی کړئ</span>
+              <span>تغییرات را ذخیره کنید</span>
             </>
           )}
         </button>
@@ -530,4 +584,3 @@ export default function AyarlarPage() {
     </AdminLayout>
   );
 }
-
