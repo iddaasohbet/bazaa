@@ -12,7 +12,27 @@ import {
   Music, 
   Tractor, 
   Grid,
-  ChevronRight 
+  ChevronRight,
+  Laptop,
+  Tv,
+  Watch,
+  BookOpen,
+  Briefcase,
+  ShoppingCart,
+  Users,
+  Heart,
+  Star,
+  Camera,
+  Bike,
+  Baby,
+  Dog,
+  Wrench,
+  Paintbrush,
+  Trophy,
+  Gamepad2,
+  Bed,
+  UtensilsCrossed,
+  Package
 } from "lucide-react";
 
 interface Kategori {
@@ -49,6 +69,26 @@ const iconMap: { [key: string]: any } = {
   'music': Music,
   'tractor': Tractor,
   'grid': Grid,
+  'laptop': Laptop,
+  'tv': Tv,
+  'watch': Watch,
+  'book': BookOpen,
+  'briefcase': Briefcase,
+  'cart': ShoppingCart,
+  'users': Users,
+  'heart': Heart,
+  'star': Star,
+  'camera': Camera,
+  'bike': Bike,
+  'baby': Baby,
+  'dog': Dog,
+  'wrench': Wrench,
+  'paint': Paintbrush,
+  'trophy': Trophy,
+  'game': Gamepad2,
+  'bed': Bed,
+  'food': UtensilsCrossed,
+  'package': Package
 };
 
 export default function Sidebar() {

@@ -702,7 +702,11 @@ export default function KategorilerPage() {
                               )}
                             </button>
                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                              <Grid className="w-5 h-5 text-blue-600" />
+                              {(() => {
+                                const iconData = AVAILABLE_ICONS.find(i => i.name === kategori.ikon);
+                                const IconComponent = iconData?.icon || Grid;
+                                return <IconComponent className="w-5 h-5 text-blue-600" />;
+                              })()}
                             </div>
                             <div>
                               <div className="font-semibold text-gray-900">{kategori.ad}</div>
