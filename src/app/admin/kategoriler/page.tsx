@@ -123,13 +123,14 @@ export default function KategorilerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Slug otomatik oluştur
-    const finalSlug = formData.slug || generateSlug(formData.ad || formData.ad_dari || '');
-    
-    if (!finalSlug) {
-      alert('نام و slug الزامی است - لطفاً حداقل یک نام وارد کنید');
+    // En az bir isim girilmiş mi kontrol et
+    if (!formData.ad && !formData.ad_dari) {
+      alert('لطفاً حداقل یک نام وارد کنید (فارسی یا انگلیسی)');
       return;
     }
+    
+    // Slug otomatik oluştur
+    const finalSlug = formData.slug || generateSlug(formData.ad || formData.ad_dari || '');
 
     try {
       const url = '/api/admin/kategoriler';
@@ -159,13 +160,19 @@ export default function KategorilerPage() {
   const handleAltKategoriSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Slug otomatik oluştur
-    const finalSlug = altKategoriFormData.slug || generateSlug(altKategoriFormData.ad || altKategoriFormData.ad_dari || '');
-    
-    if (!selectedKategoriId || !finalSlug) {
-      alert('نام و slug الزامی است - لطفاً حداقل یک نام وارد کنید');
+    // En az bir isim girilmiş mi kontrol et
+    if (!selectedKategoriId) {
+      alert('خطا: دسته‌بندی انتخاب نشده است');
       return;
     }
+    
+    if (!altKategoriFormData.ad && !altKategoriFormData.ad_dari) {
+      alert('لطفاً حداقل یک نام وارد کنید (فارسی یا انگلیسی)');
+      return;
+    }
+    
+    // Slug otomatik oluştur
+    const finalSlug = altKategoriFormData.slug || generateSlug(altKategoriFormData.ad || altKategoriFormData.ad_dari || '');
 
     try {
       const url = '/api/alt-kategoriler';
