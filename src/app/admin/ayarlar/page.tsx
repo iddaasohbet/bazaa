@@ -63,18 +63,27 @@ export default function AyarlarPage() {
 
   const fetchLogos = async () => {
     try {
-      const response = await fetch('/api/admin/logo');
+      // Cache bypass için timestamp ekle
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/admin/logo?t=${timestamp}`);
       const data = await response.json();
+      
+      console.log('🔍 Ayarlar: Logo API yanıtı:', data);
       
       if (data.success) {
         const { header_logo, footer_logo } = data.data;
-        if (header_logo) {
+        console.log('📥 Ayarlar: Header logo uzunluk:', header_logo?.length || 0);
+        console.log('📥 Ayarlar: Footer logo uzunluk:', footer_logo?.length || 0);
+        
+        if (header_logo && header_logo.trim() !== '') {
           setHeaderLogo(header_logo);
           setHeaderLogoPreview(header_logo);
+          console.log('✅ Ayarlar: Header logo preview ayarlandı');
         }
-        if (footer_logo) {
+        if (footer_logo && footer_logo.trim() !== '') {
           setFooterLogo(footer_logo);
           setFooterLogoPreview(footer_logo);
+          console.log('✅ Ayarlar: Footer logo preview ayarlandı');
         }
       }
     } catch (error) {
@@ -160,10 +169,16 @@ export default function AyarlarPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند!' });
+        setMessage({ type: 'success', text: 'تنظیمات و لوگوها با موفقیت ذخیره شدند! لطفا صفحه اصلی را بازخوانی کنید.' });
         // Header ve Footer'ı güncelle
         window.dispatchEvent(new Event('logoUpdated'));
-        setTimeout(() => setMessage(null), 3000);
+        
+        // Logoları yeniden yükle (preview güncellenmesi için)
+        setTimeout(() => {
+          fetchLogos();
+        }, 500);
+        
+        setTimeout(() => setMessage(null), 5000);
       } else {
         setMessage({ type: 'error', text: data.message || 'Bir hata oluştu' });
       }
