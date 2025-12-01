@@ -51,15 +51,15 @@ export default function Header() {
         console.log('📥 Header: API Response:', data);
         
         if (data.success && data.data.header_logo && data.data.header_logo.trim() !== '') {
-          console.log('✅ Header: Custom logo bulundu, uzunluk:', data.data.header_logo.length);
+          console.log('✅ Header: Logo bulundu, uzunluk:', data.data.header_logo.length);
           setHeaderLogo(data.data.header_logo);
         } else {
-          console.log('⚠️ Header: Custom logo yok, default kullanılıyor (/images/logo.png)');
-          setHeaderLogo('/images/logo.png');
+          console.log('⚠️ Header: Logo yok');
+          setHeaderLogo('');
         }
       } catch (error) {
-        console.error('❌ Header logo yüklenemedi, default kullanılıyor:', error);
-        setHeaderLogo('/images/logo.png');
+        console.error('❌ Header logo yüklenemedi:', error);
+        setHeaderLogo('');
       } finally {
         setLogoLoading(false);
       }
@@ -233,26 +233,21 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 lg:h-18">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 mr-6 lg:mr-8 group">
-              <div className="relative h-12 lg:h-14">
-                {logoLoading ? (
-                  <div className="h-12 lg:h-14 w-32 bg-gray-200 animate-pulse rounded"></div>
-                ) : headerLogo.startsWith('data:') ? (
+              {logoLoading ? (
+                <div className="h-12 lg:h-14 w-32 bg-gray-200 animate-pulse rounded"></div>
+              ) : headerLogo ? (
+                <div className="relative h-12 lg:h-14">
                   <img 
                     src={headerLogo} 
-                    alt="WatanBazaare Logo" 
+                    alt="Logo" 
                     className="h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105"
                   />
-                ) : (
-                  <Image 
-                    src={headerLogo || '/images/logo.png'} 
-                    alt="WatanBazaare Logo" 
-                    width={150}
-                    height={56}
-                    className="h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105"
-                    priority
-                  />
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="text-2xl font-bold text-blue-600">
+                  WatanBazaare
+                </div>
+              )}
             </Link>
 
             {/* Desktop: Kategoriler Dropdown */}

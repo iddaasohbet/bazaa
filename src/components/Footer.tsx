@@ -42,24 +42,24 @@ export default function Footer() {
 
   const loadLogo = async () => {
     try {
-      console.log('🔍 Footer: Logo yükleniyor...');
+      console.log('📊 Footer: Logo yükleniyor...');
       setLogoLoading(true);
       
-      const response = await fetch('/api/admin/logo');
+      const response = await fetch('/api/admin/logo?t=' + Date.now(), { cache: 'no-store' });
       const data = await response.json();
       
-      console.log('📥 Footer: API Response:', data);
+      console.log('📋 Footer: API Response:', data);
       
       if (data.success && data.data.footer_logo && data.data.footer_logo.trim() !== '') {
-        console.log('✅ Footer: Custom logo bulundu, uzunluk:', data.data.footer_logo.length);
+        console.log('✅ Footer: Logo bulundu, uzunluk:', data.data.footer_logo.length);
         setFooterLogo(data.data.footer_logo);
       } else {
-        console.log('⚠️ Footer: Custom logo yok, default kullanılıyor (/images/logo.png)');
-        setFooterLogo('/images/logo.png');
+        console.log('⚠️ Footer: Logo yok');
+        setFooterLogo('');
       }
     } catch (error) {
-      console.error('❌ Footer logo yüklenemedi, default kullanılıyor:', error);
-      setFooterLogo('/images/logo.png');
+      console.error('❌ Footer logo yüklenemedi:', error);
+      setFooterLogo('');
     } finally {
       setLogoLoading(false);
     }
@@ -174,28 +174,24 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About */}
-          <div>
-            <Link href="/" className="flex items-center gap-3 mb-4 group">
-              <div className="relative h-14">
+            <div>
+              <Link href="/" className="flex items-center gap-3 mb-4 group">
                 {logoLoading ? (
                   <div className="h-14 w-36 bg-gray-200 animate-pulse rounded"></div>
-                ) : footerLogo.startsWith('data:') ? (
-                  <img 
-                    src={footerLogo} 
-                    alt="WatanBazaare Logo" 
-                    className="h-14 w-auto object-contain transition-transform group-hover:scale-105"
-                  />
+                ) : footerLogo ? (
+                  <div className="relative h-14">
+                    <img 
+                      src={footerLogo} 
+                      alt="Logo" 
+                      className="h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                    />
+                  </div>
                 ) : (
-                  <Image 
-                    src={footerLogo || '/images/logo.png'} 
-                    alt="WatanBazaare Logo" 
-                    width={160}
-                    height={56}
-                    className="h-14 w-auto object-contain transition-transform group-hover:scale-105"
-                  />
+                  <div className="text-2xl font-bold text-blue-600">
+                    WatanBazaare
+                  </div>
                 )}
-              </div>
-            </Link>
+              </Link>
             <p className="text-sm text-gray-600 mb-4">
               {siteAciklama}
             </p>
