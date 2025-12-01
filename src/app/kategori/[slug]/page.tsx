@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { use } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -45,6 +46,9 @@ interface AltKategori {
 
 export default function KategoriSayfasi({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = use(params);
+  const searchParams = useSearchParams();
+  const altSlug = searchParams.get('alt');
+  
   const [kategori, setKategori] = useState<Kategori | null>(null);
   const [altKategoriler, setAltKategoriler] = useState<AltKategori[]>([]);
   const [selectedAltKategori, setSelectedAltKategori] = useState<number | null>(null);
@@ -54,20 +58,22 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
 
   useEffect(() => {
     fetchData();
-    
-    // URL'den alt kategori slug'ını al
-    const urlParams = new URLSearchParams(window.location.search);
-    const altSlug = urlParams.get('alt');
-    if (altSlug) {
-      // Alt kategori listesi yüklendikten sonra seçili yap
-      setTimeout(() => {
+  }, [resolvedParams.slug]);
+
+  // Alt kategori slug değiştiğinde filtreleme yap
+  useEffect(() => {
+    if (altKategoriler.length > 0 && allIlanlar.length > 0) {
+      if (altSlug) {
         const altKat = altKategoriler.find(ak => ak.slug === altSlug);
         if (altKat) {
           handleAltKategoriFilter(altKat.id);
         }
-      }, 500);
+      } else {
+        setSelectedAltKategori(null);
+        setIlanlar(allIlanlar);
+      }
     }
-  }, [resolvedParams.slug]);
+  }, [altSlug, altKategoriler, allIlanlar]);
 
   const fetchData = async () => {
     try {
