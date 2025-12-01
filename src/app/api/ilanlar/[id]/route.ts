@@ -47,7 +47,17 @@ export async function GET(
       [parseInt(id)]
     );
 
-    ilan.resimler = Array.isArray(resimler) ? resimler.map((r: any) => r.resim_url) : [];
+    // Resim listesi oluştur
+    if (Array.isArray(resimler) && resimler.length > 0) {
+      ilan.resimler = resimler.map((r: any) => r.resim_url);
+    } else if (ilan.ana_resim) {
+      // Eğer ilan_resimleri tablosunda resim yoksa, ana_resim'i kullan
+      ilan.resimler = [ilan.ana_resim];
+    } else {
+      ilan.resimler = [];
+    }
+
+    console.log(`📸 İlan ${id} - ${ilan.resimler.length} resim bulundu`);
 
     // Görüntülenme sayısını artır
     await query(
