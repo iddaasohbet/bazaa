@@ -18,3 +18,4 @@ WHERE NOT EXISTS (
 SELECT * FROM site_ayarlar WHERE kategori = 'logo';
 
 
+

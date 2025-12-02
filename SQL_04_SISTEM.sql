@@ -11,3 +11,4 @@ INSERT INTO `site_ayarlar` (`anahtar`, `deger`, `kategori`, `aciklama`) VALUES
 ('bakim_mesaji', 'سایت د ساتنې لاندې دی. لطفاً وروسته بیا هڅه وکړئ.', 'sistem', 'د ساتنې پیغام')
 ON DUPLICATE KEY UPDATE `deger` = VALUES(`deger`);
 
+

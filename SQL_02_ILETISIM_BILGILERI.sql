@@ -7,3 +7,4 @@ INSERT INTO `site_ayarlar` (`anahtar`, `deger`, `kategori`, `aciklama`) VALUES
 ('site_adres', 'کابل، افغانستان', 'iletisim', 'آدرس')
 ON DUPLICATE KEY UPDATE `deger` = VALUES(`deger`);
 
+

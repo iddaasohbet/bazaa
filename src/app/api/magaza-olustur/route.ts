@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Mağaza oluştur - HER PAKET OTOMATIK AKTİF
+    // il_id artık string (şehir key'i) olarak kaydediliyor
     const result = await query(
       `INSERT INTO magazalar 
        (kullanici_id, ad, ad_dari, slug, aciklama, adres, telefon, il_id, 
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
         aciklama || '',
         adres || '',
         telefon || null,
-        il_id || null,
+        il_id || null,  // String olarak kaydedilecek (örn: 'kabul', 'kandahar')
         logo || null,
         kapak_resmi || null,
         finalStoreLevel,

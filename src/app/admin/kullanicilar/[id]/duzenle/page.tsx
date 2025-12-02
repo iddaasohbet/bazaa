@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import AdminLayout from "@/components/AdminLayout";
 import {
   ArrowLeft,
-  Upload,
   User,
   Mail,
   Phone,
@@ -19,9 +18,23 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export default function YeniKullaniciPage() {
+interface Kullanici {
+  id: number;
+  ad: string;
+  email: string;
+  telefon?: string;
+  rol: 'user' | 'admin';
+  profil_resmi?: string;
+  aktif: boolean;
+}
+
+export default function KullaniciDuzenlePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const params = useParams();
+  const kullaniciId = params.id as string;
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [profileImage, setProfileImage] = useState<string>("");
 
@@ -29,17 +42,54 @@ export default function YeniKullaniciPage() {
     ad: "",
     email: "",
     telefon: "",
-    sifre: "",
-    sifre_tekrar: "",
+    yeni_sifre: "",
+    yeni_sifre_tekrar: "",
     rol: "user",
     aktif: true
   });
+
+  useEffect(() => {
+    if (kullaniciId) {
+      fetchKullanici();
+    }
+  }, [kullaniciId]);
+
+  const fetchKullanici = async () => {
+    try {
+      const response = await fetch(`/api/admin/kullanicilar?limit=1000`);
+      const data = await response.json();
+      
+      if (data.success) {
+        const kullanici = data.data.find((k: Kullanici) => k.id === parseInt(kullaniciId));
+        
+        if (kullanici) {
+          setFormData({
+            ad: kullanici.ad || "",
+            email: kullanici.email || "",
+            telefon: kullanici.telefon || "",
+            yeni_sifre: "",
+            yeni_sifre_tekrar: "",
+            rol: kullanici.rol || "user",
+            aktif: kullanici.aktif
+          });
+          setProfileImage(kullanici.profil_resmi || "");
+        } else {
+          alert('کاربر یافت نشد');
+          router.push('/admin/kullanicilar');
+        }
+      }
+    } catch (error) {
+      console.error('Kullanıcı yüklenemedi:', error);
+      alert('خطا در بارگذاری اطلاعات کاربر');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Convert to base64
     const reader = new FileReader();
     reader.onloadend = () => {
       setProfileImage(reader.result as string);
@@ -50,56 +100,62 @@ export default function YeniKullaniciPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validasyon
-    if (!formData.ad || !formData.email || !formData.sifre) {
-      alert('لطفاً تمام فیلدهای الزامی را پر کنید');
+    if (!formData.ad || !formData.email) {
+      alert('لطفاً نام و ایمیل را وارد کنید');
       return;
     }
 
-    if (formData.sifre !== formData.sifre_tekrar) {
-      alert('رمزهای عبور مطابقت ندارند');
-      return;
+    // Yeni şifre girilmişse kontrol et
+    if (formData.yeni_sifre) {
+      if (formData.yeni_sifre !== formData.yeni_sifre_tekrar) {
+        alert('رمزهای عبور مطابقت ندارند');
+        return;
+      }
+      if (formData.yeni_sifre.length < 6) {
+        alert('رمز عبور باید حداقل ۶ کاراکتر باشد');
+        return;
+      }
     }
 
-    if (formData.sifre.length < 6) {
-      alert('رمز عبور باید حداقل ۶ کاراکتر باشد');
-      return;
-    }
-
-    // Email formatı kontrolü
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       alert('فرمت ایمیل نامعتبر است');
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
 
     try {
       const response = await fetch('/api/admin/kullanicilar', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          profil_resmi: profileImage || null
+          id: parseInt(kullaniciId),
+          ad: formData.ad,
+          email: formData.email,
+          telefon: formData.telefon || null,
+          rol: formData.rol,
+          aktif: formData.aktif,
+          profil_resmi: profileImage || null,
+          yeni_sifre: formData.yeni_sifre || undefined
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        alert('کاربر با موفقیت ایجاد شد');
+        alert('کاربر با موفقیت به‌روزرسانی شد');
         router.push('/admin/kullanicilar');
       } else {
-        alert(data.message || 'خطا در ایجاد کاربر');
+        alert(data.message || 'خطا در به‌روزرسانی کاربر');
       }
     } catch (error) {
-      console.error('Kullanıcı oluşturma hatası:', error);
-      alert('خطا در ایجاد کاربر');
+      console.error('Kullanıcı güncelleme hatası:', error);
+      alert('خطا در به‌روزرسانی کاربر');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -114,14 +170,27 @@ export default function YeniKullaniciPage() {
     });
   };
 
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">در حال بارگذاری...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-6" dir="rtl">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">کاربر جدید</h1>
-            <p className="text-gray-600 mt-1">ایجاد حساب کاربری جدید در سیستم</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">ویرایش کاربر</h1>
+            <p className="text-gray-600 mt-1">ویرایش اطلاعات کاربر #{kullaniciId}</p>
           </div>
           <Link
             href="/admin/kullanicilar"
@@ -156,7 +225,7 @@ export default function YeniKullaniciPage() {
 
                 <label className="cursor-pointer">
                   <div className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-                    انتخاب تصویر
+                    تغییر تصویر
                   </div>
                   <input
                     type="file"
@@ -250,25 +319,28 @@ export default function YeniKullaniciPage() {
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Lock className="w-5 h-5 text-blue-600" />
-                امنیت و رمز عبور
+                تغییر رمز عبور (اختیاری)
               </h2>
 
+              <p className="text-sm text-gray-500 mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                اگر نمی‌خواهید رمز عبور را تغییر دهید، این بخش را خالی بگذارید
+              </p>
+
               <div className="space-y-5">
-                {/* Şifre */}
+                {/* Yeni Şifre */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    رمز عبور <span className="text-red-500">*</span>
+                    رمز عبور جدید
                   </label>
                   <div className="relative">
                     <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type={showPassword ? "text" : "password"}
-                      name="sifre"
-                      value={formData.sifre}
+                      name="yeni_sifre"
+                      value={formData.yeni_sifre}
                       onChange={handleChange}
                       className="w-full pr-12 pl-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       placeholder="حداقل ۶ کاراکتر"
-                      required
                       minLength={6}
                     />
                     <button
@@ -284,18 +356,17 @@ export default function YeniKullaniciPage() {
                 {/* Şifre Tekrar */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    تکرار رمز عبور <span className="text-red-500">*</span>
+                    تکرار رمز عبور جدید
                   </label>
                   <div className="relative">
                     <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
                       type={showPassword ? "text" : "password"}
-                      name="sifre_tekrar"
-                      value={formData.sifre_tekrar}
+                      name="yeni_sifre_tekrar"
+                      value={formData.yeni_sifre_tekrar}
                       onChange={handleChange}
                       className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      placeholder="رمز عبور را دوباره وارد کنید"
-                      required
+                      placeholder="رمز عبور جدید را دوباره وارد کنید"
                       minLength={6}
                     />
                   </div>
@@ -313,14 +384,17 @@ export default function YeniKullaniciPage() {
                       value={formData.rol}
                       onChange={handleChange}
                       className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      disabled={kullaniciId === '1'}
                     >
                       <option value="user">کاربر عادی</option>
                       <option value="admin">مدیر سیستم</option>
                     </select>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    مدیران دسترسی کامل به پنل ادمین دارند
-                  </p>
+                  {kullaniciId === '1' && (
+                    <p className="text-xs text-orange-600 mt-2">
+                      نقش مدیر اصلی قابل تغییر نیست
+                    </p>
+                  )}
                 </div>
 
                 {/* Aktif */}
@@ -332,6 +406,7 @@ export default function YeniKullaniciPage() {
                     checked={formData.aktif}
                     onChange={handleChange}
                     className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    disabled={kullaniciId === '1'}
                   />
                   <label htmlFor="aktif" className="text-sm font-semibold text-gray-700 cursor-pointer">
                     حساب کاربری فعال باشد
@@ -344,18 +419,18 @@ export default function YeniKullaniciPage() {
             <div className="flex gap-4">
               <button
                 type="submit"
-                disabled={loading}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={saving}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? (
+                {saving ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>در حال ایجاد...</span>
+                    <span>در حال ذخیره...</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-5 h-5" />
-                    <span>ایجاد کاربر</span>
+                    <span>ذخیره تغییرات</span>
                   </>
                 )}
               </button>
@@ -373,17 +448,4 @@ export default function YeniKullaniciPage() {
     </AdminLayout>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 

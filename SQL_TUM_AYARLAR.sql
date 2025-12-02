@@ -50,3 +50,4 @@ INSERT INTO `site_ayarlar` (`anahtar`, `deger`, `kategori`, `aciklama`) VALUES
 ('smtp_sifre', '', 'email', 'SMTP رمز')
 ON DUPLICATE KEY UPDATE `deger` = VALUES(`deger`);
 
+

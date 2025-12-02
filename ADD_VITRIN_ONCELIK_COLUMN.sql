@@ -9,3 +9,4 @@ CREATE INDEX `idx_vitrin_oncelik` ON `magazalar` (`vitrin_oncelik`);
 -- Mevcut veritabanını güncelle
 UPDATE `magazalar` SET `vitrin_oncelik` = NULL WHERE `vitrin_oncelik` IS NULL;
 
+

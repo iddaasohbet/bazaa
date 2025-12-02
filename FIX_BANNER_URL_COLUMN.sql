@@ -8,3 +8,4 @@ MODIFY COLUMN `banner_url` LONGTEXT NULL COMMENT 'Reklam banner resmi (base64 ve
 ALTER TABLE `reklamlar` 
 MODIFY COLUMN `hedef_url` TEXT NULL COMMENT 'Reklam hedef linki';
 
+

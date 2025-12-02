@@ -8,3 +8,4 @@ MODIFY COLUMN `resim` LONGTEXT NULL COMMENT 'Slider resmi (base64 veya URL)';
 ALTER TABLE `slider` 
 MODIFY COLUMN `link` TEXT NULL COMMENT 'Slider hedef linki';
 
+

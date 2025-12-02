@@ -19,3 +19,4 @@ WHERE NOT EXISTS (
 SELECT * FROM ayarlar WHERE kategori = 'logo';
 
 
+

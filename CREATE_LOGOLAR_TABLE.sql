@@ -23,3 +23,4 @@ WHERE `anahtar` IN ('site_header_logo', 'site_footer_logo')
   AND LENGTH(`deger`) > 0
 ON DUPLICATE KEY UPDATE `logo_data` = VALUES(`logo_data`);
 
+

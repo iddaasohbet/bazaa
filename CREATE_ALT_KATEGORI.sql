@@ -67,3 +67,4 @@ FROM alt_kategoriler
 WHERE kategori_id = 1 AND aktif = TRUE 
 ORDER BY sira;
 
+

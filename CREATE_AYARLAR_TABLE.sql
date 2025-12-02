@@ -50,3 +50,4 @@ ON DUPLICATE KEY UPDATE deger=deger;
 SELECT anahtar, kategori, aciklama FROM ayarlar ORDER BY kategori, anahtar;
 
 
+
