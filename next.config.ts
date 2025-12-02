@@ -13,11 +13,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // API route için ayarlar
+  // API route için ayarlar - Büyük resimler için limit artırıldı
   experimental: {
     serverActions: {
-      bodySizeLimit: '50mb', // 10 resim için yeterli boyut
+      bodySizeLimit: '100mb', // 10 resim için yeterli (her biri 10MB'a kadar)
     },
+  },
+  // Sayfa ve API route'lar için
+  api: {
+    bodyParser: {
+      sizeLimit: '100mb',
+    },
+    responseLimit: '100mb',
   },
 };
 

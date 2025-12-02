@@ -51,6 +51,7 @@ export default function IlanVer() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
   const [districts, setDistricts] = useState<string[]>([]);
+  const [compressing, setCompressing] = useState(false);
   
   const [formData, setFormData] = useState({
     baslik: "",
@@ -139,7 +140,58 @@ export default function IlanVer() {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Resim sıkıştırma fonksiyonu
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Maksimum boyut: 1920x1920
+          const maxSize = 1920;
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = (height / width) * maxSize;
+              width = maxSize;
+            } else {
+              width = (width / height) * maxSize;
+              height = maxSize;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/jpeg',
+            0.85 // Kalite %85
+          );
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       
@@ -150,43 +202,41 @@ export default function IlanVer() {
         return;
       }
       
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      let hasInvalidFiles = false;
-      let tooLargeFiles: string[] = [];
+      setCompressing(true);
       
-      const validFiles = files.filter(file => {
-        if (file.size > maxSize) {
-          hasInvalidFiles = true;
-          tooLargeFiles.push(file.name);
-          return false;
+      try {
+        // Tüm resimleri sıkıştır
+        const compressedFiles: File[] = [];
+        for (const file of files.slice(0, remainingSlots)) {
+          try {
+            const compressed = await compressImage(file);
+            compressedFiles.push(compressed);
+          } catch (error) {
+            console.error('Resim sıkıştırma hatası:', error);
+            compressedFiles.push(file);
+          }
         }
-        return true;
-      });
-      
-      // Büyük dosyalar hakkında uyarı
-      if (hasInvalidFiles) {
-        const fileList = tooLargeFiles.join('، ');
-        alert(`⚠️ برخی فایل‌ها بیش از حد بزرگ هستند:\n${fileList}\n\nحداکثر حجم مجاز: ۵ مگابایت`);
-      }
-      
-      // Yeni resimleri ekle (maksimum 10'a kadar)
-      const filesToAdd = validFiles.slice(0, remainingSlots);
-      const newImages = [...images, ...filesToAdd];
-      setImages(newImages);
-      
-      // Başarı mesajı
-      if (filesToAdd.length > 0) {
-        const totalImages = newImages.length;
-        if (totalImages === 10) {
-          alert(`✅ ${filesToAdd.length} عکس با موفقیت اضافه شد! شما اکنون حداکثر تعداد مجاز (۱۰ عکس) را دارید.`);
-        } else {
-          alert(`✅ ${filesToAdd.length} عکس با موفقیت اضافه شد! می‌توانید ${10 - totalImages} عکس دیگر اضافه کنید.`);
+        
+        // Yeni resimleri ekle
+        const newImages = [...images, ...compressedFiles];
+        setImages(newImages);
+        
+        // Başarı mesajı
+        if (compressedFiles.length > 0) {
+          const totalImages = newImages.length;
+          if (totalImages === 10) {
+            alert(`✅ ${compressedFiles.length} عکس با موفقیت اضافه شد! (فشرده‌سازی شده برای بارگذاری سریع‌تر) \n\nشما اکنون حداکثر تعداد مجاز (۱۰ عکس) را دارید.`);
+          } else {
+            alert(`✅ ${compressedFiles.length} عکس با موفقیت اضافه شد! (فشرده‌سازی شده) \n\nمی‌توانید ${10 - totalImages} عکس دیگر اضافه کنید.`);
+          }
         }
-      }
-      
-      // Eğer seçilen dosya sayısı kalan yuvalardan fazlaysa
-      if (validFiles.length > remainingSlots) {
-        alert(`⚠️ توجه: شما ${validFiles.length} عکس انتخاب کردید، اما فقط ${remainingSlots} عکس اضافه شد زیرا حداکثر ۱۰ عکس مجاز است.`);
+        
+        // Eğer seçilen dosya sayısı kalan yuvalardan fazlaysa
+        if (files.length > remainingSlots) {
+          alert(`⚠️ توجه: شما ${files.length} عکس انتخاب کردید، اما فقط ${remainingSlots} عکس اضافه شد زیرا حداکثر ۱۰ عکس مجاز است.`);
+        }
+      } finally {
+        setCompressing(false);
       }
     }
   };
@@ -589,7 +639,7 @@ export default function IlanVer() {
               </div>
 
               <div className={`relative border-3 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
-                images.length >= 10 
+                images.length >= 10 || compressing
                   ? 'border-gray-300 bg-gray-50 cursor-not-allowed' 
                   : 'border-blue-400 bg-white hover:border-blue-600 hover:bg-blue-50 hover:shadow-xl'
               }`}>
@@ -600,37 +650,53 @@ export default function IlanVer() {
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
-                  disabled={images.length >= 10}
+                  disabled={images.length >= 10 || compressing}
                 />
                 <label 
                   htmlFor="images" 
-                  className={`cursor-pointer block ${images.length >= 10 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`cursor-pointer block ${(images.length >= 10 || compressing) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  <div className={`w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center ${
-                    images.length >= 10 ? 'bg-gray-200' : 'bg-gradient-to-br from-blue-500 to-indigo-600'
-                  }`}>
-                    <Upload className={`h-8 w-8 ${images.length >= 10 ? 'text-gray-400' : 'text-white'}`} />
-                  </div>
-                  <p className="text-base text-gray-900 font-bold mb-1">
-                    {images.length >= 10 ? 'حداکثر تعداد عکس آپلود شده است' : 'برای آپلود عکس کلیک کنید'}
-                  </p>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {images.length < 10 ? `می‌توانید ${10 - images.length} عکس دیگر اضافه کنید` : 'برای آپلود بیشتر، ابتدا عکسی را حذف کنید'}
-                  </p>
-                  <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      PNG, JPG, JPEG
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      حداکثر ۵MB
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                      حداکثر ۱۰ عکس
-                    </span>
-                  </div>
+                  {compressing ? (
+                    <>
+                      <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600">
+                        <div className="h-8 w-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                      <p className="text-base text-gray-900 font-bold mb-1">
+                        در حال فشرده‌سازی تصاویر...
+                      </p>
+                      <p className="text-sm text-gray-600 mb-2">
+                        لطفاً صبر کنید
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className={`w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center ${
+                        images.length >= 10 ? 'bg-gray-200' : 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                      }`}>
+                        <Upload className={`h-8 w-8 ${images.length >= 10 ? 'text-gray-400' : 'text-white'}`} />
+                      </div>
+                      <p className="text-base text-gray-900 font-bold mb-1">
+                        {images.length >= 10 ? 'حداکثر تعداد عکس آپلود شده است' : 'برای آپلود عکس کلیک کنید'}
+                      </p>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {images.length < 10 ? `می‌توانید ${10 - images.length} عکس دیگر اضافه کنید` : 'برای آپلود بیشتر، ابتدا عکسی را حذف کنید'}
+                      </p>
+                      <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                          PNG, JPG, JPEG
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                          هر اندازه
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                          حداکثر ۱۰ عکس
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </label>
               </div>
 
