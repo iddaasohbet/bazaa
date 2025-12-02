@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         i.created_at as ilan_created_at,
         k.ad as kategori_ad,
         k.slug as kategori_slug,
-        il.ad as il_ad
+        COALESCE(il.ad_dari, il.ad) as il_ad
        FROM favoriler f
        JOIN ilanlar i ON f.ilan_id = i.id
        LEFT JOIN kategoriler k ON i.kategori_id = k.id

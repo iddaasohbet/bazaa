@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     let sql = `
       SELECT 
         m.*,
-        il.ad as il_ad
+        COALESCE(il.ad_dari, il.ad) as il_ad
       FROM magazalar m
       LEFT JOIN iller il ON m.il_id = il.id
       WHERE m.aktif = TRUE

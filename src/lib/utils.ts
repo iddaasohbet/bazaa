@@ -27,7 +27,7 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-// Fiyat formatlama
+// Fiyat formatlama - İngilizce rakamlar ile
 export function formatPrice(price: number, currency: 'AFN' | 'USD' = 'AFN'): string {
   if (currency === 'USD') {
     return new Intl.NumberFormat('en-US', {
@@ -38,18 +38,18 @@ export function formatPrice(price: number, currency: 'AFN' | 'USD' = 'AFN'): str
     }).format(price);
   }
   
-  return new Intl.NumberFormat('fa-AF', {
-    style: 'currency',
-    currency: 'AFN',
+  // AFN için de ingilizce rakamlar kullanalım
+  return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(price) + ' AFN';
 }
 
 // Çift para birimi gösterimi (USD seçildiğinde hem USD hem AFN göster)
-export function formatPriceWithBoth(priceAFN: number, priceUSD?: number | null): string {
-  if (priceUSD && priceUSD > 0) {
-    return `${formatPrice(priceUSD, 'USD')} (${formatPrice(priceAFN, 'AFN')})`;
+export function formatPriceWithBoth(priceAFN: number, priceUSD?: number | null, paraBirimi?: string): string {
+  // Eğer para_birimi USD ise, önce USD göster
+  if (paraBirimi === 'USD' && priceUSD && priceUSD > 0) {
+    return `${formatPrice(priceUSD, 'USD')} (≈ ${formatPrice(priceAFN, 'AFN')})`;
   }
   return formatPrice(priceAFN, 'AFN');
 }

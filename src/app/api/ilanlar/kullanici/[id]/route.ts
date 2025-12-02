@@ -23,7 +23,7 @@ export async function GET(
         i.goruntulenme,
         i.created_at,
         k.ad as kategori_ad,
-        il.ad as il_ad
+        COALESCE(il.ad_dari, il.ad) as il_ad
       FROM ilanlar i
       LEFT JOIN kategoriler k ON i.kategori_id = k.id
       LEFT JOIN iller il ON i.il_id = il.id

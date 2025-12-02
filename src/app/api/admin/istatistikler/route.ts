@@ -139,7 +139,7 @@ export async function GET(request: Request) {
     // Şehir İstatistikleri
     const sehirStats = await query(
       `SELECT 
-        il.ad as il_ad,
+        COALESCE(il.ad_dari, il.ad) as il_ad,
         COUNT(DISTINCT i.id) as ilan_sayisi,
         COUNT(DISTINCT k.id) as kullanici_sayisi
        FROM iller il

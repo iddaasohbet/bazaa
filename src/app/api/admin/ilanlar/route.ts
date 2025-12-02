@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         i.goruntulenme,
         i.created_at,
         k.ad as kategori_ad,
-        il.ad as il_ad,
+        COALESCE(il.ad_dari, il.ad) as il_ad,
         u.ad as kullanici_ad,
         m.ad as magaza_ad
       FROM ilanlar i

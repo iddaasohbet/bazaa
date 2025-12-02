@@ -14,6 +14,8 @@ interface Ilan {
   eski_fiyat?: number;
   indirim_yuzdesi?: number;
   fiyat_tipi: string;
+  para_birimi?: string;
+  fiyat_usd?: number;
   ana_resim: string;
   kategori_ad: string;
   kategori_slug: string;
@@ -266,17 +268,21 @@ export default function AdList() {
                           {/* Eski Fiyat (Üstü Çizili) */}
                           {ilan.eski_fiyat && (
                             <div className="text-sm text-gray-500 line-through">
-                              {formatPrice(ilan.eski_fiyat)}
+                              {formatPrice(ilan.eski_fiyat, (ilan.para_birimi as 'AFN' | 'USD') || 'AFN')}
                             </div>
                           )}
                           {/* Yeni İndirimli Fiyat */}
                           <div className="text-lg font-bold text-red-600">
-                            {formatPrice(ilan.fiyat)}
+                            {ilan.para_birimi === 'USD' && ilan.fiyat_usd 
+                              ? formatPrice(ilan.fiyat_usd, 'USD')
+                              : formatPrice(ilan.fiyat, 'AFN')}
                           </div>
                         </div>
                       ) : (
                         <div className="text-lg font-bold text-blue-600">
-                          {formatPrice(ilan.fiyat)}
+                          {ilan.para_birimi === 'USD' && ilan.fiyat_usd 
+                            ? formatPrice(ilan.fiyat_usd, 'USD')
+                            : formatPrice(ilan.fiyat, 'AFN')}
                         </div>
                       )}
                     </div>

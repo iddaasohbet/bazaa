@@ -160,7 +160,7 @@ export async function GET(request: Request) {
         i.created_at,
         k.ad as kategori_ad,
         k.slug as kategori_slug,
-        il.ad as il_ad,
+        COALESCE(il.ad_dari, il.ad) as il_ad,
         m.store_level,
         m.slug as magaza_slug,
         m.ad as magaza_ad

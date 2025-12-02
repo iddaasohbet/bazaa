@@ -13,6 +13,8 @@ interface Ilan {
   fiyat: number;
   eski_fiyat?: number;
   indirim_yuzdesi?: number;
+  para_birimi?: string;
+  fiyat_usd?: number;
   ana_resim: string;
   kategori_ad: string;
   il_ad: string;
@@ -260,16 +262,20 @@ export default function EliteIlanlar() {
                       <div className="space-y-0.5">
                         {ilan.eski_fiyat && (
                           <div className="text-xs text-gray-500 line-through">
-                            {formatPrice(ilan.eski_fiyat)}
+                            {formatPrice(ilan.eski_fiyat, (ilan.para_birimi as 'AFN' | 'USD') || 'AFN')}
                           </div>
                         )}
                         <div className="text-lg font-bold text-red-600">
-                          {formatPrice(ilan.fiyat)}
+                          {ilan.para_birimi === 'USD' && ilan.fiyat_usd 
+                            ? formatPrice(ilan.fiyat_usd, 'USD')
+                            : formatPrice(ilan.fiyat, 'AFN')}
                         </div>
                       </div>
                     ) : (
                       <div className="text-lg font-bold text-gray-900">
-                        {formatPrice(ilan.fiyat)}
+                        {ilan.para_birimi === 'USD' && ilan.fiyat_usd 
+                          ? formatPrice(ilan.fiyat_usd, 'USD')
+                          : formatPrice(ilan.fiyat, 'AFN')}
                       </div>
                     )}
                   </div>

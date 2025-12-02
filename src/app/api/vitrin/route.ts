@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         i.ana_resim,
         i.goruntulenme,
         k.ad as kategori_ad,
-        il.ad as il_ad,
+        COALESCE(il.ad_dari, il.ad) as il_ad,
         m.ad as magaza_ad,
         m.logo as magaza_logo,
         v.vitrin_turu,

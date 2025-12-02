@@ -76,23 +76,34 @@ export default function Ilanlarim() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('این آگهی را حذف می‌کنید؟')) {
+    if (confirm('آیا مطمئن هستید که می‌خواهید این آگهی را حذف کنید؟\n\nاین عملیات قابل بازگشت نیست!')) {
       try {
+        const user = localStorage.getItem('user');
+        if (!user) {
+          alert('لطفاً ابتدا وارد شوید');
+          return;
+        }
+
+        const userData = JSON.parse(user);
+
         const response = await fetch(`/api/ilanlar/${id}`, {
           method: 'DELETE',
+          headers: {
+            'x-user-id': userData.id.toString()
+          }
         });
 
         const data = await response.json();
         
         if (data.success) {
           setIlanlar(prev => prev.filter(ilan => ilan.id !== id));
-          alert('آگهی حذف شد');
+          alert('✅ آگهی با موفقیت حذف شد');
         } else {
-          alert('خطا در حذف آگهی');
+          alert('⚠️ ' + (data.message || 'خطا در حذف آگهی'));
         }
       } catch (error) {
         console.error('İlan silme hatası:', error);
-        alert('خطا در حذف آگهی');
+        alert('❌ خطا در حذف آگهی. لطفاً دوباره تلاش کنید.');
       }
     }
   };

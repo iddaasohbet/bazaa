@@ -16,7 +16,7 @@ export async function GET(request: Request) {
         m.onay_durumu, m.aktif, m.guvenilir_satici, m.goruntulenme, m.created_at,
         u.ad as kullanici_ad,
         u.email as kullanici_email,
-        il.ad as il_ad,
+        COALESCE(il.ad_dari, il.ad) as il_ad,
         COUNT(i.id) as ilan_sayisi
       FROM magazalar m
       LEFT JOIN kullanicilar u ON m.kullanici_id = u.id

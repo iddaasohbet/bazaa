@@ -23,7 +23,7 @@ export async function GET() {
         i.fiyat as ilan_fiyat,
         i.ana_resim as ilan_resim,
         k.ad as kategori_ad,
-        il.ad as il_ad
+        COALESCE(il.ad_dari, il.ad) as il_ad
        FROM slider s
        LEFT JOIN ilanlar i ON s.ilan_id = i.id
        LEFT JOIN kategoriler k ON i.kategori_id = k.id
