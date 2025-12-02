@@ -3,6 +3,11 @@ import { query } from '@/lib/db';
 
 // GET - Aktif slider'ları getir
 export async function GET() {
+  // Cache ile hızlı yanıt
+  const headers = {
+    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+  };
+  
   try {
     const sliders: any = await query(
       `SELECT 
@@ -45,7 +50,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: processedSliders
-    });
+    }, { headers });
   } catch (error: any) {
     console.error('Slider yükleme hatası:', error);
     return NextResponse.json(

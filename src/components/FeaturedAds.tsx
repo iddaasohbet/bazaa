@@ -42,7 +42,9 @@ export default function FeaturedAds() {
 
   const fetchSliders = async () => {
     try {
-      const response = await fetch('/api/slider');
+      const response = await fetch('/api/slider', {
+        next: { revalidate: 60 }, // Cache 60 saniye
+      });
       const data = await response.json();
       if (data.success) {
         setSliders(data.data);

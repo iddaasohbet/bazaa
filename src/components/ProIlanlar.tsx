@@ -34,7 +34,9 @@ export default function ProIlanlar() {
 
   const fetchProIlanlar = async () => {
     try {
-      const response = await fetch('/api/ilanlar?store_level=pro&limit=20');
+      const response = await fetch('/api/ilanlar?store_level=pro&limit=20', {
+        next: { revalidate: 30 }, // Cache 30 saniye
+      });
       const data = await response.json();
       if (data.success) {
         // Pro ilanları filtrele ve 6 tanesini al

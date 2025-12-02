@@ -83,7 +83,9 @@ export default function AdList() {
       }
 
       const currentOffset = loadMore ? offset : 0;
-      const response = await fetch(`/api/ilanlar?limit=24&offset=${currentOffset}`);
+      const response = await fetch(`/api/ilanlar?limit=24&offset=${currentOffset}`, {
+        next: { revalidate: 30 }, // Cache 30 saniye
+      });
       const data = await response.json();
       
       if (data.success) {

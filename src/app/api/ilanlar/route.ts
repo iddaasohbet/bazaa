@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+// API Route Config - Body size limit'i artır (10 resim için)
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb',
+    },
+  },
+};
+
 // Mock data - veritabanı olmadan çalışması için
 const baseIlanlar = [
   {
@@ -128,6 +137,11 @@ const mockIlanlar = Array.from({ length: 4 }, (_, rowIndex) =>
 ).flat();
 
 export async function GET(request: Request) {
+  // Cache ile hızlı yanıt
+  const headers = {
+    'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+  };
+  
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
@@ -207,7 +221,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       data: ilanlarWithImages,
-    });
+    }, { headers });
   } catch (error: any) {
     console.error('❌ İlanlar database hatası, fallback kullanılıyor:', error);
     
@@ -215,7 +229,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       data: mockIlanlar.slice(0, 20),
-    });
+    }, { headers });
   }
 }
 
@@ -231,6 +245,14 @@ export async function POST(request: Request) {
     if (!baslik || !aciklama || !fiyat || !kategori_id || !il_id || !kullanici_id) {
       return NextResponse.json(
         { success: false, message: 'لطفاً تمام فیلدهای الزامی را پر کنید' },
+        { status: 400 }
+      );
+    }
+
+    // Resim sayısı kontrolü - Maksimum 10 resim
+    if (resimler && resimler.length > 10) {
+      return NextResponse.json(
+        { success: false, message: 'حداکثر ۱۰ عکس می‌توانید آپلود کنید. تعداد عکس‌های شما: ' + resimler.length },
         { status: 400 }
       );
     }

@@ -68,7 +68,9 @@ export default function EliteIlanlar() {
 
   const fetchEliteIlanlar = async () => {
     try {
-      const response = await fetch('/api/ilanlar?limit=24');
+      const response = await fetch('/api/ilanlar?limit=24', {
+        next: { revalidate: 30 }, // Cache 30 saniye
+      });
       const data = await response.json();
       if (data.success) {
         // Elite ilanları filtrele - store_level === 'elite' olanlar

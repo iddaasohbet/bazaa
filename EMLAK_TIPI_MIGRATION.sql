@@ -28,3 +28,5 @@ SELECT 'emlak_tipi alanı başarıyla eklendi!' as message;
 
 
 
+
+

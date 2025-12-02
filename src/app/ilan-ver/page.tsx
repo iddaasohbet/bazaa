@@ -143,16 +143,51 @@ export default function IlanVer() {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       
-      const maxSize = 5 * 1024 * 1024;
+      // Maksimum resim sayısını kontrol et
+      const remainingSlots = 10 - images.length;
+      if (remainingSlots === 0) {
+        alert('⚠️ حداکثر ۱۰ عکس می‌توانید آپلود کنید! برای افزودن عکس جدید، ابتدا یکی از عکس‌های موجود را حذف کنید.');
+        return;
+      }
+      
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      let hasInvalidFiles = false;
+      let tooLargeFiles: string[] = [];
+      
       const validFiles = files.filter(file => {
         if (file.size > maxSize) {
-          alert(`${file.name} خیلی بزرگ است! حداکثر 5 مگابایت میتوانید آپلود کنید.`);
+          hasInvalidFiles = true;
+          tooLargeFiles.push(file.name);
           return false;
         }
         return true;
       });
       
-      setImages(prev => [...prev, ...validFiles].slice(0, 10));
+      // Büyük dosyalar hakkında uyarı
+      if (hasInvalidFiles) {
+        const fileList = tooLargeFiles.join('، ');
+        alert(`⚠️ برخی فایل‌ها بیش از حد بزرگ هستند:\n${fileList}\n\nحداکثر حجم مجاز: ۵ مگابایت`);
+      }
+      
+      // Yeni resimleri ekle (maksimum 10'a kadar)
+      const filesToAdd = validFiles.slice(0, remainingSlots);
+      const newImages = [...images, ...filesToAdd];
+      setImages(newImages);
+      
+      // Başarı mesajı
+      if (filesToAdd.length > 0) {
+        const totalImages = newImages.length;
+        if (totalImages === 10) {
+          alert(`✅ ${filesToAdd.length} عکس با موفقیت اضافه شد! شما اکنون حداکثر تعداد مجاز (۱۰ عکس) را دارید.`);
+        } else {
+          alert(`✅ ${filesToAdd.length} عکس با موفقیت اضافه شد! می‌توانید ${10 - totalImages} عکس دیگر اضافه کنید.`);
+        }
+      }
+      
+      // Eğer seçilen dosya sayısı kalan yuvalardan fazlaysa
+      if (validFiles.length > remainingSlots) {
+        alert(`⚠️ توجه: شما ${validFiles.length} عکس انتخاب کردید، اما فقط ${remainingSlots} عکس اضافه شد زیرا حداکثر ۱۰ عکس مجاز است.`);
+      }
     }
   };
 
@@ -191,7 +226,10 @@ export default function IlanVer() {
     }
     
     if (images.length === 0) {
-      const confirm = window.confirm('شما هیچ عکسی اضافه نکرده‌اید. آیا می‌خواهید بدون عکس ادامه دهید؟');
+      const confirm = window.confirm('⚠️ هشدار: شما هیچ عکسی آپلود نکرده‌اید!\n\n📸 آگهی‌های دارای تصویر تا ۵ برابر بیشتر بازدید می‌شوند.\n\n❓ آیا مطمئن هستید که می‌خواهید بدون عکس ادامه دهید؟');
+      if (!confirm) return;
+    } else if (images.length < 3) {
+      const confirm = window.confirm(`⚠️ توصیه: شما فقط ${images.length} عکس آپلود کرده‌اید.\n\n💡 برای جذب بازدید بیشتر، حداقل ۳ تا ۵ عکس از زوایای مختلف آپلود کنید.\n\n❓ آیا می‌خواهید با این تعداد عکس ادامه دهید؟`);
       if (!confirm) return;
     }
     
@@ -529,10 +567,32 @@ export default function IlanVer() {
             </div>
 
             {/* Fotoğraflar */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm" dir="rtl">
-              <h3 className="text-sm font-bold text-gray-900 mb-3">عکس‌ها (حداکثر 10 عکس)</h3>
-              
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors cursor-pointer">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6 shadow-lg" dir="rtl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <div className="bg-blue-600 p-2 rounded-lg">
+                    <ImageIcon className="w-5 h-5 text-white" />
+                  </div>
+                  تصاویر آگهی
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className={`px-4 py-2 rounded-full font-bold text-sm shadow-md ${
+                    images.length === 0 
+                      ? 'bg-gray-200 text-gray-600'
+                      : images.length < 10 
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
+                        : 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                  }`}>
+                    {images.length} / ۱۰ عکس
+                  </span>
+                </div>
+              </div>
+
+              <div className={`relative border-3 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
+                images.length >= 10 
+                  ? 'border-gray-300 bg-gray-50 cursor-not-allowed' 
+                  : 'border-blue-400 bg-white hover:border-blue-600 hover:bg-blue-50 hover:shadow-xl'
+              }`}>
                 <input
                   type="file"
                   id="images"
@@ -540,53 +600,115 @@ export default function IlanVer() {
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
+                  disabled={images.length >= 10}
                 />
-                <label htmlFor="images" className="cursor-pointer">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-700 font-medium">برای آپلود کلیک کنید</p>
-                  <p className="text-xs text-gray-500">PNG, JPG (حداکثر 5MB)</p>
+                <label 
+                  htmlFor="images" 
+                  className={`cursor-pointer block ${images.length >= 10 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <div className={`w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center ${
+                    images.length >= 10 ? 'bg-gray-200' : 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                  }`}>
+                    <Upload className={`h-8 w-8 ${images.length >= 10 ? 'text-gray-400' : 'text-white'}`} />
+                  </div>
+                  <p className="text-base text-gray-900 font-bold mb-1">
+                    {images.length >= 10 ? 'حداکثر تعداد عکس آپلود شده است' : 'برای آپلود عکس کلیک کنید'}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {images.length < 10 ? `می‌توانید ${10 - images.length} عکس دیگر اضافه کنید` : 'برای آپلود بیشتر، ابتدا عکسی را حذف کنید'}
+                  </p>
+                  <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                      PNG, JPG, JPEG
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                      حداکثر ۵MB
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                      حداکثر ۱۰ عکس
+                    </span>
+                  </div>
                 </label>
               </div>
 
               {images.length > 0 && (
-                <div className="grid grid-cols-5 gap-2 mt-3">
-                  {images.map((image, index) => (
-                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt={`عکس ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                      {index === 0 && (
-                        <div className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded flex items-center gap-0.5">
-                          <ImageIcon className="w-2 h-2" />
-                          اصلی
+                <div className="mt-5">
+                  <div className="mb-3 pb-3 border-b border-blue-200">
+                    <p className="text-sm text-gray-700 font-semibold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-blue-600" />
+                      اولین عکس به عنوان تصویر اصلی آگهی شما نمایش داده می‌شود
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-5 gap-3">
+                    {images.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <div className="aspect-square rounded-xl overflow-hidden border-2 border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                          <img
+                            src={URL.createObjectURL(image)}
+                            alt={`عکس ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center hover:from-red-600 hover:to-red-700 shadow-lg transform transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                            <span className="bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-bold">
+                              #{index + 1}
+                            </span>
+                            {index === 0 && (
+                              <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                                <ImageIcon className="w-3 h-3" />
+                                <span className="font-bold">اصلی</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Info */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3" dir="rtl">
-              <div className="flex gap-2">
-                <AlertCircle className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div className="text-xs text-gray-700">
-                  <p className="font-semibold text-gray-900 mb-1">نکات مهم</p>
-                  <ul className="space-y-0.5 text-gray-600">
-                    <li>• اطلاعات دقیق و کامل وارد کنید</li>
-                    <li>• از عکس‌های واضح استفاده کنید</li>
-                    <li>• توضیحات کامل بنویسید</li>
+            <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border-2 border-amber-300 rounded-xl p-5 shadow-lg" dir="rtl">
+              <div className="flex gap-3">
+                <div className="bg-gradient-to-br from-amber-500 to-orange-500 p-2.5 rounded-xl shadow-md flex-shrink-0">
+                  <AlertCircle className="h-6 w-6 text-white" />
+                </div>
+                <div className="text-sm text-gray-800">
+                  <p className="font-bold text-gray-900 mb-3 text-base">💡 نکات مهم برای ثبت آگهی موفق</p>
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600 font-bold">✓</span>
+                      <span><strong>عکس‌های باکیفیت:</strong> حداقل ۵ تا ۱۰ عکس واضح و روشن از زوایای مختلف آپلود کنید</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600 font-bold">✓</span>
+                      <span><strong>عنوان جذاب:</strong> عنوان کامل و توصیفی انتخاب کنید (حداقل ۱۰ کاراکتر)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600 font-bold">✓</span>
+                      <span><strong>توضیحات کامل:</strong> تمام جزئیات مهم محصول را بنویسید (حداقل ۵۰ کاراکتر)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600 font-bold">✓</span>
+                      <span><strong>قیمت منصفانه:</strong> قیمت واقعی و متناسب با بازار را وارد کنید</span>
+                    </li>
                   </ul>
+                  <div className="mt-3 pt-3 border-t border-amber-200">
+                    <p className="text-xs text-gray-600 flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-amber-600" />
+                      <span>آگهی‌های دارای تصویر کامل تا <strong className="text-amber-700">۵ برابر</strong> بیشتر بازدید می‌شوند!</span>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -13,3 +13,5 @@ SELECT COUNT(*) as toplam_paket FROM paketler;
 
 
 
+
+

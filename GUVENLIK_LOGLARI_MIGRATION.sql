@@ -44,3 +44,5 @@ CREATE TABLE IF NOT EXISTS basarisiz_girisler (
 
 
 
+
+

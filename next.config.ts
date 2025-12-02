@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
   // API route için ayarlar
   experimental: {
     serverActions: {
-      bodySizeLimit: '10mb',
+      bodySizeLimit: '50mb', // 10 resim için yeterli boyut
     },
   },
 };

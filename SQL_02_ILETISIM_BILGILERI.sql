@@ -8,3 +8,5 @@ INSERT INTO `site_ayarlar` (`anahtar`, `deger`, `kategori`, `aciklama`) VALUES
 ON DUPLICATE KEY UPDATE `deger` = VALUES(`deger`);
 
 
+
+

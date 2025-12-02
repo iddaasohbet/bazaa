@@ -24,3 +24,5 @@ WHERE `anahtar` IN ('site_header_logo', 'site_footer_logo')
 ON DUPLICATE KEY UPDATE `logo_data` = VALUES(`logo_data`);
 
 
+
+

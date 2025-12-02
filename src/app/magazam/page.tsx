@@ -277,6 +277,31 @@ export default function MagazamPage() {
                         <Edit className="h-4 w-4" />
                         ویرایش مغازه
                       </Link>
+                      
+                      {/* Mağaza Yükseltme Butonu - Sadece normal mağazalar için */}
+                      {magazaBilgileri.store_level === 'normal' && (
+                        <Link
+                          href="/magaza-paket"
+                          className="flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg transition-all font-bold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-amber-400"
+                        >
+                          <TrendingUp className="h-5 w-5" />
+                          <span className="flex items-center gap-1">
+                            ارتقای مغازه 
+                            <span className="hidden sm:inline">به PRO/ELITE</span>
+                          </span>
+                        </Link>
+                      )}
+                      
+                      {/* Pro mağazalar için Elite'e yükseltme */}
+                      {magazaBilgileri.store_level === 'pro' && (
+                        <Link
+                          href="/magaza-paket"
+                          className="flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white rounded-lg transition-all font-bold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-yellow-400"
+                        >
+                          <TrendingUp className="h-5 w-5" />
+                          <span>ارتقا به ELITE ⭐</span>
+                        </Link>
+                      )}
                     </div>
                   </div>
 

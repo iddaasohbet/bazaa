@@ -68,3 +68,5 @@ WHERE kategori_id = 1 AND aktif = TRUE
 ORDER BY sira;
 
 
+
+

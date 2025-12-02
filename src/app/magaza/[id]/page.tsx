@@ -357,13 +357,35 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           
                           {/* Sadece mağaza sahibi için yönetim butonu - Mobilde üstte */}
                           {user && magaza && user.id === magaza.kullanici_id && (
-                            <Link
-                              href="/magazam"
-                              className="flex sm:hidden items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md font-semibold mb-4 w-full"
-                            >
-                              <Settings className="h-4 w-4" />
-                              <span className="text-sm">پنل مدیریت</span>
-                            </Link>
+                            <div className="flex sm:hidden flex-col gap-2 mb-4 w-full">
+                              <Link
+                                href="/magazam"
+                                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md font-semibold"
+                              >
+                                <Settings className="h-4 w-4" />
+                                <span className="text-sm">پنل مدیریت</span>
+                              </Link>
+                              
+                              {/* Yükseltme Butonu */}
+                              {magaza.store_level === 'basic' && (
+                                <Link
+                                  href="/magaza-paket"
+                                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg transition-all font-bold shadow-lg"
+                                >
+                                  <TrendingUp className="h-4 w-4" />
+                                  <span className="text-sm">ارتقای مغازه به PRO/ELITE ⭐</span>
+                                </Link>
+                              )}
+                              {magaza.paket_turu === 'pro' && magaza.store_level !== 'elite' && (
+                                <Link
+                                  href="/magaza-paket"
+                                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white rounded-lg transition-all font-bold shadow-lg"
+                                >
+                                  <Crown className="h-4 w-4 fill-white" />
+                                  <span className="text-sm">ارتقا به ELITE ⭐⭐⭐</span>
+                                </Link>
+                              )}
+                            </div>
                           )}
                           
                           {/* Rozetler */}
@@ -402,13 +424,35 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         
                         {/* Desktop'ta yönetim butonu - Sağ üstte */}
                         {user && magaza && user.id === magaza.kullanici_id && (
-                          <Link
-                            href="/magazam"
-                            className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md font-semibold order-1 sm:order-2 self-start"
-                          >
-                            <Settings className="h-4 w-4" />
-                            <span className="text-sm">پنل مدیریت</span>
-                          </Link>
+                          <div className="hidden sm:flex flex-col gap-2 order-1 sm:order-2 self-start">
+                            <Link
+                              href="/magazam"
+                              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md font-semibold"
+                            >
+                              <Settings className="h-4 w-4" />
+                              <span className="text-sm">پنل مدیریت</span>
+                            </Link>
+                            
+                            {/* Yükseltme Butonu */}
+                            {magaza.store_level === 'basic' && (
+                              <Link
+                                href="/magaza-paket"
+                                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105"
+                              >
+                                <TrendingUp className="h-4 w-4" />
+                                <span className="text-sm">ارتقا به PRO/ELITE</span>
+                              </Link>
+                            )}
+                            {magaza.paket_turu === 'pro' && magaza.store_level !== 'elite' && (
+                              <Link
+                                href="/magaza-paket"
+                                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white rounded-lg transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105"
+                              >
+                                <Crown className="h-4 w-4 fill-white" />
+                                <span className="text-sm">ارتقا به ELITE ⭐</span>
+                              </Link>
+                            )}
+                          </div>
                         )}
                       </div>
 

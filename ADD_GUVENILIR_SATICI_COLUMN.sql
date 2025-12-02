@@ -9,3 +9,5 @@ UPDATE magazalar SET guvenilir_satici = FALSE WHERE guvenilir_satici IS NULL;
 -- UPDATE magazalar SET guvenilir_satici = TRUE WHERE store_level = 'elite';
 
 
+
+
