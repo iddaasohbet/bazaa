@@ -19,13 +19,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '100mb', // 10 resim için yeterli (her biri 10MB'a kadar)
     },
   },
-  // Sayfa ve API route'lar için
-  api: {
-    bodyParser: {
-      sizeLimit: '100mb',
-    },
-    responseLimit: '100mb',
-  },
 };
 
 export default nextConfig;
