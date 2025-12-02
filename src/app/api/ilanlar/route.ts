@@ -1,15 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
-// API Route Config - Body size limit'i artır (10 resim için)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb',
-    },
-  },
-};
-
 // Mock data - veritabanı olmadan çalışması için
 const baseIlanlar = [
   {
