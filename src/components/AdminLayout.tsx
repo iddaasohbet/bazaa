@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   Tag,
   TrendingUp,
-  Image
+  Image,
+  MessageSquare
 } from "lucide-react";
 
 interface AdminLayoutProps {
