@@ -29,9 +29,9 @@ export default function PriceDisplay({
     );
   }
 
-  // AFN - افغانی SOLDA (LTR ile solda göster)
+  // AFN - افغانی SOLDA görünecek
   return (
-    <span className={`${className} inline-flex items-baseline gap-1`}>
+    <span className={`${className} inline-flex items-baseline gap-1`} dir="ltr">
       {showCurrency && <span className="text-[0.65em] opacity-70 font-normal">افغانی</span>}
       <span>{formattedNumber}</span>
     </span>
