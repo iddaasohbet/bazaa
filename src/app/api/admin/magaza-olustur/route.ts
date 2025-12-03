@@ -31,19 +31,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    // Kullanıcının zaten mağazası var mı kontrol et
-    const existingStores = await query(
-      'SELECT id FROM magazalar WHERE kullanici_id = ?',
-      [kullanici_id]
-    ) as any[];
-    
-    if (existingStores.length > 0) {
-      console.log('⚠️ Kullanıcının zaten mağazası var');
-      return NextResponse.json({
-        success: false,
-        message: 'این کاربر قبلاً یک مغازه دارد'
-      }, { status: 400 });
-    }
+    // Admin panelde kontrol yok - admin istediği kadar mağaza oluşturabilir
+    console.log('✅ Admin mağaza oluşturuyor - kontrol atlandı');
     
     // Slug oluştur (benzersiz olmalı)
     const slug = magaza_adi

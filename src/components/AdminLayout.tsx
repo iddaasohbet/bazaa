@@ -109,10 +109,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       ]
     },
     {
-      title: "تبلیغات و درآمد",
+      title: "مالی",
       items: [
-        { icon: TrendingUp, label: "مدیریت ویترین", href: "/admin/vitrin" },
-        { icon: Tag, label: "تبلیغات", href: "/admin/reklamlar" },
         { icon: Package, label: "پکیج‌ها", href: "/admin/paketler" },
         { icon: CreditCard, label: "پرداخت‌ها", href: "/admin/odemeler" },
       ]
@@ -146,7 +144,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Yetkilendiriliyor...</p>
+          <p className="text-gray-600">در حال احراز هویت...</p>
         </div>
       </div>
     );
