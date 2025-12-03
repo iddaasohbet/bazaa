@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { Star, MapPin, Eye, Heart, Zap, Store, TrendingUp } from "lucide-react";
 import { formatPrice, getImageUrl } from "@/lib/utils";
@@ -36,14 +35,13 @@ export default function ProIlanlar() {
 
   const fetchProIlanlar = async () => {
     try {
-      const response = await fetch('/api/ilanlar?store_level=pro&limit=20', {
-        next: { revalidate: 30 }, // Cache 30 saniye
+      // ⚡ OPTIMIZE: Sadece 6 Pro ilan çek
+      const response = await fetch('/api/ilanlar?store_level=pro&limit=6', {
+        cache: 'no-store' // Client-side fresh data
       });
       const data = await response.json();
       if (data.success) {
-        // Pro ilanları filtrele ve 6 tanesini al
-        const proIlanlar = data.data.filter((i: any) => i.store_level === 'pro');
-        setIlanlar(proIlanlar.slice(0, 6));
+        setIlanlar(data.data);
       }
     } catch (error) {
       console.error('Pro ilanlar yüklenirken hata:', error);
@@ -108,12 +106,11 @@ export default function ProIlanlar() {
 
                 {/* Image */}
                 <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
                     alt={ilan.baslik}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    sizes="(max-width: 640px) 50vw, 16vw"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   
                   {/* Gradient Overlay */}

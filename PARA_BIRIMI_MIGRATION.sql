@@ -22,3 +22,4 @@ SELECT 'Para birimi migration başarıyla tamamlandı!' as sonuc;
 
 
 
+

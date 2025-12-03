@@ -63,3 +63,4 @@ GROUP BY cihaz_tipi;
 
 
 
+

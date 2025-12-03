@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { Crown, MapPin, Eye, Heart, Sparkles, Store, TrendingUp } from "lucide-react";
 import { formatPrice, getImageUrl } from "@/lib/utils";
@@ -50,6 +49,7 @@ export default function EliteIlanlar() {
       if (!userStr) return;
 
       const user = JSON.parse(userStr);
+      if (!user?.id) return;
       
       const response = await fetch('/api/favoriler', {
         headers: {
@@ -70,14 +70,13 @@ export default function EliteIlanlar() {
 
   const fetchEliteIlanlar = async () => {
     try {
-      const response = await fetch('/api/ilanlar?limit=24', {
-        next: { revalidate: 30 }, // Cache 30 saniye
+      // ⚡ OPTIMIZE: Sadece 6 Elite ilan çek
+      const response = await fetch('/api/ilanlar?store_level=elite&limit=6', {
+        cache: 'no-store' // Client-side fresh data
       });
       const data = await response.json();
       if (data.success) {
-        // Elite ilanları filtrele - store_level === 'elite' olanlar
-        const eliteIlanlar = data.data.filter((i: any) => i.store_level === 'elite');
-        setIlanlar(eliteIlanlar.slice(0, 6)); // İlk 6 Elite ilan
+        setIlanlar(data.data);
       }
     } catch (error) {
       console.error('Elite ilanlar yüklenirken hata:', error);
@@ -165,12 +164,11 @@ export default function EliteIlanlar() {
 
                 {/* Image */}
                 <div className="relative aspect-video bg-gradient-to-br from-yellow-50 to-orange-50 overflow-hidden">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
                     alt={ilan.baslik}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    sizes="(max-width: 640px) 50vw, 16vw"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   
                   {/* Gradient Overlay */}
@@ -189,6 +187,11 @@ export default function EliteIlanlar() {
                       }
 
                       const user = JSON.parse(userStr);
+                      if (!user?.id) {
+                        alert('خطا در شناسایی کاربر');
+                        return;
+                      }
+                      
                       const isFavorite = favoriler.includes(ilan.id);
                       
                       console.log('⭐ Elite - Favori işlemi - İlan ID:', ilan.id, 'Favoride mi?', isFavorite);

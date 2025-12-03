@@ -42,8 +42,9 @@ export default function FeaturedAds() {
 
   const fetchSliders = async () => {
     try {
+      // ⚡ OPTIMIZE: Cache kullan
       const response = await fetch('/api/slider', {
-        next: { revalidate: 60 }, // Cache 60 saniye
+        cache: 'no-store' // Client-side fresh data
       });
       const data = await response.json();
       if (data.success) {

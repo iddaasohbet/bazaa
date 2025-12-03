@@ -8,12 +8,13 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || 'Ciko5744**', // Fallback Pass
   database: process.env.DB_NAME || 'cihatcengiz_baza', // Fallback DB
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 15, // ⚡ Daha fazla concurrent connection
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
   // ssl: undefined - CPanel MySQL SSL desteklemiyor, property kaldırıldı
-  connectTimeout: 30000,
+  connectTimeout: 10000, // ⚡ Daha hızlı timeout (10 saniye)
+  acquireTimeout: 10000, // ⚡ Connection alma timeout'u
   multipleStatements: false,
 };
 

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { MapPin, Eye, Clock, Heart } from "lucide-react";
 import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
@@ -58,6 +57,7 @@ export default function AdList() {
       if (!userStr) return;
 
       const user = JSON.parse(userStr);
+      if (!user?.id) return;
       
       const response = await fetch('/api/favoriler', {
         headers: {
@@ -85,8 +85,9 @@ export default function AdList() {
       }
 
       const currentOffset = loadMore ? offset : 0;
-      const response = await fetch(`/api/ilanlar?limit=24&offset=${currentOffset}`, {
-        next: { revalidate: 30 }, // Cache 30 saniye
+      // ⚡ OPTIMIZE: İlk yüklemede 12 ilan, sonrasında 12'şer daha yükle
+      const response = await fetch(`/api/ilanlar?limit=12&offset=${currentOffset}`, {
+        cache: 'no-store' // Client-side fresh data
       });
       const data = await response.json();
       
@@ -97,8 +98,8 @@ export default function AdList() {
           setIlanlar(data.data);
         }
         
-        setOffset(currentOffset + 24);
-        setHasMore(data.data.length === 24);
+        setOffset(currentOffset + 12);
+        setHasMore(data.data.length === 12);
       }
     } catch (error) {
       console.error('خطا در بارگذاری آگهی ها:', error);
@@ -117,15 +118,12 @@ export default function AdList() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {[...Array(12)].map((_, i) => (
-          <div key={i} className="card animate-pulse">
-            <div className="aspect-video bg-gray-200"></div>
-            <div className="p-4 space-y-3">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-              <div className="h-3 bg-gray-200 rounded w-full"></div>
-            </div>
+          <div key={i} className="animate-pulse">
+            <div className="aspect-video bg-gray-200 rounded-xl mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
           </div>
         ))}
       </div>
@@ -169,12 +167,11 @@ export default function AdList() {
                 <div className="overflow-hidden rounded-xl bg-white border border-gray-200 transition-all hover:shadow-xl hover:border-blue-300 h-full flex flex-col">
                   {/* Image */}
                   <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
                       alt={ilan.baslik}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     
                     {/* Gradient Overlay */}
@@ -200,6 +197,11 @@ export default function AdList() {
                                   }
 
                                   const user = JSON.parse(userStr);
+                                  if (!user?.id) {
+                                    alert('خطا در شناسایی کاربر');
+                                    return;
+                                  }
+                                  
                                   const isFavorite = favoriler.includes(ilan.id);
                                   
                                   console.log('❤️ Favori işlemi - İlan ID:', ilan.id, 'Favoride mi?', isFavorite);

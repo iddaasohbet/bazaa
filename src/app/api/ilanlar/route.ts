@@ -141,7 +141,10 @@ export async function GET(request: Request) {
     const aramaSorgusu = searchParams.get('q');
     const storeLevel = searchParams.get('store_level');
 
-    // Database'den gerçek ilanları çek
+    // ⚡ FIX: GROUP_CONCAT limiti artır (resimler için)
+    await query('SET SESSION group_concat_max_len = 10000000000');
+
+    // ⚡ OPTIMIZE: Resimleri tek sorguda çek (GROUP_CONCAT ile)
     let sql = `
       SELECT 
         i.id,
@@ -163,11 +166,14 @@ export async function GET(request: Request) {
         COALESCE(il.ad_dari, il.ad) as il_ad,
         m.store_level,
         m.slug as magaza_slug,
-        m.ad as magaza_ad
+        m.ad as magaza_ad,
+        GROUP_CONCAT(ir.resim_url ORDER BY ir.sira SEPARATOR '|||') as resimler_concat,
+        COUNT(DISTINCT ir.id) as resim_sayisi
       FROM ilanlar i
       LEFT JOIN kategoriler k ON i.kategori_id = k.id
       LEFT JOIN iller il ON i.il_id = il.id
       LEFT JOIN magazalar m ON i.magaza_id = m.id AND m.aktif = TRUE
+      LEFT JOIN ilan_resimleri ir ON i.id = ir.ilan_id
       WHERE i.aktif = TRUE
     `;
 
@@ -188,26 +194,33 @@ export async function GET(request: Request) {
       params.push(`%${aramaSorgusu}%`, `%${aramaSorgusu}%`);
     }
 
-    sql += ' ORDER BY i.created_at DESC LIMIT ? OFFSET ?';
+    sql += ' GROUP BY i.id ORDER BY i.created_at DESC LIMIT ? OFFSET ?';
     params.push(limit, offset);
 
     const ilanlar = await query(sql, params);
+    
+    console.log('📊 İlan API - Çekilen ilan sayısı:', (ilanlar as any[]).length);
 
-    // Resimler için JOIN
-    const ilanlarWithImages = await Promise.all(
-      (ilanlar as any[]).map(async (ilan) => {
-        const resimler = await query(
-          'SELECT resim_url FROM ilan_resimleri WHERE ilan_id = ? ORDER BY sira',
-          [ilan.id]
-        ) as any[];
-        
-        return {
-          ...ilan,
-          resimler: resimler.map(r => r.resim_url),
-          resim_sayisi: resimler.length
-        };
-      })
-    );
+    // ⚡ Resimleri parse et (GROUP_CONCAT'ten gelen string'i array'e çevir)
+    const ilanlarWithImages = (ilanlar as any[]).map((ilan: any) => {
+      // Resimleri parse et
+      let resimler: string[] = [];
+      if (ilan.resimler_concat) {
+        resimler = ilan.resimler_concat.split('|||').filter((r: string) => r && r.trim());
+      }
+      
+      // Eğer ilan_resimleri tablosunda resim yoksa ama ana_resim varsa, onu kullan
+      if (resimler.length === 0 && ilan.ana_resim) {
+        resimler = [ilan.ana_resim];
+      }
+      
+      return {
+        ...ilan,
+        resimler: resimler,
+        resim_sayisi: resimler.length,
+        resimler_concat: undefined // Gereksiz field'i kaldır
+      };
+    });
 
     return NextResponse.json({
       success: true,

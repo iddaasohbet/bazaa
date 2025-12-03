@@ -124,6 +124,8 @@ export default function Header() {
         }
 
         const userData = JSON.parse(user);
+        if (!userData?.id) return;
+        
         const response = await fetch('/api/mesajlar', {
           headers: {
             'x-user-id': userData.id.toString()
@@ -151,6 +153,11 @@ export default function Header() {
         }
 
         const userData = JSON.parse(user);
+        if (!userData?.id) {
+          console.log('⚠️ Header - userData.id bulunamadı');
+          return;
+        }
+        
         console.log('❤️ Header - Favori sayısı güncelleniyor - Kullanıcı ID:', userData.id);
         
         const response = await fetch('/api/favoriler', {
