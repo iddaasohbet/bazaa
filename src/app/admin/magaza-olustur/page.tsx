@@ -83,7 +83,7 @@ export default function MagazaOlusturPage() {
     setFormData({
       ...formData,
       kullanici_id: kullanici.id.toString(),
-      magaza_adi: `${kullanici.ad} دوکان`,
+      magaza_adi: `مغازه ${kullanici.ad}`,
       telefon: kullanici.telefon || ""
     });
     setSearchTerm(kullanici.ad);
@@ -155,13 +155,13 @@ export default function MagazaOlusturPage() {
   return (
     <AdminLayout>
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-2" dir="rtl">
           <div className="p-3 bg-purple-100 rounded-lg">
             <Gift className="h-6 w-6 text-purple-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">د کارونکي لپاره دوکان جوړ کړئ</h1>
-            <p className="text-gray-600">بې له پیسو ورکولو مستقیم فعال دوکان جوړ کړئ</p>
+            <h1 className="text-2xl font-bold text-gray-900">ایجاد مغازه برای کاربر</h1>
+            <p className="text-gray-600">مستقیماً بدون پرداخت، مغازه فعال ایجاد کنید</p>
           </div>
         </div>
       </div>
@@ -170,7 +170,7 @@ export default function MagazaOlusturPage() {
       {message && (
         <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
           message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-        }`}>
+        }`} dir="rtl">
           {message.type === 'success' ? (
             <CheckCircle2 className="h-5 w-5" />
           ) : (
@@ -184,21 +184,21 @@ export default function MagazaOlusturPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Sol Panel - Kullanıcı Seçimi */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6" dir="rtl">
               <div className="flex items-center gap-2 mb-4">
                 <User className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-bold text-gray-900">کارونکی انتخاب کړئ</h2>
+                <h2 className="text-lg font-bold text-gray-900">انتخاب کاربر</h2>
               </div>
 
               {/* Search */}
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Kullanıcı ara..."
+                  className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="جستجوی کاربر..."
                 />
               </div>
 
@@ -209,15 +209,15 @@ export default function MagazaOlusturPage() {
                     key={kullanici.id}
                     type="button"
                     onClick={() => handleKullaniciSelect(kullanici)}
-                    className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                    className={`w-full text-right p-3 rounded-lg border-2 transition-all ${
                       formData.kullanici_id === kullanici.id.toString()
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-blue-300'
                     }`}
                   >
                     <div className="font-medium text-gray-900">{kullanici.ad}</div>
-                    <div className="text-sm text-gray-600">{kullanici.email}</div>
-                    <div className="text-xs text-gray-500">{kullanici.telefon}</div>
+                    <div className="text-sm text-gray-600" dir="ltr">{kullanici.email}</div>
+                    <div className="text-xs text-gray-500" dir="ltr">{kullanici.telefon}</div>
                   </button>
                 ))}
               </div>
@@ -226,7 +226,7 @@ export default function MagazaOlusturPage() {
                 <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-2 text-green-800">
                     <CheckCircle2 className="h-4 w-4" />
-                    <span className="text-sm font-medium">Kullanıcı seçildi</span>
+                    <span className="text-sm font-medium">کاربر انتخاب شد</span>
                   </div>
                 </div>
               )}
@@ -236,16 +236,16 @@ export default function MagazaOlusturPage() {
           {/* Sağ Panel - Mağaza Bilgileri */}
           <div className="lg:col-span-2 space-y-6">
             {/* Temel Bilgiler */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" dir="rtl">
               <div className="flex items-center gap-2 mb-4">
                 <Store className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-bold text-gray-900">د دوکان معلومات</h2>
+                <h2 className="text-lg font-bold text-gray-900">اطلاعات مغازه</h2>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    د دوکان نوم *
+                    نام مغازه *
                   </label>
                   <input
                     type="text"
@@ -253,27 +253,27 @@ export default function MagazaOlusturPage() {
                     value={formData.magaza_adi}
                     onChange={(e) => setFormData({...formData, magaza_adi: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="مثال: احمد موبایل دوکان"
+                    placeholder="مثال: مغازه موبایل احمد"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    تفصیل
+                    توضیحات
                   </label>
                   <textarea
                     value={formData.aciklama}
                     onChange={(e) => setFormData({...formData, aciklama: e.target.value})}
                     rows={3}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="د دوکان په اړه لنډ معلومات..."
+                    placeholder="اطلاعات کوتاه درباره مغازه..."
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ټیلیفون
+                      تلفن
                     </label>
                     <input
                       type="text"
@@ -281,12 +281,13 @@ export default function MagazaOlusturPage() {
                       onChange={(e) => setFormData({...formData, telefon: e.target.value})}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="+93 700 000 000"
+                      dir="ltr"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      پته
+                      آدرس
                     </label>
                     <input
                       type="text"
@@ -301,13 +302,13 @@ export default function MagazaOlusturPage() {
             </div>
 
             {/* Paket Seçimi */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" dir="rtl">
               <div className="flex items-center gap-2 mb-4">
                 <Package className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-bold text-gray-900">پیکیج</h2>
-                <span className="ml-auto px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full flex items-center gap-1">
+                <h2 className="text-lg font-bold text-gray-900">انتخاب پکیج</h2>
+                <span className="mr-auto px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full flex items-center gap-1">
                   <Crown className="h-3 w-3" />
-                  وړیا
+                  رایگان
                 </span>
               </div>
 
@@ -317,26 +318,26 @@ export default function MagazaOlusturPage() {
                     key={paket.id}
                     type="button"
                     onClick={() => setFormData({...formData, paket_id: paket.id.toString()})}
-                    className={`p-4 rounded-lg border-2 transition-all text-left ${
+                    className={`p-4 rounded-lg border-2 transition-all ${
                       formData.paket_id === paket.id.toString()
                         ? 'border-purple-500 bg-purple-50'
                         : 'border-gray-200 hover:border-purple-300'
                     }`}
                   >
                     <div className="font-bold text-gray-900 mb-2">{paket.ad}</div>
-                    <div className="text-sm text-gray-600 mb-2">{paket.sure} gün</div>
-                    <div className="text-lg font-bold text-purple-600 line-through">
+                    <div className="text-sm text-gray-600 mb-2">{paket.sure} روز</div>
+                    <div className="text-lg font-bold text-purple-600 line-through" dir="ltr">
                       ${paket.fiyat}
                     </div>
-                    <div className="text-sm text-green-600 font-medium">Ücretsiz</div>
+                    <div className="text-sm text-green-600 font-medium">رایگان</div>
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Durum Ayarları */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">حالت</h2>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" dir="rtl">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">تنظیمات وضعیت</h2>
               
               <div className="space-y-3">
                 <label className="flex items-center gap-3 cursor-pointer">
@@ -347,8 +348,8 @@ export default function MagazaOlusturPage() {
                     className="w-5 h-5 text-purple-600 rounded focus:ring-2 focus:ring-purple-500"
                   />
                   <div>
-                    <span className="text-sm font-medium text-gray-900">وړیا</span>
-                    <p className="text-xs text-gray-500">د پیسو ورکولو پرته</p>
+                    <span className="text-sm font-medium text-gray-900">رایگان</span>
+                    <p className="text-xs text-gray-500">بدون پرداخت</p>
                   </div>
                 </label>
 
@@ -361,14 +362,14 @@ export default function MagazaOlusturPage() {
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-900">فعال</span>
-                    <p className="text-xs text-gray-500">مستقیم فعال حالت کې</p>
+                    <p className="text-xs text-gray-500">مستقیماً در حالت فعال</p>
                   </div>
                 </label>
               </div>
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-end">
+            <div className="flex justify-end" dir="rtl">
               <button
                 type="submit"
                 disabled={loading || !formData.kullanici_id}
@@ -377,12 +378,12 @@ export default function MagazaOlusturPage() {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span>جوړیږي...</span>
+                    <span>در حال ایجاد...</span>
                   </>
                 ) : (
                   <>
                     <Save className="h-5 w-5" />
-                    <span>دوکان جوړ کړئ</span>
+                    <span>ایجاد مغازه</span>
                   </>
                 )}
               </button>
