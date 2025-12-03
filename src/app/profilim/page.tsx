@@ -31,11 +31,6 @@ export default function Profilim() {
 
       const localUser = JSON.parse(user);
       
-      if (!localUser?.id) {
-        alert('Kullanıcı bilgisi bulunamadı');
-        return;
-      }
-      
       const response = await fetch('/api/kullanici', {
         method: 'PUT',
         headers: {
@@ -80,11 +75,6 @@ export default function Profilim() {
       }
       
       const localUser = JSON.parse(user);
-      
-      if (!localUser?.id) {
-        console.error('localUser.id bulunamadı');
-        return;
-      }
       
       // API'den güncel kullanıcı bilgilerini yükle
       const response = await fetch('/api/kullanici', {

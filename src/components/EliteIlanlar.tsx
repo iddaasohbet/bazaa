@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Crown, MapPin, Eye, Heart, Sparkles, Store, TrendingUp } from "lucide-react";
-import { getImageUrl } from "@/lib/utils";
-import PriceDisplay from "@/components/PriceDisplay";
+import { formatPrice, getImageUrl } from "@/lib/utils";
 
 interface Ilan {
   id: number;
@@ -169,11 +168,7 @@ export default function EliteIlanlar() {
                   <img
                     src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
                     alt={ilan.baslik}
-                    className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/placeholder.png';
-                    }}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   
                   {/* Gradient Overlay */}
@@ -269,26 +264,22 @@ export default function EliteIlanlar() {
                     {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 ? (
                       <div className="space-y-0.5">
                         {ilan.eski_fiyat && (
-                          <div className="line-through">
-                            <PriceDisplay 
-                              price={ilan.eski_fiyat}
-                              currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                              className="text-xs text-gray-500"
-                            />
+                          <div className="text-xs text-gray-500 line-through">
+                            {formatPrice(ilan.eski_fiyat, (ilan.para_birimi as 'AFN' | 'USD') || 'AFN')}
                           </div>
                         )}
-                        <PriceDisplay 
-                          price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
-                          currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                          className="text-lg font-bold text-red-600"
-                        />
+                        <div className="text-lg font-bold text-red-600">
+                          {ilan.para_birimi === 'USD' && ilan.fiyat_usd 
+                            ? formatPrice(ilan.fiyat_usd, 'USD')
+                            : formatPrice(ilan.fiyat, 'AFN')}
+                        </div>
                       </div>
                     ) : (
-                      <PriceDisplay 
-                        price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
-                        currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                        className="text-lg font-bold text-gray-900"
-                      />
+                      <div className="text-lg font-bold text-gray-900">
+                        {ilan.para_birimi === 'USD' && ilan.fiyat_usd 
+                          ? formatPrice(ilan.fiyat_usd, 'USD')
+                          : formatPrice(ilan.fiyat, 'AFN')}
+                      </div>
                     )}
                   </div>
 

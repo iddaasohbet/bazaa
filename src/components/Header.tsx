@@ -312,7 +312,7 @@ export default function Header() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="جستجوی املاک، وسایط نقلیه، الکترونیک، و بیشتر..."
+                  placeholder="جستجوی خودرو، املاک، لوازم الکترونیکی و بیشتر..."
                   className="w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -414,7 +414,7 @@ export default function Header() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="جستجوی املاک، وسایط نقلیه، الکترونیک..."
+                  placeholder="جستجوی آگهی..."
                   className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>

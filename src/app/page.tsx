@@ -4,7 +4,6 @@ import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import FeaturedAds from "@/components/FeaturedAds";
 import BannerReklam from "@/components/BannerReklam";
-import OnecikanIlanlar from "@/components/OnecikanIlanlar";
 import EliteIlanlar from "@/components/EliteIlanlar";
 import ProIlanlar from "@/components/ProIlanlar";
 import AdList from "@/components/AdList";
@@ -65,13 +64,8 @@ export default function Home() {
               </Suspense>
             </div>
 
-            {/* Main Content Area - Onecikan + Elite + Pro + Normal Ads */}
+            {/* Main Content Area - Elite + Pro + Normal Ads */}
             <div className="flex-1 min-w-0">
-              {/* Öne Çıkan İlanlar */}
-              <Suspense fallback={<IlanlarSkeleton />}>
-                <OnecikanIlanlar />
-              </Suspense>
-              
               {/* Elite Mağaza İlanları - %100 */}
               <Suspense fallback={<IlanlarSkeleton />}>
                 <EliteIlanlar />
