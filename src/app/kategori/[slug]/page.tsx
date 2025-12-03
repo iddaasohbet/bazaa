@@ -4,22 +4,27 @@ import { useState, useEffect } from "react";
 import { use } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import VitrinAds from "@/components/VitrinAds";
 import { MapPin, Eye, Clock, Heart } from "lucide-react";
-import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+import { formatDate, getImageUrl } from "@/lib/utils";
+import PriceDisplay from "@/components/PriceDisplay";
 
 interface Ilan {
   id: number;
   baslik: string;
   fiyat: number;
+  eski_fiyat?: number;
+  indirim_yuzdesi?: number;
   fiyat_tipi: string;
+  para_birimi?: string;
+  fiyat_usd?: number;
   ana_resim: string;
   kategori_ad: string;
+  kategori_slug: string;
   alt_kategori_id?: number;
   il_ad: string;
   durum: string;
@@ -27,6 +32,10 @@ interface Ilan {
   created_at: string;
   resimler?: string[];
   resim_sayisi: number;
+  store_level?: string;
+  magaza_id?: number;
+  magaza_slug?: string;
+  magaza_ad?: string;
 }
 
 interface Kategori {
@@ -55,10 +64,44 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
   const [allIlanlar, setAllIlanlar] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [favoriler, setFavoriler] = useState<number[]>([]);
 
   useEffect(() => {
     fetchData();
+    loadFavoriler();
+    
+    const handleFavoriUpdate = () => {
+      loadFavoriler();
+    };
+    
+    window.addEventListener('favoriGuncelle', handleFavoriUpdate);
+    return () => window.removeEventListener('favoriGuncelle', handleFavoriUpdate);
   }, [resolvedParams.slug]);
+
+  const loadFavoriler = async () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return;
+
+      const user = JSON.parse(userStr);
+      if (!user?.id) return;
+      
+      const response = await fetch('/api/favoriler', {
+        headers: {
+          'x-user-id': user.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        const favoriIds = (data.data || []).map((f: any) => f.ilan_id);
+        setFavoriler(favoriIds);
+      }
+    } catch (error) {
+      console.error('Favoriler yüklenirken hata:', error);
+    }
+  };
 
   // Alt kategori slug değiştiğinde filtreleme yap
   useEffect(() => {
@@ -243,14 +286,18 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
                           <div className="overflow-hidden rounded-xl bg-white border border-gray-200 transition-all hover:shadow-xl hover:border-blue-300 h-full flex flex-col">
                             {/* Image */}
                             <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                              <Image
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
                                 src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
                                 alt={ilan.baslik}
-                                fill
-                                className="object-cover group-hover:scale-110 transition-transform duration-500"
-                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = '/placeholder.png';
+                                }}
                               />
                               
+                              {/* Gradient Overlay */}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                               
                               {/* Badge */}
@@ -262,10 +309,59 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
                               
                               {/* Favorite Button */}
                               <button 
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                onClick={async (e) => { 
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  
+                                  const userStr = localStorage.getItem('user');
+                                  if (!userStr) {
+                                    alert('لطفاً ابتدا وارد شوید');
+                                    return;
+                                  }
+
+                                  const user = JSON.parse(userStr);
+                                  if (!user?.id) {
+                                    alert('خطا در شناسایی کاربر');
+                                    return;
+                                  }
+                                  
+                                  const isFavorite = favoriler.includes(ilan.id);
+                                  
+                                  try {
+                                    if (isFavorite) {
+                                      const response = await fetch(`/api/favoriler?ilanId=${ilan.id}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                          'x-user-id': user.id.toString()
+                                        }
+                                      });
+                                      await response.json();
+                                      setFavoriler(prev => prev.filter(id => id !== ilan.id));
+                                    } else {
+                                      const response = await fetch('/api/favoriler', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          'x-user-id': user.id.toString()
+                                        },
+                                        body: JSON.stringify({ ilanId: ilan.id })
+                                      });
+                                      await response.json();
+                                      setFavoriler(prev => [...prev, ilan.id]);
+                                    }
+                                    
+                                    window.dispatchEvent(new Event('favoriGuncelle'));
+                                  } catch (error) {
+                                    console.error('❌ Favori işlemi hatası:', error);
+                                  }
+                                }}
                                 className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
                               >
-                                <Heart className="h-4 w-4 text-gray-600" />
+                                <Heart className={`h-4 w-4 transition-colors ${
+                                  favoriler.includes(ilan.id)
+                                    ? 'text-red-500 fill-red-500' 
+                                    : 'text-gray-600'
+                                }`} />
                               </button>
                             </div>
 
@@ -275,10 +371,40 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
                                 {ilan.baslik}
                               </h3>
                               
-                              <div className="flex items-baseline gap-1 mb-3">
-                                <span className="text-lg font-bold text-blue-600">
-                                  {formatPrice(ilan.fiyat)}
-                                </span>
+                              {/* Fiyat Bölümü - İndirim Gösterimi */}
+                              <div className="mb-3">
+                                {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 && (ilan.store_level === 'pro' || ilan.store_level === 'elite') ? (
+                                  <div className="space-y-1">
+                                    {/* İndirim Badge */}
+                                    <div className="flex items-center gap-2">
+                                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+                                        {ilan.indirim_yuzdesi}% تخفیف
+                                      </span>
+                                    </div>
+                                    {/* Eski Fiyat (Üstü Çizili) */}
+                                    {ilan.eski_fiyat && (
+                                      <div className="line-through">
+                                        <PriceDisplay 
+                                          price={ilan.eski_fiyat} 
+                                          currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
+                                          className="text-sm text-gray-500"
+                                        />
+                                      </div>
+                                    )}
+                                    {/* Yeni İndirimli Fiyat */}
+                                    <PriceDisplay 
+                                      price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
+                                      currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
+                                      className="text-lg font-bold text-red-600"
+                                    />
+                                  </div>
+                                ) : (
+                                  <PriceDisplay 
+                                    price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
+                                    currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
+                                    className="text-lg font-bold text-blue-600"
+                                  />
+                                )}
                               </div>
 
                               <div className="mt-auto space-y-2 text-xs text-gray-600">
@@ -287,10 +413,12 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
                                   <span className="truncate">{ilan.il_ad}</span>
                                 </div>
                                 <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                                  <div className="flex items-center gap-1">
-                                    <Eye className="h-3.5 w-3.5 text-gray-400" />
-                                    <span>{ilan.goruntulenme}</span>
-                                  </div>
+                                  {ilan.goruntulenme > 0 && (
+                                    <div className="flex items-center gap-1">
+                                      <Eye className="h-3.5 w-3.5 text-gray-400" />
+                                      <span>{ilan.goruntulenme}</span>
+                                    </div>
+                                  )}
                                   <div className="flex items-center gap-1">
                                     <Clock className="h-3.5 w-3.5 text-gray-400" />
                                     <span>{formatDate(ilan.created_at)}</span>
