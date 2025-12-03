@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Crown, MapPin, Eye, Heart, Sparkles, Store, TrendingUp } from "lucide-react";
+import { Star, MapPin, Eye, Heart, TrendingUp, Sparkles } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
 
@@ -26,16 +26,15 @@ interface Ilan {
   magaza_ad?: string;
 }
 
-export default function EliteIlanlar() {
+export default function OnecikanIlanlar() {
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
   const [favoriler, setFavoriler] = useState<number[]>([]);
 
   useEffect(() => {
-    fetchEliteIlanlar();
+    fetchOnecikanIlanlar();
     loadFavoriler();
     
-    // Favori güncellemelerini dinle
     const handleFavoriUpdate = () => {
       loadFavoriler();
     };
@@ -69,47 +68,23 @@ export default function EliteIlanlar() {
     }
   };
 
-  const fetchEliteIlanlar = async () => {
+  const fetchOnecikanIlanlar = async () => {
     try {
-      // ⚡ OPTIMIZE: Sadece 6 Elite ilan çek
-      const response = await fetch('/api/ilanlar?store_level=elite&limit=6', {
-        cache: 'no-store' // Client-side fresh data
+      const response = await fetch('/api/ilanlar/onecikan', {
+        cache: 'no-store'
       });
       const data = await response.json();
       if (data.success) {
         setIlanlar(data.data);
       }
     } catch (error) {
-      console.error('Elite ilanlar yüklenirken hata:', error);
+      console.error('Öne çıkan ilanlar yüklenirken hata:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="mb-16">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-            <Crown className="h-7 w-7 text-white" />
-          </div>
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900">محصولات ویژه پریمیوم</h2>
-            <p className="text-gray-600">از مغازه‌های برتر</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-64 bg-gray-200 rounded-2xl"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Elite ilanları yoksa gösterme
+  // Öne çıkan ilanlar yoksa gösterme
   if (loading || ilanlar.length === 0) {
     return null;
   }
@@ -117,25 +92,25 @@ export default function EliteIlanlar() {
   return (
     <div className="mb-12" dir="rtl">
       {/* Header */}
-      <div className="relative mb-6 bg-gradient-to-r from-yellow-50 via-orange-50 to-amber-50 rounded-xl border border-yellow-200 p-4 overflow-hidden">
+      <div className="relative mb-6 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50 rounded-xl border border-orange-200 p-4 overflow-hidden">
         <div className="absolute top-0 right-0 opacity-5">
-          <Crown className="h-24 w-24 text-yellow-600" />
+          <Star className="h-24 w-24 text-orange-600" />
         </div>
         <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center shadow-lg">
-            <Crown className="h-6 w-6 text-white" />
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg">
+            <Star className="h-6 w-6 text-white fill-white" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              محصولات ویژه پریمیوم
-              <Sparkles className="h-4 w-4 text-yellow-500" />
+              آگهی‌های ویژه
+              <Sparkles className="h-4 w-4 text-orange-500" />
             </h2>
-            <p className="text-sm text-gray-600">از برترین مغازه‌های پلتفرم</p>
+            <p className="text-sm text-gray-600">محصولات برگزیده توسط تیم ما</p>
           </div>
         </div>
       </div>
 
-      {/* Elite İlanlar Grid - Normal boyutta */}
+      {/* Öne Çıkan İlanlar Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-6">
         {ilanlar.map((ilan, index) => (
           <motion.div
@@ -145,26 +120,9 @@ export default function EliteIlanlar() {
             transition={{ delay: index * 0.05 }}
           >
             <Link href={`/ilan/${ilan.id}`} className="group block h-full">
-              <div className="relative h-full bg-white rounded-xl border-2 border-yellow-300 overflow-hidden hover:shadow-2xl hover:border-yellow-500 transition-all duration-300 ring-2 ring-yellow-100">
-                {/* Premium Badge - Küçük */}
-                <div className="absolute top-2 right-2 z-10">
-                  <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-                    <Crown className="h-3 w-3 fill-white" />
-                    <span>ELITE</span>
-                  </div>
-                </div>
-
-                {/* İndirim Badge */}
-                {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 && (
-                  <div className="absolute top-2 left-2 z-10">
-                    <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-                      {ilan.indirim_yuzdesi}% تخفیف
-                    </div>
-                  </div>
-                )}
-
+              <div className="overflow-hidden rounded-xl bg-white border-2 border-orange-400 transition-all hover:shadow-xl hover:border-orange-500 h-full flex flex-col">
                 {/* Image */}
-                <div className="relative aspect-video bg-gradient-to-br from-yellow-50 to-orange-50 overflow-hidden">
+                <div className="relative aspect-video bg-gray-100 overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
@@ -177,7 +135,16 @@ export default function EliteIlanlar() {
                   />
                   
                   {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Öne Çıkan Badge - Sol üst */}
+                  <div className="absolute top-2 left-2">
+                    <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow-lg">
+                      <Star className="h-3 w-3 fill-white" />
+                      <span>ویژه</span>
+                    </div>
+                  </div>
+
                   
                   {/* Favorite Button */}
                   <button 
@@ -199,24 +166,17 @@ export default function EliteIlanlar() {
                       
                       const isFavorite = favoriler.includes(ilan.id);
                       
-                      console.log('⭐ Elite - Favori işlemi - İlan ID:', ilan.id, 'Favoride mi?', isFavorite);
-                      
                       try {
                         if (isFavorite) {
-                          // Favoriden çıkar
-                          console.log('🗑️ Elite - Favoriden çıkarılıyor...');
                           const response = await fetch(`/api/favoriler?ilanId=${ilan.id}`, {
                             method: 'DELETE',
                             headers: {
                               'x-user-id': user.id.toString()
                             }
                           });
-                          const data = await response.json();
-                          console.log('✅ Elite - API Response (DELETE):', data);
+                          await response.json();
                           setFavoriler(prev => prev.filter(id => id !== ilan.id));
                         } else {
-                          // Favoriye ekle
-                          console.log('➕ Elite - Favoriye ekleniyor...');
                           const response = await fetch('/api/favoriler', {
                             method: 'POST',
                             headers: {
@@ -225,19 +185,16 @@ export default function EliteIlanlar() {
                             },
                             body: JSON.stringify({ ilanId: ilan.id })
                           });
-                          const data = await response.json();
-                          console.log('✅ Elite - API Response (POST):', data);
+                          await response.json();
                           setFavoriler(prev => [...prev, ilan.id]);
                         }
                         
-                        // Header'ı ve favoriler sayfasını güncelle
-                        console.log('📢 Elite - favoriGuncelle event dispatch ediliyor...');
                         window.dispatchEvent(new Event('favoriGuncelle'));
                       } catch (error) {
-                        console.error('❌ Elite - Favori işlemi hatası:', error);
+                        console.error('Favori işlemi hatası:', error);
                       }
                     }}
-                    className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all z-20"
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
                   >
                     <Heart className={`h-4 w-4 transition-colors ${
                       favoriler.includes(ilan.id)
@@ -248,35 +205,32 @@ export default function EliteIlanlar() {
                 </div>
 
                 {/* Content */}
-                <div className="p-3">
-                  {/* Store Badge - Küçük */}
-                  {ilan.magaza_ad && (
-                    <div className="flex items-center gap-1 mb-2">
-                      <Store className="h-3 w-3 text-yellow-600" />
-                      <span className="text-[10px] font-semibold text-yellow-700 bg-yellow-50 px-1.5 py-0.5 rounded truncate">
-                        {ilan.magaza_ad}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Title */}
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight group-hover:text-yellow-600 transition-colors">
+                <div className="p-3 flex-1 flex flex-col">
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight group-hover:text-orange-600 transition-colors">
                     {ilan.baslik}
                   </h3>
                   
-                  {/* Price */}
+                  {/* Fiyat Bölümü */}
                   <div className="mb-3">
                     {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 ? (
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
+                        {/* İndirim Badge */}
+                        <div className="flex items-center gap-2">
+                          <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+                            {ilan.indirim_yuzdesi}% تخفیف
+                          </span>
+                        </div>
+                        {/* Eski Fiyat */}
                         {ilan.eski_fiyat && (
                           <div className="line-through">
                             <PriceDisplay 
                               price={ilan.eski_fiyat}
                               currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                              className="text-xs text-gray-500"
+                              className="text-sm text-gray-500"
                             />
                           </div>
                         )}
+                        {/* Yeni Fiyat */}
                         <PriceDisplay 
                           price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
                           currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
@@ -287,33 +241,24 @@ export default function EliteIlanlar() {
                       <PriceDisplay 
                         price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
                         currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                        className="text-lg font-bold text-gray-900"
+                        className="text-lg font-bold text-orange-600"
                       />
                     )}
                   </div>
 
-                  {/* Info */}
-                  <div className="flex items-center justify-between pt-2 border-t border-yellow-100">
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <MapPin className="h-3.5 w-3.5 text-yellow-600" />
-                      <span className="text-xs truncate">{ilan.il_ad}</span>
+                  <div className="mt-auto space-y-2 text-xs text-gray-600">
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
+                      <span className="truncate">{ilan.il_ad}</span>
                     </div>
-                    {/* Mağaza Butonu - Elite İlanlar */}
-                    {ilan.magaza_slug && (
-                      <Link
-                        href={`/magaza/${ilan.magaza_slug}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        <span className="text-xs font-semibold">مغازه</span>
-                      </Link>
+                    {ilan.goruntulenme > 0 && (
+                      <div className="flex items-center gap-1 pt-2 border-t border-gray-100">
+                        <Eye className="h-3.5 w-3.5 text-gray-400" />
+                        <span>{ilan.goruntulenme}</span>
+                      </div>
                     )}
                   </div>
                 </div>
-
-                {/* Shine Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-200/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none"></div>
               </div>
             </Link>
           </motion.div>

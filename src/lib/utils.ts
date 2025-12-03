@@ -38,11 +38,21 @@ export function formatPrice(price: number, currency: 'AFN' | 'USD' = 'AFN'): str
     }).format(price);
   }
   
-  // AFN için de ingilizce rakamlar kullanalım
+  // AFN için - sayı + boşluk + AFN (component'te küçültülecek)
+  const formattedNumber = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+  
+  return `${formattedNumber} AFN`;
+}
+
+// Sadece sayıyı döndür (AFN olmadan)
+export function formatPriceNumber(price: number): string {
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(price) + ' AFN';
+  }).format(price);
 }
 
 // Çift para birimi gösterimi (USD seçildiğinde hem USD hem AFN göster)
