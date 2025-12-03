@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Search, Menu, X, Plus, User, Heart, MessageSquare, ChevronDown, MapPin, Store } from "lucide-react";
+import FeedbackWidget from "./FeedbackWidget";
 
 interface Kategori {
   id: number;
@@ -615,6 +616,9 @@ export default function Header() {
           </div>
         </div>
       )}
+      
+      {/* Feedback Widget */}
+      <FeedbackWidget />
     </>
   );
 }
