@@ -63,14 +63,6 @@ export function formatPriceWithBoth(priceAFN: number, priceUSD?: number | null, 
   return formatPrice(priceAFN, 'AFN');
 }
 
-// Sadece sayıyı döndür (para birimi olmadan)
-export function formatPriceNumber(price: number): string {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
 // Tarih formatlama
 export function formatDate(date: string | Date): string {
   const d = typeof date === 'string' ? new Date(date) : date;
