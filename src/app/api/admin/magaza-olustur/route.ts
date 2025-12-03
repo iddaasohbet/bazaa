@@ -109,23 +109,23 @@ export async function POST(request: NextRequest) {
           console.log('✅ Store level güncellendi:', paket.store_level);
         }
         
-        // Ödeme kaydı oluştur (direkt onaylı)
+        // Ödeme kaydı oluştur (doğru tablo yapısı)
         await query(
           `INSERT INTO odemeler (
             kullanici_id,
-            magaza_id,
-            paket_id,
+            odeme_turu,
+            iliskili_id,
             tutar,
-            durum,
+            para_birimi,
             odeme_yontemi,
+            odeme_durumu,
             aciklama
-          ) VALUES (?, ?, ?, ?, 'onaylandi', 'admin', ?)`,
+          ) VALUES (?, 'paket', ?, ?, 'AFN', 'admin', 'tamamlandi', ?)`,
           [
             kullanici_id, 
-            magazaId, 
-            paket_id,
+            magazaId, // iliskili_id = magaza ID
             ucretsiz ? 0 : paket.fiyat,
-            ucretsiz ? 'Admin tarafından ücretsiz tanımlandı' : 'Admin tarafından oluşturuldu'
+            ucretsiz ? 'Admin tarafından ücretsiz tanımlandı (Paket: ' + paket.ad_dari + ')' : 'Admin tarafından oluşturuldu (Paket: ' + paket.ad_dari + ')'
           ]
         );
         
