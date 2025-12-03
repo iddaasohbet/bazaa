@@ -30,21 +30,20 @@ export function slugify(text: string): string {
 // Fiyat formatlama - İngilizce rakamlar ile
 export function formatPrice(price: number, currency: 'AFN' | 'USD' = 'AFN'): string {
   if (currency === 'USD') {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    const formattedNumber = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(price);
+    return `${formattedNumber} $`; // $ sağda
   }
   
-  // AFN için - sayı + boşluk + AFN (component'te küçültülecek)
+  // AFN için - sayı + boşluk + افغانی
   const formattedNumber = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
   
-  return `${formattedNumber} AFN`;
+  return `${formattedNumber} افغانی`;
 }
 
 // Sadece sayıyı döndür (AFN olmadan)
@@ -62,6 +61,14 @@ export function formatPriceWithBoth(priceAFN: number, priceUSD?: number | null, 
     return `${formatPrice(priceUSD, 'USD')} (≈ ${formatPrice(priceAFN, 'AFN')})`;
   }
   return formatPrice(priceAFN, 'AFN');
+}
+
+// Sadece sayıyı döndür (para birimi olmadan)
+export function formatPriceNumber(price: number): string {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
 }
 
 // Tarih formatlama

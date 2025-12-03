@@ -20,19 +20,20 @@ export default function PriceDisplay({
   }).format(price);
 
   if (currency === 'USD') {
+    // USD - $ işareti sağda, küçük
     return (
-      <span className={className}>
-        <span className="text-xs opacity-70">$</span>
-        {formattedNumber.replace('$', '')}
+      <span className={`${className} inline-flex items-baseline gap-1`} dir="ltr">
+        <span>{formattedNumber}</span>
+        {showCurrency && <span className="text-[0.65em] opacity-70 font-normal">$</span>}
       </span>
     );
   }
 
-  // AFN - rakam büyük, AFN küçük ve sağda
+  // AFN - rakam büyük, افغانی küçük ve sağda
   return (
     <span className={`${className} inline-flex items-baseline gap-1`} dir="ltr">
       <span>{formattedNumber}</span>
-      {showCurrency && <span className="text-[0.65em] opacity-70 font-normal">AFN</span>}
+      {showCurrency && <span className="text-[0.65em] opacity-70 font-normal">افغانی</span>}
     </span>
   );
 }
