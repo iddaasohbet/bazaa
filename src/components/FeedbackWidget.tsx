@@ -10,7 +10,7 @@ export default function FeedbackWidget() {
   const [name, setName] = useState("");
   const [sending, setSending] = useState(false);
 
-  const handleSend = async () => {
+  const handleSendWhatsApp = (phoneNumber: string) => {
     if (!message.trim()) {
       alert('لطفاً پیام خود را بنویسید');
       return;
@@ -18,10 +18,8 @@ export default function FeedbackWidget() {
 
     setSending(true);
 
-    // WhatsApp'a yönlendir
-    const whatsappNumber = '+4915210585633';
-    const text = `بازخورد از سایت:\n\nنام: ${name || 'ناشناس'}\nپیام: ${message}`;
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+    const text = `پیام از سایت بازار وطن:\n\nنام: ${name || 'ناشناس'}\nپیام: ${message}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
     
     window.open(whatsappUrl, '_blank');
     
@@ -30,12 +28,12 @@ export default function FeedbackWidget() {
       setName("");
       setSending(false);
       setIsOpen(false);
-      alert('✅ از بازخورد شما متشکریم!');
+      alert('✅ از تماس شما متشکریم!');
     }, 1000);
   };
 
-  const handleCall = () => {
-    window.location.href = 'tel:+4915210585633';
+  const handleCall = (phoneNumber: string) => {
+    window.location.href = `tel:${phoneNumber}`;
   };
 
   return (
@@ -51,7 +49,7 @@ export default function FeedbackWidget() {
           <div className="flex flex-col items-center gap-2">
             <MessageCircle className="h-6 w-6 animate-pulse" />
             <div className="writing-mode-vertical text-sm font-bold tracking-wider" style={{ writingMode: 'vertical-rl' }}>
-              بازخورد
+              ارتباط
             </div>
           </div>
         </div>
@@ -87,7 +85,7 @@ export default function FeedbackWidget() {
                       <MessageCircle className="h-6 w-6" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold">بازخورد</h2>
+                      <h2 className="text-2xl font-bold">ارتباط</h2>
                       <p className="text-blue-100 text-sm">نظر خود را با ما به اشتراک بگذارید</p>
                     </div>
                   </div>
@@ -141,40 +139,94 @@ export default function FeedbackWidget() {
                     </div>
                   </div>
 
-                  {/* Quick Contact */}
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
+                  {/* Quick Contact - Two Numbers */}
+                  <div className="bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200 rounded-xl p-4">
                     <div className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-green-600" />
-                      تماس مستقیم
+                      <Phone className="h-4 w-4 text-gray-600" />
+                      تماس تلفنی
                     </div>
-                    <button
-                      onClick={handleCall}
-                      className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg font-bold transition-all shadow-lg flex items-center justify-center gap-2"
-                      dir="ltr"
-                    >
-                      <Phone className="h-5 w-5" />
-                      <span>+49 152 105 85633</span>
-                    </button>
+                    <div className="space-y-2">
+                      <div>
+                        <div className="text-xs font-semibold text-gray-600 mb-1">همکار ریگان</div>
+                        <button
+                          onClick={() => handleCall('+4915210585633')}
+                          className="w-full px-4 py-2.5 bg-gray-700 hover:bg-gray-800 text-white rounded-lg font-bold transition-all shadow-md flex items-center justify-center gap-2 text-sm"
+                          dir="ltr"
+                        >
+                          <Phone className="h-4 w-4" />
+                          <span>+49 152 105 85633</span>
+                        </button>
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold text-gray-600 mb-1">نظریات</div>
+                        <button
+                          onClick={() => handleCall('+93782416263')}
+                          className="w-full px-4 py-2.5 bg-gray-700 hover:bg-gray-800 text-white rounded-lg font-bold transition-all shadow-md flex items-center justify-center gap-2 text-sm"
+                          dir="ltr"
+                        >
+                          <Phone className="h-4 w-4" />
+                          <span>+93 782 416 263</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Send Button */}
-                  <button
-                    onClick={handleSend}
-                    disabled={!message.trim() || sending}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
-                  >
-                    {sending ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>در حال ارسال...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-lg">ارسال از طریق WhatsApp</span>
-                        <Send className="h-5 w-5" />
-                      </>
-                    )}
-                  </button>
+                  {/* Send Buttons - Two WhatsApp Options */}
+                  <div className="space-y-3">
+                    <div className="text-sm font-bold text-gray-700 mb-2">ارسال از طریق WhatsApp:</div>
+                    
+                    {/* همکار ریگان */}
+                    <div>
+                      <div className="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        همکار ریگان
+                      </div>
+                      <button
+                        onClick={() => handleSendWhatsApp('+4915210585633')}
+                        disabled={!message.trim() || sending}
+                        className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+                        dir="ltr"
+                      >
+                        {sending ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>در حال ارسال...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-5 w-5" />
+                            <span>+49 152 105 85633</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* نظریات */}
+                    <div>
+                      <div className="text-xs font-semibold text-gray-600 mb-1 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                        نظریات
+                      </div>
+                      <button
+                        onClick={() => handleSendWhatsApp('+93782416263')}
+                        disabled={!message.trim() || sending}
+                        className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+                        dir="ltr"
+                      >
+                        {sending ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>در حال ارسال...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-5 w-5" />
+                            <span>+93 782 416 263</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
 
                   {/* Privacy Note */}
                   <p className="text-center text-xs text-gray-500">

@@ -109,9 +109,9 @@ export default function FeaturedAds() {
                       transition={{ duration: 0.6 }}
                       className="max-w-2xl"
                     >
-                      <p className="mb-2 text-sm sm:text-base font-semibold text-yellow-400 uppercase tracking-wider flex items-center gap-2">
-                        <span className="inline-block w-12 h-0.5 bg-yellow-400"></span>
-                        بازار وطن
+                      <p className="mb-4 text-base sm:text-lg font-bold text-white tracking-wide flex items-center gap-3">
+                        <span className="inline-block w-16 h-1 bg-white rounded-full"></span>
+                        <span className="text-xl sm:text-2xl">بازار وطن</span>
                       </p>
                       <h1 className="mb-4 text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
                         {slider.baslik}
