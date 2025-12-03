@@ -58,8 +58,10 @@ export async function PUT(
       onecikan
     } = body;
 
-    // Validasyon
-    if (!baslik || !kategori_id) {
+    // Validasyon - Sadece onecikan değişikliği değilse kontrol et
+    const isOnlyOnecikanUpdate = onecikan !== undefined && !baslik && !kategori_id && !aciklama && !fiyat;
+    
+    if (!isOnlyOnecikanUpdate && (!baslik || !kategori_id)) {
       return NextResponse.json(
         { success: false, message: 'عنوان و دسته‌بندی الزامی است' },
         { status: 400 }

@@ -41,9 +41,20 @@ export default function AdminOnecikanPage() {
 
   const toggleOnecikan = async (ilanId: number, currentStatus: boolean) => {
     try {
+      const user = localStorage.getItem('user');
+      if (!user) {
+        alert('لطفاً ابتدا وارد شوید');
+        return;
+      }
+
+      const userData = JSON.parse(user);
+      
       const response = await fetch(`/api/admin/ilanlar/${ilanId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': userData.id?.toString() || ''
+        },
         body: JSON.stringify({ onecikan: !currentStatus })
       });
 
