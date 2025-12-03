@@ -9,7 +9,8 @@ import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import VitrinAds from "@/components/VitrinAds";
 import { MapPin, Eye, Clock, Heart, Search } from "lucide-react";
-import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+import { formatDate, getImageUrl } from "@/lib/utils";
+import PriceDisplay from "@/components/PriceDisplay";
 
 interface Ilan {
   id: number;
@@ -148,9 +149,11 @@ function AramaContent() {
                         <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                           {ilan.baslik}
                         </h3>
-                        <div className="text-2xl font-bold text-blue-600 mb-3">
-                          {formatPrice(ilan.fiyat)}
-                        </div>
+                        <PriceDisplay 
+                          price={ilan.fiyat}
+                          currency="AFN"
+                          className="text-2xl font-bold text-blue-600 mb-3"
+                        />
                         <div className="space-y-2 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" />

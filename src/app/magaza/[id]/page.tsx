@@ -8,7 +8,8 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Store, MapPin, Eye, Phone, Star, Package, Crown, ShoppingBag, Sparkles, Zap, MessageCircle, Send, ThumbsUp, BadgeCheck, ShieldCheck, Settings, Edit, TrendingUp } from "lucide-react";
-import { formatPrice, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
+import PriceDisplay from "@/components/PriceDisplay";
 
 interface Magaza {
   id: number;
@@ -551,9 +552,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                               <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm group-hover:text-blue-600 transition-colors">
                                 {ilan.baslik}
                               </h3>
-                              <div className="text-lg font-bold text-gray-900">
-                                {formatPrice(ilan.fiyat)}
-                              </div>
+                              <PriceDisplay 
+                                price={ilan.fiyat}
+                                currency="AFN"
+                                className="text-lg font-bold text-gray-900"
+                              />
                             </div>
                           </div>
                         </Link>
@@ -619,9 +622,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             <h3 className="font-semibold text-sm text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
                               {ilan.baslik}
                             </h3>
-                            <div className="text-base font-bold text-gray-900">
-                              {formatPrice(ilan.fiyat)}
-                            </div>
+                            <PriceDisplay 
+                              price={ilan.fiyat}
+                              currency="AFN"
+                              className="text-base font-bold text-gray-900"
+                            />
                           </div>
                         </div>
                       </Link>

@@ -48,10 +48,12 @@ export default function IlanVer() {
   const [loadingAltKategoriler, setLoadingAltKategoriler] = useState(false);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
+  const [coverIndex, setCoverIndex] = useState(0); // Kapak resmi index'i
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
   const [districts, setDistricts] = useState<string[]>([]);
   const [compressing, setCompressing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   
   const [formData, setFormData] = useState({
     baslik: "",
@@ -243,6 +245,81 @@ export default function IlanVer() {
 
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
+    // Eğer silinen resim kapak resmiyse, kapağı sıfırla
+    if (index === coverIndex) {
+      setCoverIndex(0);
+    } else if (index < coverIndex) {
+      setCoverIndex(prev => prev - 1);
+    }
+  };
+
+  // Kapak resmi seçme
+  const selectCover = (index: number) => {
+    setCoverIndex(index);
+  };
+
+  // Drag & Drop fonksiyonları
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (images.length < 10 && !compressing) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (images.length >= 10 || compressing) return;
+
+    const files = Array.from(e.dataTransfer.files).filter(file => 
+      file.type.startsWith('image/')
+    );
+
+    if (files.length === 0) return;
+
+    const remainingSlots = 10 - images.length;
+    
+    setCompressing(true);
+    
+    try {
+      const compressedFiles: File[] = [];
+      for (const file of files.slice(0, remainingSlots)) {
+        try {
+          const compressed = await compressImage(file);
+          compressedFiles.push(compressed);
+        } catch (error) {
+          console.error('Resim sıkıştırma hatası:', error);
+          compressedFiles.push(file);
+        }
+      }
+      
+      const newImages = [...images, ...compressedFiles];
+      setImages(newImages);
+      
+      if (compressedFiles.length > 0) {
+        const totalImages = newImages.length;
+        if (totalImages === 10) {
+          alert(`✅ ${compressedFiles.length} عکس با موفقیت اضافه شد! (فشرده‌سازی شده) \n\nشما اکنون حداکثر تعداد مجاز (۱۰ عکس) را دارید.`);
+        } else {
+          alert(`✅ ${compressedFiles.length} عکس با موفقیت اضافه شد! (فشرده‌سازی شده) \n\nمی‌توانید ${10 - totalImages} عکس دیگر اضافه کنید.`);
+        }
+      }
+      
+      if (files.length > remainingSlots) {
+        alert(`⚠️ توجه: فقط ${remainingSlots} عکس اضافه شد زیرا حداکثر ۱۰ عکس مجاز است.`);
+      }
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -295,8 +372,15 @@ export default function IlanVer() {
 
       const userData = JSON.parse(userStr);
       
+      // Kapak resmini ilk sıraya koy
+      const sortedImages = [...images];
+      if (coverIndex > 0 && coverIndex < sortedImages.length) {
+        const coverImage = sortedImages.splice(coverIndex, 1)[0];
+        sortedImages.unshift(coverImage);
+      }
+
       const resimlerBase64: string[] = [];
-      for (const image of images) {
+      for (const image of sortedImages) {
         const base64 = await new Promise<string>((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result as string);
@@ -638,11 +722,18 @@ export default function IlanVer() {
                 </div>
               </div>
 
-              <div className={`relative border-3 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
-                images.length >= 10 || compressing
-                  ? 'border-gray-300 bg-gray-50 cursor-not-allowed' 
-                  : 'border-blue-400 bg-white hover:border-blue-600 hover:bg-blue-50 hover:shadow-xl'
-              }`}>
+              <div 
+                className={`relative border-3 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
+                  isDragging
+                    ? 'border-blue-600 bg-blue-100 scale-[1.02] shadow-2xl'
+                    : images.length >= 10 || compressing
+                      ? 'border-gray-300 bg-gray-50 cursor-not-allowed' 
+                      : 'border-blue-400 bg-white hover:border-blue-600 hover:bg-blue-50 hover:shadow-xl'
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
                 <input
                   type="file"
                   id="images"
@@ -668,6 +759,18 @@ export default function IlanVer() {
                         لطفاً صبر کنید
                       </p>
                     </>
+                  ) : isDragging ? (
+                    <>
+                      <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 animate-pulse">
+                        <Upload className="h-8 w-8 text-white" />
+                      </div>
+                      <p className="text-lg text-blue-700 font-bold mb-1">
+                        رها کنید تا آپلود شود!
+                      </p>
+                      <p className="text-sm text-blue-600">
+                        عکس‌ها را اینجا رها کنید
+                      </p>
+                    </>
                   ) : (
                     <>
                       <div className={`w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center ${
@@ -676,7 +779,7 @@ export default function IlanVer() {
                         <Upload className={`h-8 w-8 ${images.length >= 10 ? 'text-gray-400' : 'text-white'}`} />
                       </div>
                       <p className="text-base text-gray-900 font-bold mb-1">
-                        {images.length >= 10 ? 'حداکثر تعداد عکس آپلود شده است' : 'برای آپلود عکس کلیک کنید'}
+                        {images.length >= 10 ? 'حداکثر تعداد عکس آپلود شده است' : 'عکس‌ها را بکشید و رها کنید یا کلیک کنید'}
                       </p>
                       <p className="text-sm text-gray-600 mb-2">
                         {images.length < 10 ? `می‌توانید ${10 - images.length} عکس دیگر اضافه کنید` : 'برای آپلود بیشتر، ابتدا عکسی را حذف کنید'}
@@ -704,37 +807,57 @@ export default function IlanVer() {
                 <div className="mt-5">
                   <div className="mb-3 pb-3 border-b border-blue-200">
                     <p className="text-sm text-gray-700 font-semibold flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-blue-600" />
-                      اولین عکس به عنوان تصویر اصلی آگهی شما نمایش داده می‌شود
+                      <Star className="w-4 h-4 text-amber-500" />
+                      روی عکس مورد نظر کلیک کنید تا به عنوان تصویر اصلی (کاور) انتخاب شود
                     </p>
                   </div>
                   <div className="grid grid-cols-5 gap-3">
                     {images.map((image, index) => (
                       <div key={index} className="relative group">
-                        <div className="aspect-square rounded-xl overflow-hidden border-2 border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                        <div 
+                          className={`aspect-square rounded-xl overflow-hidden border-3 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer ${
+                            index === coverIndex 
+                              ? 'border-amber-500 ring-2 ring-amber-300 scale-105' 
+                              : 'border-gray-200 hover:border-blue-400 hover:scale-105'
+                          }`}
+                          onClick={() => selectCover(index)}
+                        >
                           <img
                             src={URL.createObjectURL(image)}
                             alt={`عکس ${index + 1}`}
                             className="w-full h-full object-cover"
                           />
+                          {/* Cover badge */}
+                          {index === coverIndex && (
+                            <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-amber-500/90 to-transparent py-2 px-2">
+                              <div className="flex items-center justify-center gap-1 text-white text-xs font-bold">
+                                <Star className="w-3 h-3 fill-white" />
+                                تصویر اصلی
+                              </div>
+                            </div>
+                          )}
+                          {/* Delete button */}
                           <button
                             type="button"
-                            onClick={() => removeImage(index)}
+                            onClick={(e) => { e.stopPropagation(); removeImage(index); }}
                             className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center hover:from-red-600 hover:to-red-700 shadow-lg transform transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
                           >
                             <X className="h-4 w-4" />
                           </button>
-                          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                          {/* Number badge */}
+                          <div className="absolute bottom-2 left-2">
                             <span className="bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-bold">
                               #{index + 1}
                             </span>
-                            {index === 0 && (
-                              <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                                <ImageIcon className="w-3 h-3" />
-                                <span className="font-bold">اصلی</span>
-                              </div>
-                            )}
                           </div>
+                          {/* Select as cover hint */}
+                          {index !== coverIndex && (
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                              <span className="bg-white/90 text-gray-800 text-xs px-3 py-1.5 rounded-full font-bold shadow-lg">
+                                انتخاب به عنوان کاور
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

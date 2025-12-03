@@ -7,7 +7,8 @@ import Footer from "@/components/Footer";
 import { Store, MapPin, Phone, Mail, Eye, Package, Edit, Settings, TrendingUp, ShoppingBag, ExternalLink, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { formatPrice, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
+import PriceDisplay from "@/components/PriceDisplay";
 
 interface MagazaBilgileri {
   id: number;
@@ -463,9 +464,11 @@ export default function MagazamPage() {
                               <h4 className="font-medium text-gray-900 mb-1 line-clamp-2 text-xs md:text-sm">
                                 {ilan.baslik}
                               </h4>
-                              <div className="text-sm md:text-base font-bold text-gray-900 mb-1 md:mb-2">
-                                {formatPrice(ilan.fiyat)}
-                              </div>
+                              <PriceDisplay 
+                                price={ilan.fiyat}
+                                currency="AFN"
+                                className="text-sm md:text-base font-bold text-gray-900 mb-1 md:mb-2"
+                              />
                               <div className="flex items-center gap-1 text-xs text-gray-500">
                                 <Eye className="h-3 w-3" />
                                 <span>{ilan.goruntulenme} بازدید</span>

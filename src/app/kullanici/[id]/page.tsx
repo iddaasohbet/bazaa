@@ -8,7 +8,8 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { MapPin, Eye, Clock, Heart, User as UserIcon } from "lucide-react";
-import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+import { formatDate, getImageUrl } from "@/lib/utils";
+import PriceDisplay from "@/components/PriceDisplay";
 
 interface Ilan {
   id: number;
@@ -149,9 +150,11 @@ export default function KullaniciIlanlari({ params }: { params: Promise<{ id: st
                         </h3>
                         
                         <div className="flex items-baseline gap-1 mb-3">
-                          <span className="text-lg font-bold text-blue-600">
-                            {formatPrice(ilan.fiyat)}
-                          </span>
+                          <PriceDisplay 
+                            price={ilan.fiyat}
+                            currency="AFN"
+                            className="text-lg font-bold text-blue-600"
+                          />
                         </div>
 
                         <div className="mt-auto space-y-2 text-xs text-gray-600">
