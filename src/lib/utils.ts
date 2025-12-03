@@ -37,13 +37,13 @@ export function formatPrice(price: number, currency: 'AFN' | 'USD' = 'AFN'): str
     return `${formattedNumber} $`; // $ sağda
   }
   
-  // AFN için - sayı + boşluk + افغانی
+  // AFN için - افغانی SOLDA (RTL için doğal)
   const formattedNumber = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
   
-  return `${formattedNumber} افغانی`;
+  return `افغانی ${formattedNumber}`;
 }
 
 // Sadece sayıyı döndür (AFN olmadan)

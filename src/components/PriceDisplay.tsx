@@ -29,11 +29,11 @@ export default function PriceDisplay({
     );
   }
 
-  // AFN - rakam büyük, افغانی küçük ve sağda
+  // AFN - افغانی SOLDA (RTL için doğal)
   return (
-    <span className={`${className} inline-flex items-baseline gap-1`} dir="ltr">
-      <span>{formattedNumber}</span>
+    <span className={`${className} inline-flex items-baseline gap-1`} dir="rtl">
       {showCurrency && <span className="text-[0.65em] opacity-70 font-normal">افغانی</span>}
+      <span>{formattedNumber}</span>
     </span>
   );
 }
