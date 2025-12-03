@@ -23,7 +23,8 @@ import {
   Tag,
   TrendingUp,
   Image,
-  MessageSquare
+  MessageSquare,
+  Phone
 } from "lucide-react";
 
 interface AdminLayoutProps {
