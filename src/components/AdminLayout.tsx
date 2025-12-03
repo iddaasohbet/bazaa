@@ -120,6 +120,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       items: [
         { icon: Settings, label: "تنظیمات", href: "/admin/ayarlar" },
         { icon: ShieldCheck, label: "امنیت", href: "/admin/guvenlik" },
+        { icon: Phone, label: "تنظیمات تماس", href: "/admin/iletisim-ayarlari" },
         { icon: MessageSquare, label: "پیام‌های تماس", href: "/admin/iletisim-mesajlari" },
       ]
     },
