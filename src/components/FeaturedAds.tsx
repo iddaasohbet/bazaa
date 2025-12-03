@@ -7,7 +7,8 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { formatPrice, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
+import PriceDisplay from "./PriceDisplay";
 
 interface Slider {
   id: number;
@@ -122,10 +123,12 @@ export default function FeaturedAds() {
                       
                       {/* Eğer ilan ise fiyat göster */}
                       {slider.ilan_id && slider.fiyat !== undefined && (
-                        <div className="mb-6 flex items-baseline gap-3">
-                          <span className="text-4xl sm:text-5xl font-bold text-white">
-                            {formatPrice(slider.fiyat)}
-                          </span>
+                        <div className="mb-6 flex items-baseline gap-3 flex-wrap">
+                          <PriceDisplay 
+                            price={slider.fiyat}
+                            currency="AFN"
+                            className="text-4xl sm:text-5xl font-bold text-white"
+                          />
                           {slider.kategori_ad && (
                             <span className="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
                               {slider.kategori_ad}

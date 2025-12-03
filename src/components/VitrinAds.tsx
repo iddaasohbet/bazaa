@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Eye, MapPin, Star } from "lucide-react";
-import { formatPrice, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
+import PriceDisplay from "./PriceDisplay";
 
 interface VitrinIlan {
   id: number;
@@ -149,9 +150,11 @@ export default function VitrinAds({
 
                   {/* Fiyat */}
                   <div className="mb-3">
-                    <div className="text-xl md:text-2xl font-bold text-gray-900">
-                      {formatPrice(ilan.fiyat)}
-                    </div>
+                    <PriceDisplay 
+                      price={ilan.fiyat}
+                      currency="AFN"
+                      className="text-xl md:text-2xl font-bold text-gray-900"
+                    />
                   </div>
 
                   {/* Alt Bilgiler */}
