@@ -7,7 +7,8 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Heart, MapPin, Eye, Clock, X } from "lucide-react";
-import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+import { formatDate, getImageUrl } from "@/lib/utils";
+import PriceDisplay from "@/components/PriceDisplay";
 import { useRouter } from "next/navigation";
 
 interface Ilan {
@@ -188,17 +189,25 @@ export default function Favoriler() {
                           <div className="mb-3">
                             {favori.eski_fiyat && favori.indirim_yuzdesi && favori.indirim_yuzdesi > 0 ? (
                               <div className="space-y-0.5">
-                                <div className="text-xs text-gray-500 line-through">
-                                  {formatPrice(favori.eski_fiyat)}
+                                <div className="line-through">
+                                  <PriceDisplay 
+                                    price={favori.eski_fiyat}
+                                    currency="AFN"
+                                    className="text-xs text-gray-500"
+                                  />
                                 </div>
-                                <div className="text-lg font-bold text-red-600">
-                                  {formatPrice(favori.fiyat)}
-                                </div>
+                                <PriceDisplay 
+                                  price={favori.fiyat}
+                                  currency="AFN"
+                                  className="text-lg font-bold text-red-600"
+                                />
                               </div>
                             ) : (
-                              <div className="text-lg font-bold text-blue-600">
-                                {formatPrice(favori.fiyat)}
-                              </div>
+                              <PriceDisplay 
+                                price={favori.fiyat}
+                                currency="AFN"
+                                className="text-lg font-bold text-blue-600"
+                              />
                             )}
                           </div>
 
