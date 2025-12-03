@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Store, Upload, MapPin, Phone, Mail, User, FileText, CreditCard, Package, Star, TrendingUp, Award, Zap, Crown, Sparkles, BadgeCheck, Rocket, Gift } from "lucide-react";
+import { Store, Upload, MapPin, Phone, Mail, User, FileText, CreditCard, Package, Star, TrendingUp, Award, Zap, Crown, Sparkles, BadgeCheck, Rocket, Gift, ArrowLeft, ArrowRight } from "lucide-react";
 import { getCitiesList, getDistrictsList } from "@/lib/cities";
 
 interface Paket {
@@ -350,34 +350,20 @@ export default function MagazaAcPage() {
                   </div>
 
                   {/* Form Fields */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">
-                        نام مغازه (فارسی/انگلیسی) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.magaza_ad}
-                        onChange={(e) => setFormData({...formData, magaza_ad: e.target.value})}
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                        placeholder="مثال: فروشگاه الکترونیک احمد"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">
-                        نام مغازه (دری) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.magaza_ad_dari}
-                        onChange={(e) => setFormData({...formData, magaza_ad_dari: e.target.value})}
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                        placeholder="مغازه الکترونیکی احمد"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      <Store className="inline h-4 w-4 ml-1" />
+                      نام مغازه *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.magaza_ad}
+                      onChange={(e) => setFormData({...formData, magaza_ad: e.target.value, magaza_ad_dari: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-lg"
+                      placeholder="مثال: فروشگاه الکترونیک احمد"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">می‌توانید به فارسی، دری یا انگلیسی بنویسید</p>
                   </div>
 
                   <div>
@@ -714,14 +700,15 @@ export default function MagazaAcPage() {
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="px-8 py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg transition-all border border-gray-300"
+                      className="group px-8 py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-lg transition-all border border-gray-300 flex items-center gap-3"
                     >
-                      ← قبلی
+                      <ArrowRight className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+                      <span>قبلی</span>
                     </button>
                     <button
                       type="submit"
                       disabled={!selectedPaket || loading}
-                      className="flex-1 px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="group flex-1 px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                     >
                       {loading ? (
                         <span className="flex items-center justify-center gap-2">
@@ -729,9 +716,19 @@ export default function MagazaAcPage() {
                           در حال ایجاد...
                         </span>
                       ) : (
-                        Number(paketler.find(p => p.id === selectedPaket)?.fiyat) === 0 
-                          ? '✓ ایجاد مغازه رایگان' 
-                          : 'ادامه و پرداخت ←'
+                        <>
+                          {Number(paketler.find(p => p.id === selectedPaket)?.fiyat) === 0 ? (
+                            <>
+                              <BadgeCheck className="h-5 w-5" />
+                              <span>ایجاد مغازه رایگان</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>ادامه و پرداخت</span>
+                              <ArrowLeft className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                            </>
+                          )}
+                        </>
                       )}
                     </button>
                   </div>
@@ -743,9 +740,10 @@ export default function MagazaAcPage() {
                 <div className="flex justify-start gap-4 pt-6 px-8 pb-8 border-t border-gray-200 -mx-8 -mb-8 bg-gray-50">
                   <button
                     type="submit"
-                    className="px-12 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all"
+                    className="group px-12 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all flex items-center gap-3"
                   >
-                    بعدی ←
+                    <span>بعدی</span>
+                    <ArrowLeft className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
               )}

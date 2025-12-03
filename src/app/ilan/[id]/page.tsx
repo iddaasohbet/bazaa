@@ -25,7 +25,8 @@ import {
   BadgeCheck,
   ShieldCheck
 } from "lucide-react";
-import { formatPrice, formatPriceWithBoth, formatDate, getImageUrl } from "@/lib/utils";
+import { formatPriceWithBoth, formatDate, getImageUrl } from "@/lib/utils";
+import PriceDisplay from "@/components/PriceDisplay";
 
 interface Ilan {
   id: number;
@@ -378,11 +379,12 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                       
                       {/* Eski Fiyat */}
                       {ilan.eski_fiyat && (
-                        <div className="text-xl text-gray-500 line-through">
-                          {ilan.fiyat_usd && ilan.fiyat_usd > 0 
-                            ? formatPriceWithBoth(ilan.eski_fiyat, ilan.fiyat_usd)
-                            : formatPrice(ilan.eski_fiyat)
-                          }
+                        <div className="line-through">
+                          <PriceDisplay 
+                            price={ilan.eski_fiyat}
+                            currency={ilan.para_birimi as 'AFN' | 'USD' || 'AFN'}
+                            className="text-xl text-gray-500"
+                          />
                         </div>
                       )}
                       
@@ -390,17 +392,23 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                       <div className="space-y-2">
                         {ilan.fiyat_usd && ilan.fiyat_usd > 0 ? (
                           <>
-                            <div className="text-5xl font-bold text-red-600">
-                              {formatPrice(ilan.fiyat_usd, 'USD')}
-                            </div>
-                            <div className="text-2xl font-semibold text-gray-700">
-                              {formatPrice(ilan.fiyat, 'AFN')}
-                            </div>
+                            <PriceDisplay 
+                              price={ilan.fiyat_usd}
+                              currency="USD"
+                              className="text-5xl font-bold text-red-600"
+                            />
+                            <PriceDisplay 
+                              price={ilan.fiyat}
+                              currency="AFN"
+                              className="text-2xl font-semibold text-gray-700"
+                            />
                           </>
                         ) : (
-                          <div className="text-5xl font-bold text-red-600">
-                            {formatPrice(ilan.fiyat, 'AFN')}
-                          </div>
+                          <PriceDisplay 
+                            price={ilan.fiyat}
+                            currency="AFN"
+                            className="text-5xl font-bold text-red-600"
+                          />
                         )}
                       </div>
                       
@@ -410,9 +418,11 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                           <div className="text-sm text-green-700 font-medium">
                             شما صرفه‌جویی می‌کنید:
                           </div>
-                          <div className="text-xl font-bold text-green-600">
-                            {formatPrice(ilan.eski_fiyat - ilan.fiyat, 'AFN')}
-                          </div>
+                          <PriceDisplay 
+                            price={ilan.eski_fiyat - ilan.fiyat}
+                            currency="AFN"
+                            className="text-xl font-bold text-green-600"
+                          />
                         </div>
                       )}
                     </div>
@@ -420,18 +430,24 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                     <div className="space-y-2">
                       {ilan.fiyat_usd && ilan.fiyat_usd > 0 ? (
                         <>
-                          <div className="text-4xl font-bold text-green-600 mb-2">
-                            {formatPrice(ilan.fiyat_usd, 'USD')}
-                          </div>
-                          <div className="text-2xl font-semibold text-gray-700">
-                            {formatPrice(ilan.fiyat, 'AFN')}
-                          </div>
+                          <PriceDisplay 
+                            price={ilan.fiyat_usd}
+                            currency="USD"
+                            className="text-4xl font-bold text-green-600"
+                          />
+                          <PriceDisplay 
+                            price={ilan.fiyat}
+                            currency="AFN"
+                            className="text-2xl font-semibold text-gray-700"
+                          />
                           <div className="text-xs text-gray-500 mt-1">قیمت در هر دو واحد پول</div>
                         </>
                       ) : (
-                        <div className="text-4xl font-bold text-gray-900 mb-2">
-                          {formatPrice(ilan.fiyat, 'AFN')}
-                        </div>
+                        <PriceDisplay 
+                          price={ilan.fiyat}
+                          currency="AFN"
+                          className="text-4xl font-bold text-gray-900"
+                        />
                       )}
                     </div>
                   )}
@@ -669,10 +685,12 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                         <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight group-hover:text-blue-600 transition-colors">
                           {benzer.baslik}
                         </h3>
-                        <div className="flex items-baseline gap-1 mb-3">
-                          <span className="text-lg font-bold text-blue-600">
-                            {formatPrice(benzer.fiyat)}
-                          </span>
+                        <div className="mb-3">
+                          <PriceDisplay 
+                            price={benzer.fiyat}
+                            currency="AFN"
+                            className="text-lg font-bold text-blue-600"
+                          />
                         </div>
                         <div className="mt-auto space-y-2 text-xs text-gray-600">
                           <div className="flex items-center gap-1.5">

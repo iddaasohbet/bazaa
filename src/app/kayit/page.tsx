@@ -108,8 +108,7 @@ export default function KayitOl() {
             {/* Logo */}
             <div className="text-center mb-8">
               <Link href="/">
-                <span className="text-4xl font-bold text-gray-900">Afghanistan</span>
-                <span className="text-4xl font-bold text-blue-600">.</span>
+                <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">بازار وطن</span>
               </Link>
               <p className="text-gray-600 mt-2">حساب کاربری ایجاد کنید</p>
             </div>

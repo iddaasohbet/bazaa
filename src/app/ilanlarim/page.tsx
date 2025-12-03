@@ -8,7 +8,8 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { User, Settings, FileText, Heart, LogOut, MapPin, Eye, Clock, Edit, Trash2, MessageSquare } from "lucide-react";
-import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+import { formatDate, getImageUrl } from "@/lib/utils";
+import PriceDisplay from "@/components/PriceDisplay";
 
 interface Ilan {
   id: number;
@@ -130,9 +131,9 @@ export default function Ilanlarim() {
       
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">İlanlarım</h1>
-            <p className="text-gray-600">Verdiğiniz ilanları yönetin</p>
+          <div className="mb-8" dir="rtl">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">آگهی‌های من</h1>
+            <p className="text-gray-600">آگهی‌های خود را مدیریت کنید</p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
@@ -149,13 +150,13 @@ export default function Ilanlarim() {
                 </div>
 
                 {/* Menu */}
-                <nav className="p-2">
+                <nav className="p-2" dir="rtl">
                   <Link
                     href="/profilim"
                     className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
                   >
                     <User className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">Profilim</span>
+                    <span className="flex-1 text-sm font-medium">پروفایل من</span>
                   </Link>
                   
                   <Link
@@ -163,7 +164,7 @@ export default function Ilanlarim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-blue-600 bg-blue-50 rounded-md transition-colors mb-1"
                   >
                     <FileText className="h-5 w-5" />
-                    <span className="flex-1 text-sm font-medium">İlanlarım</span>
+                    <span className="flex-1 text-sm font-medium">آگهی‌های من</span>
                   </Link>
                   
                   <Link
@@ -171,7 +172,7 @@ export default function Ilanlarim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
                   >
                     <Heart className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">Favorilerim</span>
+                    <span className="flex-1 text-sm font-medium">علاقه‌مندی‌ها</span>
                   </Link>
                   
                   <Link
@@ -179,7 +180,7 @@ export default function Ilanlarim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
                   >
                     <MessageSquare className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">Mesajlar</span>
+                    <span className="flex-1 text-sm font-medium">پیام‌ها</span>
                   </Link>
                   
                   <Link
@@ -187,18 +188,18 @@ export default function Ilanlarim() {
                     className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
                   >
                     <Settings className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">Ayarlar</span>
+                    <span className="flex-1 text-sm font-medium">تنظیمات</span>
                   </Link>
                 </nav>
 
                 {/* Logout */}
-                <div className="p-2 border-t border-gray-200">
+                <div className="p-2 border-t border-gray-200" dir="rtl">
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                   >
                     <LogOut className="h-5 w-5" />
-                    <span className="flex-1 text-sm font-medium text-left">Çıkış Yap</span>
+                    <span className="flex-1 text-sm font-medium">خروج از حساب</span>
                   </button>
                 </div>
               </div>
@@ -219,36 +220,36 @@ export default function Ilanlarim() {
                   ))}
                 </div>
               ) : ilanlar.length === 0 ? (
-                <div className="border border-gray-200 rounded-lg p-16 text-center">
+                <div className="border border-gray-200 rounded-lg p-16 text-center" dir="rtl">
                   <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Henüz İlan Vermediniz</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">هنوز آگهی ثبت نکرده‌اید</h3>
                   <p className="text-gray-600 mb-6">
-                    İlk ilanınızı verin ve satışa başlayın!
+                    اولین آگهی خود را ثبت کنید و فروش را شروع کنید!
                   </p>
                   <Link 
                     href="/ilan-ver" 
                     className="inline-block border-2 border-blue-600 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                   >
-                    İlan Ver
+                    ثبت آگهی
                   </Link>
                 </div>
               ) : (
                 <div className="space-y-6">
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-3 gap-4" dir="rtl">
                     <div className="border border-gray-200 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold text-gray-900 mb-1">{ilanlar.length}</div>
-                      <div className="text-sm text-gray-600">Toplam İlan</div>
+                      <div className="text-sm text-gray-600">کل آگهی‌ها</div>
                     </div>
                     <div className="border border-gray-200 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold text-gray-900 mb-1">
                         {ilanlar.reduce((sum, i) => sum + i.goruntulenme, 0)}
                       </div>
-                      <div className="text-sm text-gray-600">Toplam Görüntülenme</div>
+                      <div className="text-sm text-gray-600">کل بازدیدها</div>
                     </div>
                     <div className="border border-gray-200 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold text-green-600 mb-1">{ilanlar.length}</div>
-                      <div className="text-sm text-gray-600">Aktif İlan</div>
+                      <div className="text-sm text-gray-600">آگهی فعال</div>
                     </div>
                   </div>
 
@@ -266,12 +267,11 @@ export default function Ilanlarim() {
                             <div className="overflow-hidden rounded-xl border border-gray-200 transition-all hover:shadow-xl hover:border-blue-300 h-full flex flex-col">
                               {/* Image */}
                               <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                                <Image
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
                                   src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
                                   alt={ilan.baslik}
-                                  fill
-                                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                                 
                                 {/* Badge */}
@@ -288,10 +288,12 @@ export default function Ilanlarim() {
                                   {ilan.baslik}
                                 </h3>
                                 
-                                <div className="flex items-baseline gap-1 mb-3">
-                                  <span className="text-lg font-bold text-blue-600">
-                                    {formatPrice(ilan.fiyat)}
-                                  </span>
+                                <div className="mb-3">
+                                  <PriceDisplay 
+                                    price={ilan.fiyat}
+                                    currency="AFN"
+                                    className="text-lg font-bold text-blue-600"
+                                  />
                                 </div>
 
                                 <div className="mt-auto space-y-2 text-xs text-gray-600">
@@ -319,7 +321,7 @@ export default function Ilanlarim() {
                             <Link
                               href={`/ilan/${ilan.id}/duzenle`}
                               className="w-8 h-8 rounded-full border-2 border-white bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-all shadow-sm"
-                              title="Düzenle"
+                              title="ویرایش"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <Edit className="h-4 w-4" />
@@ -331,7 +333,7 @@ export default function Ilanlarim() {
                                 handleDelete(ilan.id);
                               }}
                               className="w-8 h-8 rounded-full border-2 border-white bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all shadow-sm"
-                              title="Sil"
+                              title="حذف"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>

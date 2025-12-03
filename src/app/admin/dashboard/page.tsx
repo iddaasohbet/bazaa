@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 import {
   TrendingUp,
   TrendingDown,
@@ -30,6 +31,32 @@ interface Stats {
   magazaGrowth: number;
   aylikGelir: number;
   gelirGrowth: number;
+  bugun?: {
+    ilanlar: number;
+    kullanicilar: number;
+    goruntulenme: number;
+  };
+  bekleyen?: {
+    ilanlar: number;
+    magazalar: number;
+    odemeler: number;
+  };
+}
+
+interface Ilan {
+  id: number;
+  baslik: string;
+  fiyat: number;
+  goruntulenme: number;
+  kategori_ad: string;
+  kategori_ad_dari: string;
+  created_at: string;
+}
+
+interface KategoriStat {
+  kategori_ad: string;
+  kategori_ad_dari: string;
+  ilan_sayisi: number;
 }
 
 export default function AdminDashboardPage() {
@@ -43,21 +70,42 @@ export default function AdminDashboardPage() {
     aylikGelir: 0,
     gelirGrowth: 0
   });
+  const [sonIlanlar, setSonIlanlar] = useState<Ilan[]>([]);
+  const [kategoriStats, setKategoriStats] = useState<KategoriStat[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
+    fetchAllData();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchAllData = async () => {
+    const user = localStorage.getItem('user');
+    if (!user) return;
+
+    const userData = JSON.parse(user);
+    const headers = {
+      'x-user-id': userData.id?.toString() || ''
+    };
+
     try {
-      const response = await fetch('/api/admin/dashboard/stats');
-      const data = await response.json();
-      if (data.success) {
-        setStats(data.data);
-      }
+      // Paralel API çağrıları
+      const [statsRes, ilanlarRes, kategoriRes] = await Promise.all([
+        fetch('/api/admin/dashboard/stats', { headers }),
+        fetch('/api/admin/dashboard/son-ilanlar?limit=5', { headers }),
+        fetch('/api/admin/dashboard/kategori-stats', { headers })
+      ]);
+
+      const [statsData, ilanlarData, kategoriData] = await Promise.all([
+        statsRes.json(),
+        ilanlarRes.json(),
+        kategoriRes.json()
+      ]);
+
+      if (statsData.success) setStats(statsData.data);
+      if (ilanlarData.success) setSonIlanlar(ilanlarData.data || []);
+      if (kategoriData.success) setKategoriStats(kategoriData.data || []);
     } catch (error) {
-      console.error('Stats yükleme hatası:', error);
+      console.error('Data yükleme hatası:', error);
     } finally {
       setLoading(false);
     }
@@ -185,40 +233,56 @@ export default function AdminDashboardPage() {
               </Link>
             </div>
             <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-gray-900 truncate text-sm sm:text-base">گوشی Samsung Galaxy S24 Ultra</div>
-                      <div className="text-xs sm:text-sm text-gray-600 flex items-center gap-2 flex-wrap">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                          الکترونیک
-                        </span>
-                        <span>•</span>
-                        <span>۲ ساعت پیش</span>
-                      </div>
+              {loading ? (
+                [...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl animate-pulse">
+                    <div className="w-14 h-14 rounded-xl bg-gray-200"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
-                    <div className="text-right">
-                      <div className="font-bold text-gray-900 text-sm sm:text-base" dir="ltr">45,000 AFN</div>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Eye className="w-3 h-3" />
-                        <span>۲۳۴ بازدید</span>
-                      </div>
-                    </div>
-                    <Link 
-                      href={`/admin/ilanlar/${i}`} 
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap"
-                    >
-                      ویرایش
-                    </Link>
-                  </div>
+                ))
+              ) : sonIlanlar.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  هنوز آگهی ثبت نشده است
                 </div>
-              ))}
+              ) : (
+                sonIlanlar.map((ilan) => (
+                  <div key={ilan.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-gray-900 truncate text-sm sm:text-base">{ilan.baslik}</div>
+                        <div className="text-xs sm:text-sm text-gray-600 flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                            {ilan.kategori_ad_dari || ilan.kategori_ad}
+                          </span>
+                          <span>•</span>
+                          <span>{formatDate(ilan.created_at)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+                      <div className="text-right">
+                        <div className="font-bold text-gray-900 text-sm sm:text-base" dir="ltr">{ilan.fiyat.toLocaleString()} AFN</div>
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Eye className="w-3 h-3" />
+                          <span>{ilan.goruntulenme} بازدید</span>
+                        </div>
+                      </div>
+                      <Link 
+                        href={`/admin/ilanlar/${ilan.id}`} 
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap"
+                      >
+                        ویرایش
+                      </Link>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -286,21 +350,27 @@ export default function AdminDashboardPage() {
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-medium text-gray-700">آگهی‌های منتظر تأیید</span>
                   </div>
-                  <span className="px-2.5 py-1 text-xs font-bold bg-red-500 text-white rounded-lg">۱۲</span>
+                  <span className="px-2.5 py-1 text-xs font-bold bg-red-500 text-white rounded-lg">
+                    {loading ? '...' : (stats.bekleyen?.ilanlar || 0)}
+                  </span>
                 </Link>
                 <Link href="/admin/magazalar?durum=beklemede" className="flex items-center justify-between p-3 rounded-xl hover:bg-yellow-50 transition-colors group">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-medium text-gray-700">مغازه‌های منتظر تأیید</span>
                   </div>
-                  <span className="px-2.5 py-1 text-xs font-bold bg-yellow-500 text-white rounded-lg">۵</span>
+                  <span className="px-2.5 py-1 text-xs font-bold bg-yellow-500 text-white rounded-lg">
+                    {loading ? '...' : (stats.bekleyen?.magazalar || 0)}
+                  </span>
                 </Link>
                 <Link href="/admin/odemeler?durum=beklemede" className="flex items-center justify-between p-3 rounded-xl hover:bg-blue-50 transition-colors group">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                     <span className="text-sm font-medium text-gray-700">پرداخت‌های در انتظار</span>
                   </div>
-                  <span className="px-2.5 py-1 text-xs font-bold bg-blue-500 text-white rounded-lg">۸</span>
+                  <span className="px-2.5 py-1 text-xs font-bold bg-blue-500 text-white rounded-lg">
+                    {loading ? '...' : (stats.bekleyen?.odemeler || 0)}
+                  </span>
                 </Link>
               </div>
             </div>
@@ -321,16 +391,16 @@ export default function AdminDashboardPage() {
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <span className="text-sm font-medium">آگهی‌های جدید</span>
-                <span className="text-lg font-bold">۴۵</span>
+                <span className="text-sm font-medium">آگهی‌های جدید امروز</span>
+                <span className="text-lg font-bold">{stats.bugun?.ilanlar || 0}</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <span className="text-sm font-medium">اعضای جدید</span>
-                <span className="text-lg font-bold">۲۳</span>
+                <span className="text-sm font-medium">اعضای جدید امروز</span>
+                <span className="text-lg font-bold">{stats.bugun?.kullanicilar || 0}</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <span className="text-sm font-medium">مجموع بازدید</span>
-                <span className="text-lg font-bold" dir="ltr">12,456</span>
+                <span className="text-sm font-medium">مجموع بازدید امروز</span>
+                <span className="text-lg font-bold">{stats.bugun?.goruntulenme.toLocaleString() || 0}</span>
               </div>
             </div>
           </div>
@@ -346,27 +416,28 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-sm font-medium">الکترونیک</span>
+              {loading ? (
+                [...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm animate-pulse">
+                    <div className="h-4 bg-white/20 rounded w-24"></div>
+                    <div className="h-4 bg-white/20 rounded w-16"></div>
+                  </div>
+                ))
+              ) : kategoriStats.length === 0 ? (
+                <div className="text-center text-sm text-white/70 py-4">
+                  دسته‌بندی وجود ندارد
                 </div>
-                <span className="text-lg font-bold">۲,۳۴۵</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-sm font-medium">وسایل نقلیه</span>
-                </div>
-                <span className="text-lg font-bold">۱,۸۷۶</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-sm font-medium">املاک</span>
-                </div>
-                <span className="text-lg font-bold">۱,۲۳۴</span>
-              </div>
+              ) : (
+                kategoriStats.map((kat, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                      <span className="text-sm font-medium">{kat.kategori_ad_dari || kat.kategori_ad}</span>
+                    </div>
+                    <span className="text-lg font-bold">{kat.ilan_sayisi.toLocaleString()}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -380,24 +451,27 @@ export default function AdminDashboardPage() {
                 <DollarSign className="w-6 h-6" />
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <span className="text-sm font-medium">فروش پکیج‌ها</span>
-                <span className="text-base font-bold" dir="ltr">45,000</span>
+            <div className="mt-4 pt-4">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white/10 backdrop-blur-sm">
+                <span className="text-lg font-semibold">مجموع درآمد این ماه</span>
+                <span className="text-2xl font-bold" dir="ltr">
+                  {loading ? '...' : `${stats.aylikGelir.toLocaleString()} AFN`}
+                </span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <span className="text-sm font-medium">ویترین و تبلیغات</span>
-                <span className="text-base font-bold" dir="ltr">32,500</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 backdrop-blur-sm">
-                <span className="text-sm font-medium">سایر درآمدها</span>
-                <span className="text-base font-bold" dir="ltr">12,000</span>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-white/20">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold">مجموع درآمد</span>
-                <span className="text-xl font-bold" dir="ltr">89,500 AFN</span>
+              <div className="mt-3 flex items-center justify-center gap-2 text-sm">
+                {stats.gelirGrowth >= 0 ? (
+                  <>
+                    <TrendingUp className="w-4 h-4 text-green-300" />
+                    <span className="text-green-300 font-semibold">+{stats.gelirGrowth}%</span>
+                    <span className="text-yellow-100">نسبت به ماه گذشته</span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="w-4 h-4 text-red-300" />
+                    <span className="text-red-300 font-semibold">{stats.gelirGrowth}%</span>
+                    <span className="text-yellow-100">نسبت به ماه گذشته</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
