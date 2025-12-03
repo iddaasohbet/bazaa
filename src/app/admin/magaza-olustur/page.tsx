@@ -43,7 +43,6 @@ export default function MagazaOlusturPage() {
     aciklama: "",
     adres: "",
     telefon: "",
-    email: "",
     logo: "",
     kapak_resmi: "",
     paket_id: "",
@@ -84,9 +83,8 @@ export default function MagazaOlusturPage() {
     setFormData({
       ...formData,
       kullanici_id: kullanici.id.toString(),
-      magaza_adi: `${kullanici.ad} Mağazası`,
-      telefon: kullanici.telefon || "",
-      email: kullanici.email
+      magaza_adi: `${kullanici.ad} دوکان`,
+      telefon: kullanici.telefon || ""
     });
     setSearchTerm(kullanici.ad);
   };
@@ -95,12 +93,19 @@ export default function MagazaOlusturPage() {
     e.preventDefault();
     
     if (!formData.kullanici_id || !formData.magaza_adi) {
-      setMessage({ type: 'error', text: 'Kullanıcı ve mağaza adı gerekli' });
+      setMessage({ type: 'error', text: 'کاربر و نام مغازه ضروری است' });
+      return;
+    }
+
+    if (!formData.paket_id) {
+      setMessage({ type: 'error', text: 'لطفاً یک پکیج انتخاب کنید' });
       return;
     }
 
     setLoading(true);
     setMessage(null);
+
+    console.log('📦 Mağaza oluşturuluyor:', formData);
 
     try {
       const response = await fetch('/api/admin/magaza-olustur', {
@@ -112,9 +117,10 @@ export default function MagazaOlusturPage() {
       });
 
       const data = await response.json();
+      console.log('📨 API Response:', data);
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'Mağaza başarıyla oluşturuldu!' });
+        setMessage({ type: 'success', text: `✅ مغازه با موفقیت ایجاد شد! (ID: ${data.data.magaza_id})` });
         // Formu temizle
         setFormData({
           kullanici_id: "",
@@ -122,7 +128,6 @@ export default function MagazaOlusturPage() {
           aciklama: "",
           adres: "",
           telefon: "",
-          email: "",
           logo: "",
           kapak_resmi: "",
           paket_id: "",
@@ -130,12 +135,13 @@ export default function MagazaOlusturPage() {
           aktif: true
         });
         setSearchTerm("");
-        setTimeout(() => setMessage(null), 3000);
+        setTimeout(() => setMessage(null), 5000);
       } else {
-        setMessage({ type: 'error', text: data.message || 'Bir hata oluştu' });
+        setMessage({ type: 'error', text: '❌ خطا: ' + (data.message || 'یک خطای ناشناخته رخ داد') });
       }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Mağaza oluşturulurken hata oluştu' });
+    } catch (error: any) {
+      console.error('❌ Mağaza oluşturma hatası:', error);
+      setMessage({ type: 'error', text: '❌ خطا در ایجاد مغازه: ' + error.message });
     } finally {
       setLoading(false);
     }
@@ -280,29 +286,16 @@ export default function MagazaOlusturPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      بریښنالیک
+                      پته
                     </label>
                     <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      type="text"
+                      value={formData.adres}
+                      onChange={(e) => setFormData({...formData, adres: e.target.value})}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="magaza@example.com"
+                      placeholder="کابل، افغانستان"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    پته
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.adres}
-                    onChange={(e) => setFormData({...formData, adres: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="کابل، افغانستان"
-                  />
                 </div>
               </div>
             </div>

@@ -1,25 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
-
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'afghanistan_ilanlar'
-};
+import { query } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
-  let connection;
-  
   try {
     const body = await request.json();
+    console.log('📥 Admin Mağaza Oluştur - Gelen data:', body);
+    
     const {
       kullanici_id,
       magaza_adi,
       aciklama,
       adres,
       telefon,
-      email,
       logo,
       kapak_resmi,
       paket_id,
@@ -27,49 +19,64 @@ export async function POST(request: NextRequest) {
       aktif
     } = body;
     
+    console.log('👤 Kullanıcı ID:', kullanici_id);
+    console.log('🏪 Mağaza Adı:', magaza_adi);
+    console.log('📦 Paket ID:', paket_id);
+    
     if (!kullanici_id || !magaza_adi) {
+      console.log('❌ Validasyon hatası: Kullanıcı veya mağaza adı eksik');
       return NextResponse.json({
         success: false,
-        message: 'Kullanıcı ve mağaza adı gerekli'
+        message: 'کاربر و نام مغازه ضروری است'
       }, { status: 400 });
     }
-    
-    connection = await mysql.createConnection(dbConfig);
     
     // Kullanıcının zaten mağazası var mı kontrol et
-    const [existingStores]: any = await connection.execute(
+    const existingStores = await query(
       'SELECT id FROM magazalar WHERE kullanici_id = ?',
       [kullanici_id]
-    );
+    ) as any[];
     
     if (existingStores.length > 0) {
+      console.log('⚠️ Kullanıcının zaten mağazası var');
       return NextResponse.json({
         success: false,
-        message: 'Bu kullanıcının zaten bir mağazası var'
+        message: 'این کاربر قبلاً یک مغازه دارد'
       }, { status: 400 });
     }
     
-    // Mağazayı oluştur
-    const [result]: any = await connection.execute(
+    // Slug oluştur (benzersiz olmalı)
+    const slug = magaza_adi
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '') + '-' + Date.now();
+    
+    console.log('🔗 Slug oluşturuldu:', slug);
+    
+    // Mağazayı oluştur (email sütunu yok, query() kullan)
+    const result = await query(
       `INSERT INTO magazalar (
         kullanici_id, 
-        ad, 
+        ad,
+        ad_dari,
+        slug,
         aciklama, 
         adres, 
         telefon, 
-        email, 
         logo, 
         kapak_resmi,
         aktif,
         onay_durumu
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         kullanici_id,
         magaza_adi,
+        magaza_adi, // ad_dari aynı olsun
+        slug,
         aciklama || '',
         adres || '',
         telefon || '',
-        email || '',
         logo || null,
         kapak_resmi || null,
         aktif ? 1 : 0,
@@ -77,43 +84,33 @@ export async function POST(request: NextRequest) {
       ]
     );
     
-    const magazaId = result.insertId;
+    console.log('✅ Mağaza oluşturuldu, ID:', (result as any).insertId);
     
-    // Eğer paket seçildiyse ve ücretsiz ise, paket ataması yap
-    if (paket_id && ucretsiz) {
+    const magazaId = (result as any).insertId;
+    
+    // Eğer paket seçildiyse, paket ataması ve store_level güncellemesi yap
+    if (paket_id) {
       // Paket bilgilerini al
-      const [paketler]: any = await connection.execute(
+      const paketler = await query(
         'SELECT * FROM paketler WHERE id = ?',
         [paket_id]
-      );
+      ) as any[];
       
       if (paketler.length > 0) {
         const paket = paketler[0];
-        const baslangic = new Date();
-        const bitis = new Date();
-        bitis.setDate(bitis.getDate() + paket.sure);
+        console.log('📦 Paket bilgisi:', paket);
         
-        // Paket aboneliği oluştur
-        await connection.execute(
-          `INSERT INTO magaza_paketler (
-            magaza_id,
-            paket_id,
-            baslangic_tarihi,
-            bitis_tarihi,
-            durum,
-            ucret,
-            odeme_durumu
-          ) VALUES (?, ?, ?, ?, 'aktif', 0, 'ucretsiz')`,
-          [
-            magazaId,
-            paket_id,
-            baslangic.toISOString().slice(0, 19).replace('T', ' '),
-            bitis.toISOString().slice(0, 19).replace('T', ' ')
-          ]
-        );
+        // Store level'i güncelle
+        if (paket.store_level) {
+          await query(
+            'UPDATE magazalar SET store_level = ?, paket_baslangic = NOW(), paket_bitis = DATE_ADD(NOW(), INTERVAL ? DAY) WHERE id = ?',
+            [paket.store_level, (paket.sure_ay * 30 || 30), magazaId]
+          );
+          console.log('✅ Store level güncellendi:', paket.store_level);
+        }
         
-        // Ödeme kaydı oluştur (ücretsiz olarak)
-        await connection.execute(
+        // Ödeme kaydı oluştur (direkt onaylı)
+        await query(
           `INSERT INTO odemeler (
             kullanici_id,
             magaza_id,
@@ -122,29 +119,35 @@ export async function POST(request: NextRequest) {
             durum,
             odeme_yontemi,
             aciklama
-          ) VALUES (?, ?, ?, 0, 'tamamlandi', 'admin', 'Admin tarafından ücretsiz tanımlandı')`,
-          [kullanici_id, magazaId, paket_id]
+          ) VALUES (?, ?, ?, ?, 'onaylandi', 'admin', ?)`,
+          [
+            kullanici_id, 
+            magazaId, 
+            paket_id,
+            ucretsiz ? 0 : paket.fiyat,
+            ucretsiz ? 'Admin tarafından ücretsiz tanımlandı' : 'Admin tarafından oluşturuldu'
+          ]
         );
+        
+        console.log('✅ Ödeme kaydı oluşturuldu');
       }
     }
     
     // Başarı mesajı
     return NextResponse.json({
       success: true,
-      message: 'Mağaza başarıyla oluşturuldu',
+      message: 'مغازه با موفقیت ایجاد شد',
       data: {
         magaza_id: magazaId
       }
     });
     
   } catch (error: any) {
-    console.error('Mağaza oluşturma hatası:', error);
+    console.error('❌ Mağaza oluşturma hatası:', error);
     return NextResponse.json({
       success: false,
       message: error.message
     }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
 
