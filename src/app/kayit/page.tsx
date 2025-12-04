@@ -33,12 +33,6 @@ export default function KayitOl() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Email veya Telefon'dan en az biri zorunlu
-    if (!formData.email && !formData.telefon) {
-      alert('لطفا ایمیل یا شماره تلفن خود را وارد کنید');
-      return;
-    }
-    
     if (formData.sifre !== formData.sifreTekrar) {
       alert('رمزهای عبور مطابقت ندارند!');
       return;
@@ -52,7 +46,6 @@ export default function KayitOl() {
     setLoading(true);
     
     try {
-      // Backend API'ye kayıt isteği gönder
       const response = await fetch('/api/auth/kayit', {
         method: 'POST',
         headers: {
@@ -76,20 +69,15 @@ export default function KayitOl() {
         return;
       }
 
-      // Başarılı kayıt - kullanıcı bilgilerini localStorage'a kaydet
+      // Başarılı kayıt
       localStorage.setItem('user', JSON.stringify({
         id: data.data.id,
         email: data.data.email,
         ad: data.data.ad,
       }));
       
-      // Event gönder (header'ı güncelle)
       window.dispatchEvent(new Event('userLogin'));
-      
-      // Başarı mesajı
       alert(data.message || 'ثبت نام با موفقیت انجام شد');
-      
-      // Ana sayfaya yönlendir
       router.push('/');
     } catch (error) {
       console.error('Kayıt hatası:', error);
@@ -139,7 +127,7 @@ export default function KayitOl() {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    آدرس ایمیل <span className="text-gray-500 text-xs">(اختیاری)</span>
+                    آدرس ایمیل
                   </label>
                   <div className="relative">
                     <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -149,9 +137,9 @@ export default function KayitOl() {
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full pr-11 pl-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="example@email.com"
+                      required
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">ایمیل یا شماره تلفن الزامی است</p>
                 </div>
 
                 {/* Phone */}
@@ -169,7 +157,6 @@ export default function KayitOl() {
                       placeholder="+93 700 000 000"
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">ایمیل یا شماره تلفن الزامی است</p>
                 </div>
 
                 {/* City & District */}
@@ -205,8 +192,8 @@ export default function KayitOl() {
                       disabled={!formData.il}
                     >
                       <option value="">اول ولایت انتخاب کنید</option>
-                      {districts.map(district => (
-                        <option key={district} value={district}>{district}</option>
+                      {districts.map((district, index) => (
+                        <option key={`${district}-${index}`} value={district}>{district}</option>
                       ))}
                     </select>
                   </div>

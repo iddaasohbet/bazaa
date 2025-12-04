@@ -139,38 +139,6 @@ export default function FeedbackWidget() {
                     </div>
                   </div>
 
-                  {/* Quick Contact - Two Numbers */}
-                  <div className="bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200 rounded-xl p-4">
-                    <div className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-600" />
-                      تماس تلفنی
-                    </div>
-                    <div className="space-y-2">
-                      <div>
-                        <div className="text-xs font-semibold text-gray-600 mb-1">همکار ریگان</div>
-                        <button
-                          onClick={() => handleCall('+4915210585633')}
-                          className="w-full px-4 py-2.5 bg-gray-700 hover:bg-gray-800 text-white rounded-lg font-bold transition-all shadow-md flex items-center justify-center gap-2 text-sm"
-                          dir="ltr"
-                        >
-                          <Phone className="h-4 w-4" />
-                          <span>+49 152 105 85633</span>
-                        </button>
-                      </div>
-                      <div>
-                        <div className="text-xs font-semibold text-gray-600 mb-1">نظریات</div>
-                        <button
-                          onClick={() => handleCall('+93782416263')}
-                          className="w-full px-4 py-2.5 bg-gray-700 hover:bg-gray-800 text-white rounded-lg font-bold transition-all shadow-md flex items-center justify-center gap-2 text-sm"
-                          dir="ltr"
-                        >
-                          <Phone className="h-4 w-4" />
-                          <span>+93 782 416 263</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Send Buttons - Two WhatsApp Options */}
                   <div className="space-y-3">
                     <div className="text-sm font-bold text-gray-700 mb-2">ارسال از طریق WhatsApp:</div>

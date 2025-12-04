@@ -46,12 +46,11 @@ export async function POST(request: NextRequest) {
     // Şifreyi hashle
     const hashedPassword = await bcrypt.hash(sifre, 10);
 
-    // Kullanıcı oluştur
-    console.log('💾 Kullanıcı kaydediliyor...');
+    // Kullanıcıyı doğrudan kaydet
     const result = await query(
-      `INSERT INTO kullanicilar (ad, email, telefon, sifre, il, ilce, rol, aktif) 
-       VALUES (?, ?, ?, ?, ?, ?, 'user', TRUE)`,
-      [ad, email, telefon, hashedPassword, il, ilce || null]
+      `INSERT INTO kullanicilar (ad, email, telefon, sifre, il, ilce, rol, aktif, email_verified, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, 'user', TRUE, TRUE, NOW())`,
+      [ad, email, telefon || null, hashedPassword, il, ilce || null]
     );
 
     const userId = (result as any).insertId;
@@ -60,7 +59,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'ثبت نام با موفقیت انجام شد',
-      data: { id: userId, ad, email }
+      data: {
+        id: userId,
+        ad,
+        email
+      }
     });
   } catch (error: any) {
     console.error('❌ Kayıt işlemi hatası:', error);
@@ -70,4 +73,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
