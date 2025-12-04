@@ -75,3 +75,4 @@ SELECT 'Footer ayarları tablosu başarıyla oluşturuldu!' as message;
 
 
 
+

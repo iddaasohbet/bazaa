@@ -23,3 +23,4 @@ SELECT * FROM ayarlar WHERE kategori = 'logo';
 
 
 
+

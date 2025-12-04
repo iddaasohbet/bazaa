@@ -71,7 +71,7 @@ export default function OnecikanIlanlar() {
   const fetchOnecikanIlanlar = async () => {
     try {
       const response = await fetch('/api/ilanlar/onecikan', {
-        cache: 'no-store'
+        next: { revalidate: 60 } // 60 saniye cache
       });
       const data = await response.json();
       if (data.success) {

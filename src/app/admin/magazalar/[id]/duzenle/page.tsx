@@ -563,3 +563,4 @@ export default function MagazaDuzenlePage({ params }: { params: Promise<{ id: st
 
 
 
+

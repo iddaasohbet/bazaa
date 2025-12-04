@@ -54,3 +54,4 @@ runIndexMigration()
     process.exit(1);
   });
 
+

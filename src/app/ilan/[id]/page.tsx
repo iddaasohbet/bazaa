@@ -317,15 +317,15 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                 
                 <div className="flex flex-wrap gap-6 mb-6 pb-6 border-b border-gray-200">
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-gray-400" />
+                    <MapPin className={`h-5 w-5 ${ilan.store_level === 'elite' ? 'text-amber-500' : 'text-gray-400'}`} />
                     <span className="text-gray-700 font-medium">{ilan.il_ad}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className={`h-5 w-5 ${ilan.store_level === 'elite' ? 'text-amber-500' : 'text-gray-400'}`} />
                     <span className="text-gray-600">{ilan.goruntulenme} بازدید</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-gray-400" />
+                    <Clock className={`h-5 w-5 ${ilan.store_level === 'elite' ? 'text-amber-500' : 'text-gray-400'}`} />
                     <span className="text-gray-600">{formatDate(ilan.created_at)}</span>
                   </div>
                 </div>
@@ -479,14 +479,18 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                   {ilan.magaza_id ? (
                     <div className="mb-3">
                       {/* Mağaza Bilgileri */}
-                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4 mb-3">
+                      <div className={`bg-gradient-to-r rounded-lg p-4 mb-3 border-2 ${
+                        ilan.store_level === 'elite' 
+                          ? 'from-amber-50 to-orange-50 border-amber-200'
+                          : 'from-purple-50 to-pink-50 border-purple-200'
+                      }`}>
                         <div className="flex items-center justify-between mb-2">
                           <Link 
                             href={`/magaza/${ilan.magaza_id}`}
                             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                           >
-                            <Store className="h-5 w-5 text-purple-600" />
-                            <div className="font-bold text-purple-900">
+                            <Store className={`h-5 w-5 ${ilan.store_level === 'elite' ? 'text-amber-600' : 'text-purple-600'}`} />
+                            <div className={`font-bold ${ilan.store_level === 'elite' ? 'text-amber-900' : 'text-purple-900'}`}>
                               {ilan.magaza_ad || 'مغازه رسمی'}
                             </div>
                           </Link>
@@ -494,7 +498,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                           {(ilan.store_level === 'elite' || ilan.store_level === 'pro') && (
                             <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${
                               ilan.store_level === 'elite'
-                                ? 'bg-gradient-to-r from-yellow-400 to-orange-400'
+                                ? 'bg-gradient-to-r from-amber-500 to-orange-400'
                                 : 'bg-gradient-to-r from-blue-500 to-indigo-500'
                             }`}>
                               <BadgeCheck className="h-4 w-4 text-white fill-white" />
@@ -506,7 +510,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
                               ilan.store_level === 'elite' 
-                                ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-md'
+                                ? 'bg-gradient-to-r from-amber-500 to-orange-400 text-white shadow-md'
                                 : ilan.store_level === 'pro'
                                 ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
                                 : 'bg-gray-200 text-gray-700'
@@ -527,7 +531,11 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                       {/* Mağaza Butonu */}
                       <Link 
                         href={`/magaza/${ilan.magaza_id}`}
-                        className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg"
+                        className={`flex items-center justify-center gap-2 w-full bg-gradient-to-r text-white px-4 py-3 rounded-xl font-bold transition-all shadow-lg ${
+                          ilan.store_level === 'elite'
+                            ? 'from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
+                            : 'from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                        }`}
                       >
                         <Store className="h-5 w-5" />
                         مشاهده مغازه و سایر محصولات

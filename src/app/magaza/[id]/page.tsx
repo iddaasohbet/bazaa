@@ -100,11 +100,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
   const fetchYorumlar = async () => {
     try {
-      const response = await fetch(`/api/magazalar/${resolvedParams.id}/yorumlar`);
+      const response = await fetch(`/api/magaza-yorumlar?magaza_id=${resolvedParams.id}`);
       const data = await response.json();
       if (data.success) {
         setYorumlar(data.data.yorumlar || []);
-        setYorumStats(data.data.istatistikler || null);
+        setYorumStats(data.data.stats || null);
       }
     } catch (error) {
       console.error('Yorumlar yüklenirken hata:', error);
@@ -127,12 +127,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
     setYorumGonderiliyor(true);
     
     try {
-      const response = await fetch(`/api/magazalar/${resolvedParams.id}/yorumlar`, {
+      const response = await fetch(`/api/magaza-yorumlar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          magaza_id: parseInt(resolvedParams.id),
           kullanici_id: user.id,
           yorum: yeniYorum.yorum,
           puan: yeniYorum.puan,
@@ -163,7 +164,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
   return (
     <div className={`min-h-screen flex flex-col ${
       isElite 
-        ? 'bg-gradient-to-br from-yellow-50 via-orange-50 to-amber-50' 
+        ? 'bg-gradient-to-br from-amber-50/70 via-orange-50/50 to-yellow-50/60' 
         : isPro
         ? 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
         : 'bg-gradient-to-br from-gray-50 via-white to-purple-50'
@@ -205,7 +206,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 {/* Kapak Resmi - Tam Genişlik */}
                 <div className={`relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl ${
                   isElite 
-                    ? 'border-2 sm:border-4 border-yellow-400 ring-4 sm:ring-8 ring-yellow-200/50' 
+                    ? 'border-2 sm:border-4 border-amber-300 ring-4 sm:ring-8 ring-amber-200/40' 
                     : isPro
                     ? 'border-2 sm:border-4 border-blue-400 ring-4 sm:ring-8 ring-blue-200/50'
                     : 'border-2 sm:border-4 border-white'
@@ -215,7 +216,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     <div className="absolute top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 z-20">
                       <div className={`flex items-center gap-1.5 sm:gap-2 text-white px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-bold shadow-2xl border-2 ${
                         isElite
-                          ? 'bg-gradient-to-r from-yellow-500 to-orange-500 border-yellow-300'
+                          ? 'bg-gradient-to-r from-amber-500 to-orange-400 border-amber-300'
                           : 'bg-gradient-to-r from-blue-500 to-indigo-500 border-blue-300'
                       }`}>
                         {isElite ? (
@@ -240,7 +241,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   {/* Kapak Resmi */}
                   <div className={`relative ${isElite ? 'h-48 sm:h-56 md:h-64 lg:h-72' : isPro ? 'h-40 sm:h-48 md:h-56 lg:h-64' : 'h-32 sm:h-40 md:h-48'} ${
                     isElite 
-                      ? 'bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-600' 
+                      ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500' 
                       : isPro
                       ? 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500'
                       : 'bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600'
@@ -262,16 +263,16 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     )}
                     <div className={`absolute inset-0 ${
                       isElite 
-                        ? 'bg-gradient-to-t from-black/70 via-transparent to-yellow-500/20' 
+                        ? 'bg-gradient-to-t from-black/60 via-transparent to-amber-400/15' 
                         : 'bg-gradient-to-t from-black/60 to-transparent'
                     }`}></div>
                     
                     {/* Elite Particles */}
                     {isElite && (
                       <>
-                        <div className="absolute top-10 right-20 w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></div>
-                        <div className="absolute top-32 right-40 w-3 h-3 bg-orange-300 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                        <div className="absolute top-24 left-32 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                        <div className="absolute top-10 right-20 w-2 h-2 bg-amber-200 rounded-full animate-pulse"></div>
+                        <div className="absolute top-32 right-40 w-3 h-3 bg-orange-200 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                        <div className="absolute top-24 left-32 w-2 h-2 bg-amber-300 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
                       </>
                     )}
                   </div>
@@ -281,7 +282,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 <div className="absolute -bottom-12 sm:-bottom-16 md:-bottom-20 left-1/2 -translate-x-1/2 z-20">
                   <div className={`relative ${isElite ? 'w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40' : isPro ? 'w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36' : 'w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28'} rounded-2xl sm:rounded-3xl overflow-hidden ${
                     isElite 
-                      ? 'border-2 sm:border-4 border-yellow-400 shadow-2xl bg-white ring-4 sm:ring-8 ring-yellow-300/50' 
+                      ? 'border-2 sm:border-4 border-amber-300 shadow-2xl bg-white ring-4 sm:ring-8 ring-amber-200/40' 
                       : isPro
                       ? 'border-2 sm:border-4 border-blue-400 shadow-2xl bg-white ring-4 sm:ring-8 ring-blue-300/50'
                       : 'border-2 sm:border-4 border-white shadow-2xl bg-white ring-2 sm:ring-4 ring-purple-200'
@@ -295,7 +296,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     ) : (
                       <div className={`w-full h-full flex items-center justify-center ${
                         isElite 
-                          ? 'bg-gradient-to-br from-yellow-500 to-orange-600' 
+                          ? 'bg-gradient-to-br from-amber-400 to-orange-500' 
                           : isPro
                           ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
                           : 'bg-gradient-to-br from-gray-500 to-gray-600'
@@ -314,7 +315,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     {(isElite || isPro) && (
                       <div className={`absolute inset-0 animate-pulse ${
                         isElite 
-                          ? 'bg-gradient-to-br from-yellow-400/20 to-orange-400/20' 
+                          ? 'bg-gradient-to-br from-amber-300/15 to-orange-300/15' 
                           : 'bg-gradient-to-br from-blue-400/20 to-indigo-400/20'
                       }`}></div>
                     )}
@@ -326,7 +327,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   {/* Bilgiler - Elite/Pro Özel */}
                   <div className={`rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl ${
                     isElite 
-                      ? 'bg-gradient-to-br from-white via-yellow-50/30 to-orange-50/30 border-2 sm:border-4 border-yellow-300' 
+                      ? 'bg-gradient-to-br from-white via-amber-50/20 to-orange-50/20 border-2 sm:border-4 border-amber-200' 
                       : isPro
                       ? 'bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/30 border-2 sm:border-4 border-blue-300'
                       : 'bg-white border-2 border-gray-200'
@@ -336,7 +337,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
                             <h1 className={`font-bold ${
                               isElite 
-                                ? 'text-2xl sm:text-3xl md:text-4xl bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent' 
+                                ? 'text-2xl sm:text-3xl md:text-4xl bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent' 
                                 : isPro
                                 ? 'text-2xl sm:text-3xl md:text-4xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
                                 : 'text-xl sm:text-2xl md:text-3xl text-gray-900'
@@ -346,7 +347,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             {(isElite || isPro) && (
                               <div className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-bold shadow-lg ${
                                 isElite
-                                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs sm:text-sm md:text-base border-2 border-yellow-300'
+                                  ? 'bg-gradient-to-r from-amber-500 to-orange-400 text-white text-xs sm:text-sm md:text-base border-2 border-amber-300'
                                   : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs sm:text-sm'
                               }`}>
                                 {isElite ? <Crown className="h-4 w-4 sm:h-5 sm:w-5 fill-white" /> : <Star className="h-3 w-3 sm:h-4 sm:w-4" />}
@@ -371,7 +372,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                               {magaza.store_level === 'basic' && (
                                 <Link
                                   href="/magaza-paket"
-                                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg transition-all font-bold shadow-lg"
+                                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-400/80 to-orange-500/70 hover:from-orange-500/90 hover:to-orange-600/80 text-white rounded-lg transition-all font-bold shadow-md"
                                 >
                                   <TrendingUp className="h-4 w-4" />
                                   <span className="text-sm">ارتقای مغازه به PRO/ELITE ⭐</span>
@@ -380,7 +381,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                               {magaza.paket_turu === 'pro' && magaza.store_level !== 'elite' && (
                                 <Link
                                   href="/magaza-paket"
-                                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white rounded-lg transition-all font-bold shadow-lg"
+                                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-400/80 to-orange-500/70 hover:from-orange-500/90 hover:to-orange-600/80 text-white rounded-lg transition-all font-bold shadow-md"
                                 >
                                   <Crown className="h-4 w-4 fill-white" />
                                   <span className="text-sm">ارتقا به ELITE ⭐⭐⭐</span>
@@ -396,11 +397,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                               {(isElite || isPro) && (
                                 <div className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl shadow-lg border-2 ${
                                   isElite
-                                    ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-yellow-300'
+                                    ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
                                     : 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-300'
                                 }`}>
-                                  <BadgeCheck className={`h-4 w-4 sm:h-5 sm:w-5 ${isElite ? 'text-yellow-600' : 'text-blue-600'}`} />
-                                  <span className={`text-xs sm:text-sm font-bold ${isElite ? 'text-yellow-800' : 'text-blue-800'}`}>
+                                  <BadgeCheck className={`h-4 w-4 sm:h-5 sm:w-5 ${isElite ? 'text-amber-600' : 'text-blue-600'}`} />
+                                  <span className={`text-xs sm:text-sm font-bold ${isElite ? 'text-amber-700' : 'text-blue-800'}`}>
                                     مغازه تأیید شده
                                   </span>
                                 </div>
@@ -438,17 +439,17 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             {magaza.store_level === 'basic' && (
                               <Link
                                 href="/magaza-paket"
-                                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105"
+                                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-400/80 to-orange-500/70 hover:from-orange-500/90 hover:to-orange-600/80 text-white rounded-lg transition-all font-bold shadow-md hover:shadow-lg transform hover:scale-105"
                               >
                                 <TrendingUp className="h-4 w-4" />
                                 <span className="text-sm">ارتقا به PRO/ELITE</span>
                               </Link>
                             )}
                             {magaza.paket_turu === 'pro' && magaza.store_level !== 'elite' && (
-                              <Link
-                                href="/magaza-paket"
-                                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white rounded-lg transition-all font-bold shadow-lg hover:shadow-xl transform hover:scale-105"
-                              >
+                                <Link
+                                  href="/magaza-paket"
+                                  className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-400/80 to-orange-500/70 hover:from-orange-500/90 hover:to-orange-600/80 text-white rounded-lg transition-all font-bold shadow-md hover:shadow-lg transform hover:scale-105"
+                                >
                                 <Crown className="h-4 w-4 fill-white" />
                                 <span className="text-sm">ارتقا به ELITE ⭐</span>
                               </Link>
@@ -459,22 +460,22 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
                         <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
-                          <Package className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                          <Package className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${isElite ? 'text-amber-500' : 'text-blue-600'}`} />
                           <span className="truncate">{magaza.ilan_sayisi} محصول</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
-                          <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                          <Eye className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${isElite ? 'text-amber-500' : 'text-blue-600'}`} />
                           <span className="truncate">{magaza.goruntulenme} بازدید</span>
                         </div>
                         {magaza.il_ad && (
                           <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
-                            <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                            <MapPin className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${isElite ? 'text-amber-500' : 'text-blue-600'}`} />
                             <span className="truncate">{magaza.il_ad}</span>
                           </div>
                         )}
                         {magaza.telefon && (
                           <div className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
-                            <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                            <Phone className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 ${isElite ? 'text-amber-500' : 'text-blue-600'}`} />
                             <span dir="ltr" className="truncate">{magaza.telefon}</span>
                           </div>
                         )}
@@ -485,7 +486,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           href={`tel:${magaza.telefon}`}
                           className={`inline-flex items-center justify-center gap-2 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-lg sm:rounded-xl transition-all shadow-lg text-sm sm:text-base w-full sm:w-auto ${
                             isElite
-                              ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-2 border-yellow-400'
+                              ? 'bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-600 hover:to-orange-500 text-white border-2 border-amber-300'
                               : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-2 border-green-500'
                           }`}
                         >
@@ -502,17 +503,17 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               {vitrinIlanlar.length > 0 && (
                 <section className={`mb-8 sm:mb-12 rounded-xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl ${
                   isElite 
-                    ? 'bg-gradient-to-br from-white via-yellow-50/50 to-orange-50/50 border-2 sm:border-4 border-yellow-300 ring-2 sm:ring-4 ring-yellow-200/30' 
-                    : 'bg-white border-2 border-yellow-200'
+                    ? 'bg-gradient-to-br from-white via-amber-50/30 to-orange-50/30 border-2 sm:border-4 border-amber-200 ring-2 sm:ring-4 ring-amber-100/30' 
+                    : 'bg-white border-2 border-amber-100'
                 }`} dir="rtl">
                   <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                     {isElite ? (
                       <>
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-500 to-orange-400 flex items-center justify-center flex-shrink-0">
                           <Crown className="h-5 w-5 sm:h-7 sm:w-7 text-white fill-white" />
                         </div>
                         <div>
-                          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent">
                             ویترین پریمیوم
                           </h2>
                           <p className="text-xs sm:text-sm text-gray-600">محصولات ویژه این مغازه</p>
@@ -520,7 +521,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       </>
                     ) : (
                       <>
-                        <Star className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                        <Star className="h-6 w-6 sm:h-8 sm:w-8 text-amber-500 fill-amber-500 flex-shrink-0" />
                         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">ویترین مغازه</h2>
                       </>
                     )}
@@ -665,7 +666,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                               key={i}
                               className={`h-4 w-4 ${
                                 i < Math.round(parseFloat(yorumStats.ortalama_puan))
-                                  ? 'fill-yellow-500 text-yellow-500'
+                                  ? isElite ? 'fill-amber-500 text-amber-500' : 'fill-yellow-500 text-yellow-500'
                                   : 'text-gray-300'
                               }`}
                             />
@@ -697,7 +698,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             <Star
                               className={`h-8 w-8 ${
                                 puan <= yeniYorum.puan
-                                  ? 'fill-yellow-500 text-yellow-500'
+                                  ? isElite ? 'fill-amber-500 text-amber-500' : 'fill-yellow-500 text-yellow-500'
                                   : 'text-gray-300'
                               }`}
                             />
@@ -794,7 +795,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                                     key={i}
                                     className={`h-4 w-4 ${
                                       i < yorum.puan
-                                        ? 'fill-yellow-500 text-yellow-500'
+                                        ? isElite ? 'fill-amber-500 text-amber-500' : 'fill-yellow-500 text-yellow-500'
                                         : 'text-gray-300'
                                     }`}
                                   />

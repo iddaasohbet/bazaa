@@ -54,3 +54,4 @@ SELECT anahtar, kategori, aciklama FROM ayarlar ORDER BY kategori, anahtar;
 
 
 
+

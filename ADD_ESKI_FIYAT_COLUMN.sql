@@ -38,3 +38,4 @@ SELECT '✅ Eski fiyat kolonu başarıyla eklendi!' AS durum;
 
 
 
+

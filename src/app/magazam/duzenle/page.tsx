@@ -17,6 +17,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import Link from "next/link";
+import { getCitiesList } from "@/lib/cities";
 
 interface MagazaBilgileri {
   id: number;
@@ -35,19 +36,15 @@ interface MagazaBilgileri {
   store_level: string;
 }
 
-interface Il {
-  id: number;
-  ad: string;
-}
-
 export default function MagazaDuzenlePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [magazaBilgileri, setMagazaBilgileri] = useState<MagazaBilgileri | null>(null);
-  const [iller, setIller] = useState<Il[]>([]);
   const [logo, setLogo] = useState<string>("");
   const [kapakResmi, setKapakResmi] = useState<string>("");
+
+  const cities = getCitiesList();
 
   const [formData, setFormData] = useState({
     ad: "",
@@ -61,7 +58,6 @@ export default function MagazaDuzenlePage() {
 
   useEffect(() => {
     checkMagaza();
-    fetchIller();
   }, []);
 
   const checkMagaza = async () => {
@@ -107,17 +103,6 @@ export default function MagazaDuzenlePage() {
     }
   };
 
-  const fetchIller = async () => {
-    try {
-      const response = await fetch('/api/iller');
-      const data = await response.json();
-      if (data.success) {
-        setIller(data.data);
-      }
-    } catch (error) {
-      console.error('İller yüklenemedi:', error);
-    }
-  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'kapak') => {
     const file = e.target.files?.[0];
@@ -323,9 +308,9 @@ export default function MagazaDuzenlePage() {
                             required
                           >
                             <option value="">انتخاب شهر</option>
-                            {iller.map((il) => (
-                              <option key={il.id} value={il.id}>
-                                {il.ad}
+                            {cities.map((city) => (
+                              <option key={city.id} value={city.id}>
+                                {city.name}
                               </option>
                             ))}
                           </select>
@@ -481,6 +466,7 @@ export default function MagazaDuzenlePage() {
     </div>
   );
 }
+
 
 
 

@@ -171,7 +171,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <ShieldCheck className="w-5 h-5 text-white" />
                   </div>
                   <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-gray-900">
-                    بازارواتان
+                    بازار وطن
                   </span>
                 </div>
               </Link>

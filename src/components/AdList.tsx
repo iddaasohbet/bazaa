@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { MapPin, Eye, Clock, Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { formatDate, getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
 
@@ -32,6 +33,7 @@ interface Ilan {
 }
 
 export default function AdList() {
+  const router = useRouter();
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -88,7 +90,7 @@ export default function AdList() {
       const currentOffset = loadMore ? offset : 0;
       // ⚡ OPTIMIZE: İlk yüklemede 12 ilan, sonrasında 12'şer daha yükle
       const response = await fetch(`/api/ilanlar?limit=12&offset=${currentOffset}`, {
-        cache: 'no-store' // Client-side fresh data
+        next: { revalidate: 60 } // 60 saniye cache
       });
       const data = await response.json();
       
@@ -306,18 +308,21 @@ export default function AdList() {
                       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                         {/* Göz ikonu - Sadece Pro/Elite mağazalarda */}
                         {(ilan.store_level === 'pro' || ilan.store_level === 'elite') && ilan.magaza_slug ? (
-                          <Link
-                            href={`/magaza/${ilan.magaza_slug}`}
-                            onClick={(e) => e.stopPropagation()}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              router.push(`/magaza/${ilan.magaza_slug}`);
+                            }}
                             className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-colors ${
                               ilan.store_level === 'elite'
-                                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
                                 : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                             }`}
                           >
                             <Eye className="h-3.5 w-3.5" />
                             <span className="font-semibold">مغازه</span>
-                          </Link>
+                          </button>
                         ) : (
                           <div></div>
                         )}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Crown, MapPin, Eye, Heart, Sparkles, Store, TrendingUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
 
@@ -28,6 +29,7 @@ interface Ilan {
 
 export default function EliteIlanlar() {
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [favoriler, setFavoriler] = useState<number[]>([]);
 
@@ -73,7 +75,7 @@ export default function EliteIlanlar() {
     try {
       // ⚡ OPTIMIZE: Sadece 6 Elite ilan çek
       const response = await fetch('/api/ilanlar?store_level=elite&limit=6', {
-        cache: 'no-store' // Client-side fresh data
+        next: { revalidate: 60 } // 60 saniye cache
       });
       const data = await response.json();
       if (data.success) {
@@ -117,18 +119,18 @@ export default function EliteIlanlar() {
   return (
     <div className="mb-12" dir="rtl">
       {/* Header */}
-      <div className="relative mb-6 bg-gradient-to-r from-yellow-50 via-orange-50 to-amber-50 rounded-xl border border-yellow-200 p-4 overflow-hidden">
+      <div className="relative mb-6 bg-gradient-to-r from-amber-50 via-orange-50 to-yellow-50 rounded-xl border border-amber-200 p-4 overflow-hidden">
         <div className="absolute top-0 right-0 opacity-5">
-          <Crown className="h-24 w-24 text-yellow-600" />
+          <Crown className="h-24 w-24 text-amber-500" />
         </div>
         <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
             <Crown className="h-6 w-6 text-white" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
               محصولات ویژه پریمیوم
-              <Sparkles className="h-4 w-4 text-yellow-500" />
+              <Sparkles className="h-4 w-4 text-amber-500" />
             </h2>
             <p className="text-sm text-gray-600">از برترین مغازه‌های پلتفرم</p>
           </div>
@@ -145,23 +147,14 @@ export default function EliteIlanlar() {
             transition={{ delay: index * 0.05 }}
           >
             <Link href={`/ilan/${ilan.id}`} className="group block h-full">
-              <div className="relative h-full bg-white rounded-xl border-2 border-yellow-300 overflow-hidden hover:shadow-2xl hover:border-yellow-500 transition-all duration-300 ring-2 ring-yellow-100">
-                {/* Premium Badge - Küçük */}
-                <div className="absolute top-2 right-2 z-10">
-                  <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-                    <Crown className="h-3 w-3 fill-white" />
-                    <span>ELITE</span>
+              <div className="relative h-full bg-white rounded-xl border-2 border-amber-300 overflow-hidden hover:shadow-2xl hover:border-amber-400 transition-all duration-300 ring-2 ring-amber-100">
+                {/* Elite Badge - Sol üst - Küçük */}
+                <div className="absolute top-2 left-2">
+                  <div className="flex items-center gap-0.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold shadow-md">
+                    <Crown className="h-2.5 w-2.5 fill-white" />
+                    <span>SEÇKİN</span>
                   </div>
                 </div>
-
-                {/* İndirim Badge */}
-                {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 && (
-                  <div className="absolute top-2 left-2 z-10">
-                    <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-                      {ilan.indirim_yuzdesi}% تخفیف
-                    </div>
-                  </div>
-                )}
 
                 {/* Image */}
                 <div className="relative aspect-video bg-gradient-to-br from-yellow-50 to-orange-50 overflow-hidden">
@@ -237,7 +230,7 @@ export default function EliteIlanlar() {
                         console.error('❌ Elite - Favori işlemi hatası:', error);
                       }
                     }}
-                    className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all z-20"
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
                   >
                     <Heart className={`h-4 w-4 transition-colors ${
                       favoriler.includes(ilan.id)
@@ -252,8 +245,8 @@ export default function EliteIlanlar() {
                   {/* Store Badge - Küçük */}
                   {ilan.magaza_ad && (
                     <div className="flex items-center gap-1 mb-2">
-                      <Store className="h-3 w-3 text-yellow-600" />
-                      <span className="text-[10px] font-semibold text-yellow-700 bg-yellow-50 px-1.5 py-0.5 rounded truncate">
+                      <Store className="h-3 w-3 text-amber-600" />
+                      <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded truncate">
                         {ilan.magaza_ad}
                       </span>
                     </div>
@@ -293,21 +286,24 @@ export default function EliteIlanlar() {
                   </div>
 
                   {/* Info */}
-                  <div className="flex items-center justify-between pt-2 border-t border-yellow-100">
+                  <div className="flex items-center justify-between pt-2 border-t border-amber-100">
                     <div className="flex items-center gap-1 text-gray-600">
-                      <MapPin className="h-3.5 w-3.5 text-yellow-600" />
+                      <MapPin className="h-3.5 w-3.5 text-amber-600" />
                       <span className="text-xs truncate">{ilan.il_ad}</span>
                     </div>
                     {/* Mağaza Butonu - Elite İlanlar */}
                     {ilan.magaza_slug && (
-                      <Link
-                        href={`/magaza/${ilan.magaza_slug}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition-colors"
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          router.push(`/magaza/${ilan.magaza_slug}`);
+                        }}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         <span className="text-xs font-semibold">مغازه</span>
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>

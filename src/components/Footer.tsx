@@ -33,17 +33,40 @@ interface FooterLink {
   href: string;
 }
 
+interface Kategori {
+  id: number;
+  ad: string;
+  ad_dari?: string;
+  slug: string;
+}
+
 export default function Footer() {
   const [settings, setSettings] = useState<FooterSettings | null>(null);
   const [hizliLinkler, setHizliLinkler] = useState<FooterLink[]>([]);
   const [altLinkler, setAltLinkler] = useState<FooterLink[]>([]);
   const [footerLogo, setFooterLogo] = useState<string>("");
   const [logoLoading, setLogoLoading] = useState(true);
+  const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
 
   useEffect(() => {
     fetchFooterSettings();
     loadLogo();
+    fetchKategoriler();
   }, []);
+
+  const fetchKategoriler = async () => {
+    try {
+      const response = await fetch('/api/kategoriler');
+      const data = await response.json();
+      if (data.success) {
+        // Sadece aktif kategorilerden ilk 5'ini al
+        const aktifKategoriler = data.data.filter((k: any) => k.aktif).slice(0, 5);
+        setKategoriler(aktifKategoriler);
+      }
+    } catch (error) {
+      console.error('Kategoriler yüklenemedi:', error);
+    }
+  };
 
   const loadLogo = async () => {
     try {
@@ -303,31 +326,16 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-bold text-gray-900 mb-4">دسته بندی ها</h4>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/kategori/araclar" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  خودرو
-                </Link>
-              </li>
-              <li>
-                <Link href="/kategori/emlak" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  املاک
-                </Link>
-              </li>
-              <li>
-                <Link href="/kategori/elektronik" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  لوازم الکترونیکی
-                </Link>
-              </li>
-              <li>
-                <Link href="/kategori/ev-esyalari" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  لوازم خانه
-                </Link>
-              </li>
-              <li>
-                <Link href="/kategori/giyim" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  پوشاک
-                </Link>
-              </li>
+              {kategoriler.map((kat) => (
+                <li key={kat.id}>
+                  <Link 
+                    href={`/kategori/${kat.slug}`} 
+                    className="text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    {kat.ad_dari || kat.ad}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

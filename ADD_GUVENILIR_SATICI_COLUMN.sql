@@ -12,3 +12,4 @@ UPDATE magazalar SET guvenilir_satici = FALSE WHERE guvenilir_satici IS NULL;
 
 
 
+

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star, MapPin, Eye, Heart, Zap, Store, TrendingUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
 
@@ -28,17 +29,52 @@ interface Ilan {
 
 export default function ProIlanlar() {
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [favoriler, setFavoriler] = useState<number[]>([]);
 
   useEffect(() => {
     fetchProIlanlar();
+    loadFavoriler();
+    
+    const handleFavoriUpdate = () => {
+      loadFavoriler();
+    };
+    
+    window.addEventListener('favoriGuncelle', handleFavoriUpdate);
+    return () => window.removeEventListener('favoriGuncelle', handleFavoriUpdate);
   }, []);
+
+  const loadFavoriler = async () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return;
+
+      const user = JSON.parse(userStr);
+      if (!user?.id) return;
+      
+      const response = await fetch('/api/favoriler', {
+        headers: {
+          'x-user-id': user.id.toString()
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        const favoriIds = (data.data || []).map((f: any) => f.ilan_id);
+        setFavoriler(favoriIds);
+      }
+    } catch (error) {
+      console.error('Favoriler yüklenirken hata:', error);
+    }
+  };
 
   const fetchProIlanlar = async () => {
     try {
       // ⚡ OPTIMIZE: Sadece 6 Pro ilan çek
       const response = await fetch('/api/ilanlar?store_level=pro&limit=6', {
-        cache: 'no-store' // Client-side fresh data
+        next: { revalidate: 60 } // 60 saniye cache
       });
       const data = await response.json();
       if (data.success) {
@@ -88,22 +124,13 @@ export default function ProIlanlar() {
           >
             <Link href={`/ilan/${ilan.id}`} className="group block h-full">
               <div className="relative h-full bg-white rounded-xl border-2 border-blue-300 overflow-hidden hover:shadow-2xl hover:border-blue-500 transition-all duration-300 ring-2 ring-blue-100">
-                {/* Pro Badge */}
-                <div className="absolute top-2 right-2 z-10">
-                  <div className="flex items-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-                    <Star className="h-3 w-3 fill-white" />
+                {/* Pro Badge - Sol üst - Küçük */}
+                <div className="absolute top-2 left-2">
+                  <div className="flex items-center gap-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold shadow-md">
+                    <Star className="h-2.5 w-2.5 fill-white" />
                     <span>PRO</span>
                   </div>
                 </div>
-
-                {/* İndirim Badge */}
-                {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 && (
-                  <div className="absolute top-2 left-2 z-10">
-                    <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-                      {ilan.indirim_yuzdesi}% تخفیف
-                    </div>
-                  </div>
-                )}
 
                 {/* Image */}
                 <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
@@ -123,13 +150,59 @@ export default function ProIlanlar() {
                   
                   {/* Favorite Button */}
                   <button 
-                    onClick={(e) => { 
+                    onClick={async (e) => { 
                       e.preventDefault();
                       e.stopPropagation();
+                      
+                      const userStr = localStorage.getItem('user');
+                      if (!userStr) {
+                        alert('لطفاً ابتدا وارد شوید');
+                        return;
+                      }
+
+                      const user = JSON.parse(userStr);
+                      if (!user?.id) {
+                        alert('خطا در شناسایی کاربر');
+                        return;
+                      }
+                      
+                      const isFavorite = favoriler.includes(ilan.id);
+                      
+                      try {
+                        if (isFavorite) {
+                          const response = await fetch(`/api/favoriler?ilanId=${ilan.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                              'x-user-id': user.id.toString()
+                            }
+                          });
+                          await response.json();
+                          setFavoriler(prev => prev.filter(id => id !== ilan.id));
+                        } else {
+                          const response = await fetch('/api/favoriler', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'x-user-id': user.id.toString()
+                            },
+                            body: JSON.stringify({ ilanId: ilan.id })
+                          });
+                          await response.json();
+                          setFavoriler(prev => [...prev, ilan.id]);
+                        }
+                        
+                        window.dispatchEvent(new Event('favoriGuncelle'));
+                      } catch (error) {
+                        console.error('Favori işlemi hatası:', error);
+                      }
                     }}
                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
                   >
-                    <Heart className="h-4 w-4 text-gray-600" />
+                    <Heart className={`h-4 w-4 transition-colors ${
+                      favoriler.includes(ilan.id)
+                        ? 'text-red-500 fill-red-500' 
+                        : 'text-gray-600'
+                    }`} />
                   </button>
                 </div>
 
@@ -186,14 +259,17 @@ export default function ProIlanlar() {
                     </div>
                     {/* Mağaza Butonu - Pro İlanlar */}
                     {ilan.magaza_slug && (
-                      <Link
-                        href={`/magaza/${ilan.magaza_slug}`}
-                        onClick={(e) => e.stopPropagation()}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          router.push(`/magaza/${ilan.magaza_slug}`);
+                        }}
                         className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         <span className="text-xs font-semibold">مغازه</span>
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -208,4 +284,7 @@ export default function ProIlanlar() {
     </div>
   );
 }
+
+
+
 
