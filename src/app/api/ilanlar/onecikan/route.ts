@@ -7,10 +7,7 @@ export async function GET() {
   };
   
   try {
-    // ⚡ FIX: GROUP_CONCAT limiti artır
-    await query('SET SESSION group_concat_max_len = 10000000000');
-
-    // Database'den öne çıkan ilanları çek
+    // ⚡ OPTIMIZE: Subquery ile hızlı resim çekimi
     const ilanlar = await query(
       `SELECT 
         i.id,
@@ -31,15 +28,16 @@ export async function GET() {
         m.store_level,
         m.slug as magaza_slug,
         m.ad as magaza_ad,
-        GROUP_CONCAT(ir.resim_url ORDER BY ir.sira SEPARATOR '|||') as resimler_concat,
-        COUNT(DISTINCT ir.id) as resim_sayisi
+        (SELECT GROUP_CONCAT(resim_url ORDER BY sira SEPARATOR '|||') 
+         FROM ilan_resimleri 
+         WHERE ilan_id = i.id 
+         LIMIT 3) as resimler_concat,
+        (SELECT COUNT(*) FROM ilan_resimleri WHERE ilan_id = i.id) as resim_sayisi
        FROM ilanlar i
        LEFT JOIN kategoriler k ON i.kategori_id = k.id
        LEFT JOIN iller il ON i.il_id = il.id
        LEFT JOIN magazalar m ON i.magaza_id = m.id AND m.aktif = TRUE
-       LEFT JOIN ilan_resimleri ir ON i.id = ir.ilan_id
        WHERE i.aktif = TRUE AND i.onecikan = TRUE
-       GROUP BY i.id
        ORDER BY i.onecikan_sira ASC, i.created_at DESC
        LIMIT 6`,
       []

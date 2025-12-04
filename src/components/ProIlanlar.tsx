@@ -138,6 +138,7 @@ export default function ProIlanlar() {
                   <img
                     src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
                     alt={ilan.baslik}
+                    loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;

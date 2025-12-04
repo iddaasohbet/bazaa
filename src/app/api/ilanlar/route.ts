@@ -141,10 +141,7 @@ export async function GET(request: Request) {
     const aramaSorgusu = searchParams.get('q');
     const storeLevel = searchParams.get('store_level');
 
-    // ⚡ FIX: GROUP_CONCAT limiti artır (resimler için)
-    await query('SET SESSION group_concat_max_len = 10000000000');
-
-    // ⚡ OPTIMIZE: Resimleri tek sorguda çek (GROUP_CONCAT ile)
+    // ⚡ OPTIMIZE: Sadece gerekli alanları çek, resimler için subquery kullan
     let sql = `
       SELECT 
         i.id,
@@ -167,13 +164,15 @@ export async function GET(request: Request) {
         m.store_level,
         m.slug as magaza_slug,
         m.ad as magaza_ad,
-        GROUP_CONCAT(ir.resim_url ORDER BY ir.sira SEPARATOR '|||') as resimler_concat,
-        COUNT(DISTINCT ir.id) as resim_sayisi
+        (SELECT GROUP_CONCAT(resim_url ORDER BY sira SEPARATOR '|||') 
+         FROM ilan_resimleri 
+         WHERE ilan_id = i.id 
+         LIMIT 5) as resimler_concat,
+        (SELECT COUNT(*) FROM ilan_resimleri WHERE ilan_id = i.id) as resim_sayisi
       FROM ilanlar i
       LEFT JOIN kategoriler k ON i.kategori_id = k.id
       LEFT JOIN iller il ON i.il_id = il.id
       LEFT JOIN magazalar m ON i.magaza_id = m.id AND m.aktif = TRUE
-      LEFT JOIN ilan_resimleri ir ON i.id = ir.ilan_id
       WHERE i.aktif = TRUE
     `;
 
@@ -194,7 +193,7 @@ export async function GET(request: Request) {
       params.push(`%${aramaSorgusu}%`, `%${aramaSorgusu}%`);
     }
 
-    sql += ' GROUP BY i.id ORDER BY i.created_at DESC LIMIT ? OFFSET ?';
+    sql += ' ORDER BY i.created_at DESC LIMIT ? OFFSET ?';
     params.push(limit, offset);
 
     const ilanlar = await query(sql, params);
