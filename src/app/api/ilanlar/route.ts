@@ -141,7 +141,7 @@ export async function GET(request: Request) {
     const aramaSorgusu = searchParams.get('q');
     const storeLevel = searchParams.get('store_level');
 
-    // ⚡ OPTIMIZE: Sadece gerekli alanları çek, resimler için subquery kullan
+    // İlanları çek
     let sql = `
       SELECT 
         i.id,
@@ -163,12 +163,7 @@ export async function GET(request: Request) {
         COALESCE(il.ad_dari, il.ad) as il_ad,
         m.store_level,
         m.slug as magaza_slug,
-        m.ad as magaza_ad,
-        (SELECT GROUP_CONCAT(resim_url ORDER BY sira SEPARATOR '|||') 
-         FROM ilan_resimleri 
-         WHERE ilan_id = i.id 
-         LIMIT 5) as resimler_concat,
-        (SELECT COUNT(*) FROM ilan_resimleri WHERE ilan_id = i.id) as resim_sayisi
+        m.ad as magaza_ad
       FROM ilanlar i
       LEFT JOIN kategoriler k ON i.kategori_id = k.id
       LEFT JOIN iller il ON i.il_id = il.id
@@ -200,26 +195,12 @@ export async function GET(request: Request) {
     
     console.log('📊 İlan API - Çekilen ilan sayısı:', (ilanlar as any[]).length);
 
-    // ⚡ Resimleri parse et (GROUP_CONCAT'ten gelen string'i array'e çevir)
-    const ilanlarWithImages = (ilanlar as any[]).map((ilan: any) => {
-      // Resimleri parse et
-      let resimler: string[] = [];
-      if (ilan.resimler_concat) {
-        resimler = ilan.resimler_concat.split('|||').filter((r: string) => r && r.trim());
-      }
-      
-      // Eğer ilan_resimleri tablosunda resim yoksa ama ana_resim varsa, onu kullan
-      if (resimler.length === 0 && ilan.ana_resim) {
-        resimler = [ilan.ana_resim];
-      }
-      
-      return {
-        ...ilan,
-        resimler: resimler,
-        resim_sayisi: resimler.length,
-        resimler_concat: undefined // Gereksiz field'i kaldır
-      };
-    });
+    // Kart görünümü için sadece ana_resim yeterli (hızlı yükleme)
+    const ilanlarWithImages = (ilanlar as any[]).map((ilan: any) => ({
+      ...ilan,
+      resimler: ilan.ana_resim ? [ilan.ana_resim] : [],
+      resim_sayisi: ilan.ana_resim ? 1 : 0
+    }));
 
     return NextResponse.json({
       success: true,

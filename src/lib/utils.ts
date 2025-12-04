@@ -91,13 +91,17 @@ export function formatDate(date: string | Date): string {
 }
 
 // Resim URL'i oluştur
-export function getImageUrl(path: string | null): string {
-  if (!path) return '/images/placeholder.jpg';
+export function getImageUrl(path: string | null | undefined): string {
+  if (!path || path.trim() === '') return '/images/placeholder.jpg';
   // Base64 resimler için
   if (path.startsWith('data:image')) return path;
   // HTTP/HTTPS URL'ler için
   if (path.startsWith('http')) return path;
-  // Local dosyalar için
+  // Eğer path zaten /uploads/ ile başlıyorsa, olduğu gibi döndür
+  if (path.startsWith('/uploads/')) return path;
+  // Eğer path sadece dosya adı ise (örn: "file.jpg"), /uploads/images/ ekle
+  if (!path.includes('/')) return `/uploads/images/${path}`;
+  // Local dosyalar için (relative path)
   return `/uploads/${path}`;
 }
 

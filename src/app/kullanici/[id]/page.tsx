@@ -118,7 +118,11 @@ export default function KullaniciIlanlari({ params }: { params: Promise<{ id: st
                       {/* Image */}
                       <div className="relative aspect-video bg-gray-100 overflow-hidden">
                         <Image
-                          src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
+                          src={getImageUrl(
+                            (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0]) 
+                              ? ilan.resimler[0] 
+                              : ilan.ana_resim
+                          )}
                           alt={ilan.baslik}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-500"

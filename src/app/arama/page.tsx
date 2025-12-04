@@ -132,7 +132,11 @@ function AramaContent() {
                     <Link key={ilan.id} href={`/ilan/${ilan.id}`} className="card group">
                       <div className="relative aspect-video bg-gray-100">
                         <Image
-                          src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
+                          src={getImageUrl(
+                            (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0]) 
+                              ? ilan.resimler[0] 
+                              : ilan.ana_resim
+                          )}
                           alt={ilan.baslik}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"

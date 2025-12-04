@@ -7,7 +7,7 @@ export async function GET() {
   };
   
   try {
-    // ⚡ OPTIMIZE: Subquery ile hızlı resim çekimi
+    // Öne çıkan ilanları çek
     const ilanlar = await query(
       `SELECT 
         i.id,
@@ -27,12 +27,7 @@ export async function GET() {
         COALESCE(il.ad_dari, il.ad) as il_ad,
         m.store_level,
         m.slug as magaza_slug,
-        m.ad as magaza_ad,
-        (SELECT GROUP_CONCAT(resim_url ORDER BY sira SEPARATOR '|||') 
-         FROM ilan_resimleri 
-         WHERE ilan_id = i.id 
-         LIMIT 3) as resimler_concat,
-        (SELECT COUNT(*) FROM ilan_resimleri WHERE ilan_id = i.id) as resim_sayisi
+        m.ad as magaza_ad
        FROM ilanlar i
        LEFT JOIN kategoriler k ON i.kategori_id = k.id
        LEFT JOIN iller il ON i.il_id = il.id
@@ -43,24 +38,12 @@ export async function GET() {
       []
     );
 
-    // Resimleri parse et
-    const ilanlarWithImages = (ilanlar as any[]).map((ilan: any) => {
-      let resimler: string[] = [];
-      if (ilan.resimler_concat) {
-        resimler = ilan.resimler_concat.split('|||').filter((r: string) => r && r.trim());
-      }
-      
-      if (resimler.length === 0 && ilan.ana_resim) {
-        resimler = [ilan.ana_resim];
-      }
-      
-      return {
-        ...ilan,
-        resimler: resimler,
-        resim_sayisi: resimler.length,
-        resimler_concat: undefined
-      };
-    });
+    // Kart görünümü için sadece ana_resim yeterli (hızlı yükleme)
+    const ilanlarWithImages = (ilanlar as any[]).map((ilan: any) => ({
+      ...ilan,
+      resimler: ilan.ana_resim ? [ilan.ana_resim] : [],
+      resim_sayisi: ilan.ana_resim ? 1 : 0
+    }));
 
     console.log('⭐ Öne çıkan ilanlar:', ilanlarWithImages.length);
 

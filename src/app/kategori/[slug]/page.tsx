@@ -288,12 +288,18 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
                             <div className="relative aspect-video bg-gray-100 overflow-hidden">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
-                                src={getImageUrl(ilan.resimler?.[0] || ilan.ana_resim)}
+                                src={getImageUrl(
+                                  (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0]) 
+                                    ? ilan.resimler[0] 
+                                    : ilan.ana_resim
+                                )}
                                 alt={ilan.baslik}
                                 className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
-                                  target.src = '/placeholder.png';
+                                  if (target.src !== '/images/placeholder.jpg' && target.src !== '/placeholder.svg') {
+                                    target.src = '/images/placeholder.jpg';
+                                  }
                                 }}
                               />
                               

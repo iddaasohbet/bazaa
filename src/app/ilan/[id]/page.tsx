@@ -677,7 +677,11 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                     <div className="overflow-hidden rounded-xl border border-gray-200 transition-all hover:shadow-xl hover:border-blue-300 h-full flex flex-col">
                       <div className="relative aspect-video bg-gray-100 overflow-hidden">
                         <Image
-                          src={getImageUrl(benzer.resimler?.[0] || benzer.ana_resim)}
+                          src={getImageUrl(
+                            (benzer.resimler && benzer.resimler.length > 0 && benzer.resimler[0]) 
+                              ? benzer.resimler[0] 
+                              : benzer.ana_resim
+                          )}
                           alt={benzer.baslik}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
