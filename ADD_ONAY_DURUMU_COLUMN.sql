@@ -24,3 +24,4 @@ CREATE INDEX IF NOT EXISTS idx_magaza_onay ON magazalar(onay_durumu);
 SELECT '✅ Onay durumu kolonları başarıyla eklendi!' as status;
 
 
+

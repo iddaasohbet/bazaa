@@ -16,3 +16,4 @@ ON DUPLICATE KEY UPDATE `deger` = VALUES(`deger`);
 
 
 
+

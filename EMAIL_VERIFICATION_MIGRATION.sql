@@ -26,3 +26,4 @@ CREATE TABLE IF NOT EXISTS email_dogrulama (
 -- ON SCHEDULE EVERY 1 HOUR
 -- DO DELETE FROM email_dogrulama WHERE son_kullanma_tarihi < NOW();
 
+

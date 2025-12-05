@@ -13,3 +13,4 @@ MODIFY COLUMN `hedef_url` TEXT NULL COMMENT 'Reklam hedef linki';
 
 
 
+

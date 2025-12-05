@@ -91,3 +91,4 @@ INSERT INTO iletisim_faq (soru_tr, soru_dari, cevap_tr, cevap_dari, sira) VALUES
 SELECT '✅ İletişim sistem tabloları başarıyla oluşturuldu!' as status;
 
 
+

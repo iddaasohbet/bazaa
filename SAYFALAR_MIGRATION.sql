@@ -36,3 +36,4 @@ SELECT 'Sayfalar tablosu başarıyla oluşturuldu!' as sonuc;
 
 
 
+

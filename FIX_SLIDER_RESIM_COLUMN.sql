@@ -13,3 +13,4 @@ MODIFY COLUMN `link` TEXT NULL COMMENT 'Slider hedef linki';
 
 
 
+

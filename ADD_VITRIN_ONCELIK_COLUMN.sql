@@ -14,3 +14,4 @@ UPDATE `magazalar` SET `vitrin_oncelik` = NULL WHERE `vitrin_oncelik` IS NULL;
 
 
 
+
