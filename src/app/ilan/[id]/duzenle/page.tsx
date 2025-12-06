@@ -122,19 +122,28 @@ export default function IlanDuzenle({ params }: { params: Promise<{ id: string }
     setSaving(true);
     
     try {
-      // Yeni resimleri base64'e çevir
-      const newImagesBase64: string[] = [];
+      // Yeni resimleri Vercel Blob'a yükle
+      const newImageUrls: string[] = [];
       for (const image of newImages) {
-        const base64 = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(image);
+        const formData = new FormData();
+        formData.append('file', image);
+        
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
         });
-        newImagesBase64.push(base64);
+        
+        const uploadData = await uploadRes.json();
+        
+        if (uploadData.success && uploadData.data?.url) {
+          newImageUrls.push(uploadData.data.url);
+        } else {
+          console.error('Resim yükleme hatası:', uploadData.message);
+        }
       }
 
       // Eski ve yeni resimleri birleştir
-      const allImages = [...images, ...newImagesBase64];
+      const allImages = [...images, ...newImageUrls];
       
       // İlan verilerini hazırla
       const ilanData = {

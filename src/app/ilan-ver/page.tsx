@@ -379,14 +379,24 @@ export default function IlanVer() {
         sortedImages.unshift(coverImage);
       }
 
-      const resimlerBase64: string[] = [];
+      // Resimleri Vercel Blob'a yükle
+      const resimUrls: string[] = [];
       for (const image of sortedImages) {
-        const base64 = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(image);
+        const formData = new FormData();
+        formData.append('file', image);
+        
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
         });
-        resimlerBase64.push(base64);
+        
+        const uploadData = await uploadRes.json();
+        
+        if (uploadData.success && uploadData.data?.url) {
+          resimUrls.push(uploadData.data.url);
+        } else {
+          console.error('Resim yükleme hatası:', uploadData.message);
+        }
       }
       
       const ilanData = {
@@ -403,7 +413,7 @@ export default function IlanVer() {
         durum: formData.durum,
         emlak_tipi: formData.emlak_tipi || null,
         kullanici_id: userData.id,
-        resimler: resimlerBase64,
+        resimler: resimUrls,
       };
 
       const response = await fetch('/api/ilanlar', {
