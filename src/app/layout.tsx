@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Vazirmatn } from "next/font/google";
 import "./globals.css";
+import ComingSoonPopup from "@/components/ComingSoonPopup";
 
 const vazirmatn = Vazirmatn({
   variable: "--font-sans",
@@ -68,6 +69,7 @@ export default function RootLayout({
     <html lang="fa" dir="rtl">
       <body className={`${vazirmatn.variable} antialiased`} suppressHydrationWarning>
         {children}
+        <ComingSoonPopup />
       </body>
     </html>
   );

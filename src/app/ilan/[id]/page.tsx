@@ -230,7 +230,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
       <Header />
       
       <main className="flex-1 py-4 sm:py-8">
-        <div className="container mx-auto px-3 sm:px-4 max-w-full overflow-hidden">
+        <div className="container mx-auto px-4 max-w-7xl">
           {/* Breadcrumb */}
           <div className="mb-4 sm:mb-6 text-xs sm:text-sm text-gray-600 flex flex-wrap items-center gap-1">
             <Link href="/" className="hover:text-blue-600 whitespace-nowrap">صفحه اصلی</Link>
