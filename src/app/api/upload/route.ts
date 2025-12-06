@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { put } from '@vercel/blob';
 
 export async function POST(request: Request) {
   try {
@@ -34,62 +32,33 @@ export async function POST(request: Request) {
     }
 
     // Benzersiz dosya adı oluştur
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    
     const timestamp = Date.now();
     const randomNum = Math.floor(Math.random() * 10000);
     const ext = file.name.split('.').pop();
-    const filename = `${timestamp}_${randomNum}.${ext}`;
+    const filename = `uploads/images/${timestamp}_${randomNum}.${ext}`;
 
-    // Upload klasörünü oluştur
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'images');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
+    // Vercel Blob'a yükle
+    const blob = await put(filename, file, {
+      access: 'public',
+    });
 
-    // Dosyayı kaydet
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
-
-    // Public URL oluştur
-    const imageUrl = `/uploads/images/${filename}`;
-
-    console.log('✅ Resim yüklendi:', imageUrl);
+    console.log('✅ Resim Vercel Blob\'a yüklendi:', blob.url);
 
     return NextResponse.json({
       success: true,
       message: 'تصویر با موفقیت بارگذاری شد',
       data: {
-        url: imageUrl,
+        url: blob.url,
         filename: filename,
         size: file.size
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
     console.error('❌ Resim yükleme hatası:', error);
     return NextResponse.json(
-      { success: false, message: 'خطا در بارگذاری تصویر: ' + error.message },
+      { success: false, message: 'خطا در بارگذاری تصویر: ' + errorMessage },
       { status: 500 }
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
