@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'localhost',
       },
+      {
+        protocol: 'http',
+        hostname: '104.247.173.212',
+      },
     ],
   },
   // API route için ayarlar - Büyük resimler için limit artırıldı

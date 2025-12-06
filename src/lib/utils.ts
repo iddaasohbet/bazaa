@@ -90,19 +90,42 @@ export function formatDate(date: string | Date): string {
   }
 }
 
+// cPanel sunucu IP adresi (eski resimler burada)
+const CPANEL_BASE_URL = 'http://104.247.173.212';
+
 // Resim URL'i oluştur
 export function getImageUrl(path: string | null | undefined): string {
+  // Boş veya geçersiz path için placeholder
   if (!path || path.trim() === '') return '/images/placeholder.jpg';
+  
   // Base64 resimler için
   if (path.startsWith('data:image')) return path;
-  // HTTP/HTTPS URL'ler için
+  
+  // Vercel Blob URL'leri için (yeni sistem)
+  if (path.includes('blob.vercel-storage.com')) return path;
+  
+  // HTTP/HTTPS URL'ler için (harici resimler - zaten tam URL)
   if (path.startsWith('http')) return path;
-  // Eğer path zaten /uploads/ ile başlıyorsa, olduğu gibi döndür
-  if (path.startsWith('/uploads/')) return path;
-  // Eğer path sadece dosya adı ise (örn: "file.jpg"), /uploads/images/ ekle
-  if (!path.includes('/')) return `/uploads/images/${path}`;
-  // Local dosyalar için (relative path)
-  return `/uploads/${path}`;
+  
+  // Eski yerel dosya sistemi URL'leri - cPanel'den çek
+  // /uploads/ilanlar/xxx.jpg veya /uploads/images/xxx.jpg formatı
+  if (path.startsWith('/uploads/')) {
+    return `${CPANEL_BASE_URL}${path}`;
+  }
+  
+  // UUID formatındaki eski dosya adları - cPanel'den çek
+  // Örn: 4296e774-d9f2-4f54-aad6-85153976fa21.jpg
+  if (path.match(/^[a-f0-9-]+\.(jpg|jpeg|png|webp)$/i)) {
+    return `${CPANEL_BASE_URL}/uploads/ilanlar/${path}`;
+  }
+  
+  // Sadece dosya adı varsa (timestamp_random.jpg formatı)
+  if (!path.includes('/') && path.match(/\.(jpg|jpeg|png|webp)$/i)) {
+    return `${CPANEL_BASE_URL}/uploads/images/${path}`;
+  }
+  
+  // Diğer durumlar için placeholder
+  return '/images/placeholder.jpg';
 }
 
 // İndirim yüzdesi hesapla
