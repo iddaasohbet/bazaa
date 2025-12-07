@@ -251,23 +251,23 @@ export default function Sidebar() {
       </nav>
 
       {/* Quick Stats */}
-      <div className="border-t border-gray-200 p-4">
-        <div className="space-y-2 text-sm">
+      <div className="m-3 p-4 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white">
+        <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-gray-600">آگهی های فعال</span>
-            <span className="font-bold text-gray-900">{istatistikler.aktifIlanlar.toLocaleString('fa-IR')}</span>
+            <span className="text-blue-100">آگهی های فعال</span>
+            <span className="font-bold text-white">{istatistikler.aktifIlanlar.toLocaleString('fa-IR')}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-600">مغازه ها</span>
-            <span className="font-bold text-gray-900">{istatistikler.aktifMagazalar.toLocaleString('fa-IR')}</span>
+            <span className="text-blue-100">مغازه ها</span>
+            <span className="font-bold text-white">{istatistikler.aktifMagazalar.toLocaleString('fa-IR')}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-600">امروز</span>
-            <span className="font-bold text-gray-900">+{istatistikler.bugunEklenen.toLocaleString('fa-IR')}</span>
+            <span className="text-blue-100">امروز</span>
+            <span className="font-bold text-emerald-300">+{istatistikler.bugunEklenen.toLocaleString('fa-IR')}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-600">کاربران</span>
-            <span className="font-bold text-gray-900">{istatistikler.toplamKullanicilar.toLocaleString('fa-IR')}</span>
+            <span className="text-blue-100">کاربران</span>
+            <span className="font-bold text-white">{istatistikler.toplamKullanicilar.toLocaleString('fa-IR')}</span>
           </div>
         </div>
       </div>

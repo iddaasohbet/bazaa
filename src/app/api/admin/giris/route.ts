@@ -9,18 +9,67 @@ const dbConfig = {
   database: process.env.DB_NAME || 'afghanistan_ilanlar'
 };
 
+// reCAPTCHA doğrulama fonksiyonu
+async function verifyCaptcha(token: string): Promise<boolean> {
+  try {
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (!secretKey) {
+      console.error('❌ RECAPTCHA_SECRET_KEY tanımlı değil!');
+      return false;
+    }
+
+    const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `secret=${secretKey}&response=${token}`,
+    });
+
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('❌ reCAPTCHA doğrulama hatası:', error);
+    return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
   let connection;
   
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, captchaToken } = body;
     
     if (!email || !password) {
       return NextResponse.json({
         success: false,
         message: 'E-posta ve şifre gerekli'
       }, { status: 400 });
+    }
+
+    // reCAPTCHA doğrulaması (production'da zorunlu, development'ta opsiyonel)
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    if (isProduction) {
+      if (!captchaToken) {
+        return NextResponse.json({
+          success: false,
+          message: 'Lütfen robot olmadığınızı doğrulayın'
+        }, { status: 400 });
+      }
+
+      const isCaptchaValid = await verifyCaptcha(captchaToken);
+      if (!isCaptchaValid) {
+        console.log('⚠️ Admin girişi - reCAPTCHA doğrulaması başarısız');
+        return NextResponse.json({
+          success: false,
+          message: 'Güvenlik doğrulaması başarısız. Lütfen tekrar deneyin.'
+        }, { status: 400 });
+      }
+      console.log('✅ Admin girişi - reCAPTCHA doğrulandı');
+    } else {
+      console.log('⚠️ Development modunda reCAPTCHA atlandı');
     }
     
     connection = await mysql.createConnection(dbConfig);

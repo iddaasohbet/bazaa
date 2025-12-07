@@ -379,24 +379,14 @@ export default function IlanVer() {
         sortedImages.unshift(coverImage);
       }
 
-      // Resimleri Vercel Blob'a yükle
-      const resimUrls: string[] = [];
+      const resimlerBase64: string[] = [];
       for (const image of sortedImages) {
-        const formData = new FormData();
-        formData.append('file', image);
-        
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(image);
         });
-        
-        const uploadData = await uploadRes.json();
-        
-        if (uploadData.success && uploadData.data?.url) {
-          resimUrls.push(uploadData.data.url);
-        } else {
-          console.error('Resim yükleme hatası:', uploadData.message);
-        }
+        resimlerBase64.push(base64);
       }
       
       const ilanData = {
@@ -413,7 +403,7 @@ export default function IlanVer() {
         durum: formData.durum,
         emlak_tipi: formData.emlak_tipi || null,
         kullanici_id: userData.id,
-        resimler: resimUrls,
+        resimler: resimlerBase64,
       };
 
       const response = await fetch('/api/ilanlar', {
@@ -443,14 +433,12 @@ export default function IlanVer() {
 
   if (checking || !isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-white">
         <Header />
-        <main className="flex-1 py-8">
-          <div className="container mx-auto px-4">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-16 text-center">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-              <p className="text-gray-600 mt-4">در حال انتقال...</p>
-            </div>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
+            <p className="text-gray-500 mt-6 text-lg">در حال انتقال...</p>
           </div>
         </main>
         <Footer />
@@ -461,31 +449,39 @@ export default function IlanVer() {
   const selectedKategori = kategoriler.find(k => k.id === parseInt(formData.kategori_id));
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header />
       
-      <main className="flex-1 py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          {/* Header */}
-          <div className="mb-6 text-center" dir="rtl">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">ثبت آگهی جدید</h1>
-            <p className="text-gray-600">فرم را تکمیل کنید و آگهی خود را منتشر کنید</p>
+      <main className="flex-1 py-12">
+        <div className="container mx-auto px-4 max-w-3xl">
+          {/* Premium Header */}
+          <div className="mb-10 text-center" dir="rtl">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 mb-5 shadow-lg shadow-blue-500/30">
+              <Send className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-4xl font-black text-gray-900 mb-3">ثبت آگهی جدید</h1>
+            <p className="text-gray-500 text-lg">آگهی خود را در چند مرحله ساده ثبت کنید</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Kategori & Konum */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2" dir="rtl">
-                <Tag className="w-4 h-4 text-blue-600" />
-                دسته بندی و موقعیت
-              </h3>
-              <div className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Step 1: Kategori & Konum */}
+            <div className="relative">
+              <div className="flex items-center gap-4 mb-5" dir="rtl">
+                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/30">۱</div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">دسته بندی و موقعیت</h3>
+                  <p className="text-sm text-gray-500">نوع آگهی و شهر خود را مشخص کنید</p>
+                </div>
+              </div>
+              
+              <div className="space-y-5 pr-14" dir="rtl">
                 {/* Kategori Seçimi */}
-                <div dir="rtl">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">دسته بندی</label>
                   <select
                     value={formData.kategori_id}
                     onChange={(e) => handleKategoriChange(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50 hover:bg-white"
                     required
                   >
                     <option value="">دسته بندی را انتخاب کنید</option>
@@ -495,17 +491,11 @@ export default function IlanVer() {
                   </select>
                 </div>
 
-                {/* Alt Kategoriler - Kategori seçildiğinde hemen görünsün */}
+                {/* Alt Kategoriler */}
                 {altKategoriler.length > 0 && (
-                  <div dir="rtl">
-                    <label className="block text-xs font-semibold text-gray-700 mb-2">
-                      زیر دسته‌بندی انتخاب کنید:
-                    </label>
-                    <div className={`grid gap-2 ${
-                      altKategoriler.length <= 3 ? 'grid-cols-3' : 
-                      altKategoriler.length <= 4 ? 'grid-cols-4' : 
-                      'grid-cols-5'
-                    }`}>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">زیر دسته‌بندی</label>
+                    <div className="grid grid-cols-3 gap-3">
                       {altKategoriler.map(altKat => {
                         const IconComponent = altKategoriIcons[altKat.slug] || Package;
                         return (
@@ -513,13 +503,13 @@ export default function IlanVer() {
                             key={altKat.id}
                             type="button"
                             onClick={() => setFormData({ ...formData, alt_kategori_id: altKat.id.toString() })}
-                            className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all flex items-center justify-center gap-1 ${
+                            className={`px-4 py-3.5 rounded-xl border-2 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                               formData.alt_kategori_id === altKat.id.toString()
-                                ? 'border-blue-600 bg-blue-50 text-blue-700'
-                                : 'border-gray-300 hover:border-gray-400'
+                                ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-lg shadow-blue-500/20'
+                                : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
                             }`}
                           >
-                            <IconComponent className="w-4 h-4" />
+                            <IconComponent className="w-5 h-5" />
                             {altKat.ad_dari || altKat.ad}
                           </button>
                         );
@@ -528,13 +518,11 @@ export default function IlanVer() {
                   </div>
                 )}
                 
-                {/* Emlak Tipi - Sadece Emlak kategorisi için */}
+                {/* Emlak Tipi */}
                 {selectedKategori?.ad === 'Emlak' && (
-                  <div dir="rtl">
-                    <label className="block text-xs font-semibold text-gray-700 mb-2">
-                      نوع ملکیت:
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">نوع ملکیت</label>
+                    <div className="grid grid-cols-3 gap-3">
                       {[
                         { value: 'satilik', label: 'فروشی', icon: Home },
                         { value: 'kiralik', label: 'کرایی', icon: Key },
@@ -544,13 +532,13 @@ export default function IlanVer() {
                           key={tip.value}
                           type="button"
                           onClick={() => setFormData({ ...formData, emlak_tipi: tip.value })}
-                          className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all flex items-center justify-center gap-1 ${
+                          className={`px-4 py-3.5 rounded-xl border-2 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                             formData.emlak_tipi === tip.value
-                              ? 'border-purple-600 bg-purple-50 text-purple-700'
-                              : 'border-gray-300 hover:border-gray-400'
+                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-lg shadow-indigo-500/20'
+                              : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
                           }`}
                         >
-                          <tip.icon className="w-4 h-4" />
+                          <tip.icon className="w-5 h-5" />
                           {tip.label}
                         </button>
                       ))}
@@ -559,384 +547,344 @@ export default function IlanVer() {
                 )}
 
                 {/* Şehir ve İlçe */}
-                <div className="grid md:grid-cols-2 gap-3" dir="rtl">
-                  <select
-                    value={formData.il_id}
-                    onChange={(e) => handleCityChange(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">شهر</option>
-                    {cities.map(city => (
-                      <option key={city.id} value={city.id}>{city.name}</option>
-                    ))}
-                  </select>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">شهر</label>
+                    <select
+                      value={formData.il_id}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      className="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50 hover:bg-white"
+                      required
+                    >
+                      <option value="">انتخاب شهر</option>
+                      {cities.map(city => (
+                        <option key={city.id} value={city.id}>{city.name}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                  <select
-                    value={formData.ilce}
-                    onChange={(e) => setFormData({ ...formData, ilce: e.target.value })}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                    disabled={!formData.il_id}
-                  >
-                    <option value="">ناحیه (اختیاری)</option>
-                    {districts.map(district => (
-                      <option key={district} value={district}>{district}</option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">ناحیه (اختیاری)</label>
+                    <select
+                      value={formData.ilce}
+                      onChange={(e) => setFormData({ ...formData, ilce: e.target.value })}
+                      className="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50 hover:bg-white disabled:opacity-50"
+                      disabled={!formData.il_id}
+                    >
+                      <option value="">انتخاب ناحیه</option>
+                      {districts.map(district => (
+                        <option key={district} value={district}>{district}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Başlık & Açıklama */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm" dir="rtl">
-              <h3 className="text-sm font-bold text-gray-900 mb-3">عنوان و توضیحات</h3>
-              <div className="space-y-3">
+            {/* Divider */}
+            <div className="border-t border-gray-100"></div>
+
+            {/* Step 2: Başlık & Açıklama */}
+            <div className="relative">
+              <div className="flex items-center gap-4 mb-5" dir="rtl">
+                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/30">۲</div>
                 <div>
+                  <h3 className="text-lg font-bold text-gray-900">عنوان و توضیحات</h3>
+                  <p className="text-sm text-gray-500">آگهی خود را توصیف کنید</p>
+                </div>
+              </div>
+              
+              <div className="space-y-5 pr-14" dir="rtl">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">عنوان آگهی</label>
                   <input
                     type="text"
                     value={formData.baslik}
                     onChange={(e) => setFormData({ ...formData, baslik: e.target.value })}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="عنوان آگهی (حداقل 10 کاراکتر)"
+                    className="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50 hover:bg-white"
+                    placeholder="مثال: آپارتمان ۳ خوابه در شهر نو"
                     required
                     maxLength={100}
                   />
-                  <p className="text-xs text-gray-500 mt-1">{formData.baslik.length}/100</p>
+                  <div className="flex justify-between mt-2">
+                    <p className="text-xs text-gray-400">حداقل ۱۰ کاراکتر</p>
+                    <p className={`text-xs font-medium ${formData.baslik.length >= 10 ? 'text-green-600' : 'text-gray-400'}`}>{formData.baslik.length}/100</p>
+                  </div>
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">توضیحات کامل</label>
                   <textarea
                     value={formData.aciklama}
                     onChange={(e) => setFormData({ ...formData, aciklama: e.target.value })}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                    rows={6}
-                    placeholder="توضیحات کامل محصول (حداقل 50 کاراکتر)"
+                    className="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50 hover:bg-white resize-none"
+                    rows={5}
+                    placeholder="توضیحات کامل و جزئیات محصول یا خدمات خود را بنویسید..."
                     required
                     maxLength={2000}
                   />
-                  <p className="text-xs text-gray-500 mt-1">{formData.aciklama.length}/2000</p>
+                  <div className="flex justify-between mt-2">
+                    <p className="text-xs text-gray-400">حداقل ۵۰ کاراکتر</p>
+                    <p className={`text-xs font-medium ${formData.aciklama.length >= 50 ? 'text-green-600' : 'text-gray-400'}`}>{formData.aciklama.length}/2000</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Fiyat & Durum */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm" dir="rtl">
-              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-blue-600" />
-                قیمت و وضعیت
-              </h3>
+            {/* Divider */}
+            <div className="border-t border-gray-100"></div>
+
+            {/* Step 3: Fiyat & Durum */}
+            <div className="relative">
+              <div className="flex items-center gap-4 mb-5" dir="rtl">
+                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/30">۳</div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">قیمت و وضعیت</h3>
+                  <p className="text-sm text-gray-500">قیمت و وضعیت کالا را تعیین کنید</p>
+                </div>
+              </div>
               
-              <div className="space-y-3">
+              <div className="space-y-5 pr-14" dir="rtl">
                 {/* Para Birimi */}
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, para_birimi: 'AFN', fiyat_usd: '' })}
-                    className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all ${
-                      formData.para_birimi === 'AFN'
-                        ? 'border-blue-600 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    افغانی (؋)
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, para_birimi: 'USD' })}
-                    className={`px-3 py-2 rounded-lg border text-sm font-semibold transition-all ${
-                      formData.para_birimi === 'USD'
-                        ? 'border-green-600 bg-green-50 text-green-700'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    دالر ($)
-                  </button>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">واحد پول</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, para_birimi: 'AFN', fiyat_usd: '' })}
+                      className={`px-4 py-3.5 rounded-xl border-2 text-base font-semibold transition-all flex items-center justify-center gap-2 ${
+                        formData.para_birimi === 'AFN'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-lg shadow-blue-500/20'
+                          : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
+                      }`}
+                    >
+                      <span className="text-xl">؋</span>
+                      افغانی
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, para_birimi: 'USD' })}
+                      className={`px-4 py-3.5 rounded-xl border-2 text-base font-semibold transition-all flex items-center justify-center gap-2 ${
+                        formData.para_birimi === 'USD'
+                          ? 'border-green-500 bg-green-50 text-green-700 shadow-lg shadow-green-500/20'
+                          : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
+                      }`}
+                    >
+                      <span className="text-xl">$</span>
+                      دالر
+                    </button>
+                  </div>
                 </div>
 
                 {/* Fiyat & Tip */}
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    value={formData.para_birimi === 'AFN' ? formData.fiyat : formData.fiyat_usd}
-                    onChange={(e) => {
-                      if (formData.para_birimi === 'AFN') {
-                        setFormData({ ...formData, fiyat: e.target.value, fiyat_usd: '' });
-                      } else {
-                        const usdValue = e.target.value;
-                        const afnValue = usdValue ? (parseFloat(usdValue) * 70).toString() : '';
-                        setFormData({ ...formData, fiyat_usd: usdValue, fiyat: afnValue });
-                      }
-                    }}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="قیمت"
-                    required
-                    min="0"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">قیمت</label>
+                    <input
+                      type="number"
+                      value={formData.para_birimi === 'AFN' ? formData.fiyat : formData.fiyat_usd}
+                      onChange={(e) => {
+                        if (formData.para_birimi === 'AFN') {
+                          setFormData({ ...formData, fiyat: e.target.value, fiyat_usd: '' });
+                        } else {
+                          const usdValue = e.target.value;
+                          const afnValue = usdValue ? (parseFloat(usdValue) * 70).toString() : '';
+                          setFormData({ ...formData, fiyat_usd: usdValue, fiyat: afnValue });
+                        }
+                      }}
+                      className="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50 hover:bg-white"
+                      placeholder="0"
+                      required
+                      min="0"
+                    />
+                  </div>
 
-                  <select
-                    value={formData.fiyat_tipi}
-                    onChange={(e) => setFormData({ ...formData, fiyat_tipi: e.target.value })}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="negotiable">قابل چانه زنی</option>
-                    <option value="fixed">قیمت ثابت</option>
-                  </select>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">نوع قیمت</label>
+                    <select
+                      value={formData.fiyat_tipi}
+                      onChange={(e) => setFormData({ ...formData, fiyat_tipi: e.target.value })}
+                      className="w-full px-4 py-3.5 text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all bg-gray-50 hover:bg-white"
+                    >
+                      <option value="negotiable">قابل چانه زنی</option>
+                      <option value="fixed">قیمت ثابت</option>
+                    </select>
+                  </div>
                 </div>
 
                 {/* Durum */}
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { value: 'yeni', label: 'نو', icon: Package },
-                    { value: 'az_kullanilmis', label: 'کم استفاده', icon: Star },
-                    { value: 'kullanilmis', label: 'استفاده شده', icon: ThumbsUp },
-                    { value: 'hasarli', label: 'معیوب', icon: AlertTriangle }
-                  ].map(durum => (
-                    <button
-                      key={durum.value}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, durum: durum.value })}
-                      className={`px-2 py-2 rounded-lg border text-xs font-semibold transition-all flex flex-col items-center gap-1 ${
-                        formData.durum === durum.value
-                          ? 'border-blue-600 bg-blue-50 text-blue-700'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <durum.icon className="w-4 h-4" />
-                      {durum.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Fotoğraflar */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6 shadow-lg" dir="rtl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <div className="bg-blue-600 p-2 rounded-lg">
-                    <ImageIcon className="w-5 h-5 text-white" />
-                  </div>
-                  تصاویر آگهی
-                </h3>
-                <div className="flex items-center gap-2">
-                  <span className={`px-4 py-2 rounded-full font-bold text-sm shadow-md ${
-                    images.length === 0 
-                      ? 'bg-gray-200 text-gray-600'
-                      : images.length < 10 
-                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
-                        : 'bg-gradient-to-r from-green-500 to-green-600 text-white'
-                  }`}>
-                    {images.length} / ۱۰ عکس
-                  </span>
-                </div>
-              </div>
-
-              <div 
-                className={`relative border-3 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
-                  isDragging
-                    ? 'border-blue-600 bg-blue-100 scale-[1.02] shadow-2xl'
-                    : images.length >= 10 || compressing
-                      ? 'border-gray-300 bg-gray-50 cursor-not-allowed' 
-                      : 'border-blue-400 bg-white hover:border-blue-600 hover:bg-blue-50 hover:shadow-xl'
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <input
-                  type="file"
-                  id="images"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  disabled={images.length >= 10 || compressing}
-                />
-                <label 
-                  htmlFor="images" 
-                  className={`cursor-pointer block ${(images.length >= 10 || compressing) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {compressing ? (
-                    <>
-                      <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600">
-                        <div className="h-8 w-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                      <p className="text-base text-gray-900 font-bold mb-1">
-                        در حال فشرده‌سازی تصاویر...
-                      </p>
-                      <p className="text-sm text-gray-600 mb-2">
-                        لطفاً صبر کنید
-                      </p>
-                    </>
-                  ) : isDragging ? (
-                    <>
-                      <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 animate-pulse">
-                        <Upload className="h-8 w-8 text-white" />
-                      </div>
-                      <p className="text-lg text-blue-700 font-bold mb-1">
-                        رها کنید تا آپلود شود!
-                      </p>
-                      <p className="text-sm text-blue-600">
-                        عکس‌ها را اینجا رها کنید
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <div className={`w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center ${
-                        images.length >= 10 ? 'bg-gray-200' : 'bg-gradient-to-br from-blue-500 to-indigo-600'
-                      }`}>
-                        <Upload className={`h-8 w-8 ${images.length >= 10 ? 'text-gray-400' : 'text-white'}`} />
-                      </div>
-                      <p className="text-base text-gray-900 font-bold mb-1">
-                        {images.length >= 10 ? 'حداکثر تعداد عکس آپلود شده است' : 'عکس‌ها را بکشید و رها کنید یا کلیک کنید'}
-                      </p>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {images.length < 10 ? `می‌توانید ${10 - images.length} عکس دیگر اضافه کنید` : 'برای آپلود بیشتر، ابتدا عکسی را حذف کنید'}
-                      </p>
-                      <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                          PNG, JPG, JPEG
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                          هر اندازه
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                          حداکثر ۱۰ عکس
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </label>
-              </div>
-
-              {images.length > 0 && (
-                <div className="mt-5">
-                  <div className="mb-3 pb-3 border-b border-blue-200">
-                    <p className="text-sm text-gray-700 font-semibold flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-500" />
-                      روی عکس مورد نظر کلیک کنید تا به عنوان تصویر اصلی (کاور) انتخاب شود
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-5 gap-3">
-                    {images.map((image, index) => (
-                      <div key={index} className="relative group">
-                        <div 
-                          className={`aspect-square rounded-xl overflow-hidden border-3 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer ${
-                            index === coverIndex 
-                              ? 'border-amber-500 ring-2 ring-amber-300 scale-105' 
-                              : 'border-gray-200 hover:border-blue-400 hover:scale-105'
-                          }`}
-                          onClick={() => selectCover(index)}
-                        >
-                          <img
-                            src={URL.createObjectURL(image)}
-                            alt={`عکس ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Cover badge */}
-                          {index === coverIndex && (
-                            <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-amber-500/90 to-transparent py-2 px-2">
-                              <div className="flex items-center justify-center gap-1 text-white text-xs font-bold">
-                                <Star className="w-3 h-3 fill-white" />
-                                تصویر اصلی
-                              </div>
-                            </div>
-                          )}
-                          {/* Delete button */}
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); removeImage(index); }}
-                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center hover:from-red-600 hover:to-red-700 shadow-lg transform transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                          {/* Number badge */}
-                          <div className="absolute bottom-2 left-2">
-                            <span className="bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-bold">
-                              #{index + 1}
-                            </span>
-                          </div>
-                          {/* Select as cover hint */}
-                          {index !== coverIndex && (
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                              <span className="bg-white/90 text-gray-800 text-xs px-3 py-1.5 rounded-full font-bold shadow-lg">
-                                انتخاب به عنوان کاور
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">وضعیت کالا</label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {[
+                      { value: 'yeni', label: 'نو', icon: Package },
+                      { value: 'az_kullanilmis', label: 'کم استفاده', icon: Star },
+                      { value: 'kullanilmis', label: 'استفاده شده', icon: ThumbsUp },
+                      { value: 'hasarli', label: 'معیوب', icon: AlertTriangle }
+                    ].map(durum => (
+                      <button
+                        key={durum.value}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, durum: durum.value })}
+                        className={`px-3 py-3.5 rounded-xl border-2 text-sm font-semibold transition-all flex flex-col items-center gap-2 ${
+                          formData.durum === durum.value
+                            ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-lg shadow-blue-500/20'
+                            : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
+                        }`}
+                      >
+                        <durum.icon className="w-5 h-5" />
+                        {durum.label}
+                      </button>
                     ))}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* Info */}
-            <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border-2 border-amber-300 rounded-xl p-5 shadow-lg" dir="rtl">
-              <div className="flex gap-3">
-                <div className="bg-gradient-to-br from-amber-500 to-orange-500 p-2.5 rounded-xl shadow-md flex-shrink-0">
-                  <AlertCircle className="h-6 w-6 text-white" />
+            {/* Divider */}
+            <div className="border-t border-gray-100"></div>
+
+            {/* Step 4: Fotoğraflar */}
+            <div className="relative">
+              <div className="flex items-center gap-4 mb-5" dir="rtl">
+                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/30">۴</div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">تصاویر آگهی</h3>
+                  <p className="text-sm text-gray-500">عکس‌های محصول خود را آپلود کنید</p>
                 </div>
-                <div className="text-sm text-gray-800">
-                  <p className="font-bold text-gray-900 mb-3 text-base">💡 نکات مهم برای ثبت آگهی موفق</p>
-                  <ul className="space-y-2 text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">✓</span>
-                      <span><strong>عکس‌های باکیفیت:</strong> حداقل ۵ تا ۱۰ عکس واضح و روشن از زوایای مختلف آپلود کنید</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">✓</span>
-                      <span><strong>عنوان جذاب:</strong> عنوان کامل و توصیفی انتخاب کنید (حداقل ۱۰ کاراکتر)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">✓</span>
-                      <span><strong>توضیحات کامل:</strong> تمام جزئیات مهم محصول را بنویسید (حداقل ۵۰ کاراکتر)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">✓</span>
-                      <span><strong>قیمت منصفانه:</strong> قیمت واقعی و متناسب با بازار را وارد کنید</span>
-                    </li>
-                  </ul>
-                  <div className="mt-3 pt-3 border-t border-amber-200">
-                    <p className="text-xs text-gray-600 flex items-center gap-1.5">
-                      <ImageIcon className="w-4 h-4 text-amber-600" />
-                      <span>آگهی‌های دارای تصویر کامل تا <strong className="text-amber-700">۵ برابر</strong> بیشتر بازدید می‌شوند!</span>
+                <div className="mr-auto">
+                  <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                    images.length === 0 
+                      ? 'bg-gray-100 text-gray-500'
+                      : images.length < 10 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'bg-green-100 text-green-700'
+                  }`}>
+                    {images.length}/۱۰
+                  </span>
+                </div>
+              </div>
+              
+              <div className="pr-14" dir="rtl">
+                <div 
+                  className={`relative border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-300 cursor-pointer ${
+                    isDragging
+                      ? 'border-blue-500 bg-blue-50'
+                      : images.length >= 10 || compressing
+                        ? 'border-gray-200 bg-gray-50 cursor-not-allowed' 
+                        : 'border-gray-300 bg-gray-50/50 hover:border-blue-400 hover:bg-blue-50/50'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <input
+                    type="file"
+                    id="images"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    disabled={images.length >= 10 || compressing}
+                  />
+                  <label 
+                    htmlFor="images" 
+                    className={`cursor-pointer block ${(images.length >= 10 || compressing) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {compressing ? (
+                      <>
+                        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-blue-100">
+                          <div className="h-6 w-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                        <p className="text-base text-gray-900 font-semibold">در حال فشرده‌سازی...</p>
+                      </>
+                    ) : isDragging ? (
+                      <>
+                        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-blue-100">
+                          <Upload className="h-7 w-7 text-blue-600" />
+                        </div>
+                        <p className="text-base text-blue-700 font-semibold">رها کنید</p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gray-100">
+                          <ImageIcon className="h-7 w-7 text-gray-400" />
+                        </div>
+                        <p className="text-base text-gray-700 font-semibold mb-1">
+                          {images.length >= 10 ? 'ظرفیت تکمیل شد' : 'کلیک کنید یا عکس‌ها را بکشید'}
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          PNG, JPG • حداکثر ۱۰ عکس
+                        </p>
+                      </>
+                    )}
+                  </label>
+                </div>
+
+                {images.length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
+                      <Star className="w-3.5 h-3.5 text-amber-500" />
+                      برای انتخاب تصویر اصلی روی عکس کلیک کنید
                     </p>
+                    <div className="grid grid-cols-5 gap-3">
+                      {images.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <div 
+                            className={`aspect-square rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
+                              index === coverIndex 
+                                ? 'border-amber-400 ring-2 ring-amber-200' 
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => selectCover(index)}
+                          >
+                            <img
+                              src={URL.createObjectURL(image)}
+                              alt={`عکس ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            {index === coverIndex && (
+                              <div className="absolute top-1.5 right-1.5">
+                                <span className="bg-amber-400 text-amber-900 text-[10px] px-1.5 py-0.5 rounded font-bold">
+                                  اصلی
+                                </span>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); removeImage(index); }}
+                              className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
             {/* Submit */}
-            <div className="flex gap-3" dir="rtl">
+            <div className="pt-4 pr-14" dir="rtl">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     در حال ثبت...
                   </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4" />
+                    <Send className="w-5 h-5" />
                     ثبت آگهی
                   </>
                 )}
-              </button>
-              <button
-                type="button"
-                className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-bold transition-colors"
-                onClick={() => window.history.back()}
-              >
-                لغو
               </button>
             </div>
           </form>

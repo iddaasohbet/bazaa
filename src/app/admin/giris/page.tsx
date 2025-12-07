@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, AlertCircle } from "lucide-react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function AdminGirisPage() {
   const router = useRouter();
@@ -15,10 +16,20 @@ export default function AdminGirisPage() {
     password: "",
     rememberMe: false
   });
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // reCAPTCHA kontrolü (production'da zorunlu)
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (isProduction && !captchaToken) {
+      setError("Lütfen robot olmadığınızı doğrulayın");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -27,7 +38,8 @@ export default function AdminGirisPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          captchaToken: captchaToken
         })
       });
 
@@ -44,12 +56,22 @@ export default function AdminGirisPage() {
         }, 100);
       } else {
         setError(data.message || 'Giriş başarısız');
+        // reCAPTCHA'yı sıfırla
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
       }
     } catch (err) {
       setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+      // reCAPTCHA'yı sıfırla
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
     } finally {
       setLoading(false);
     }
+  };
+
+  const onCaptchaChange = (token: string | null) => {
+    setCaptchaToken(token);
   };
 
   return (
@@ -153,6 +175,16 @@ export default function AdminGirisPage() {
               <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-700">
                 Şifremi Unuttum?
               </a>
+            </div>
+
+            {/* reCAPTCHA */}
+            <div className="flex justify-center">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                onChange={onCaptchaChange}
+                theme="light"
+              />
             </div>
 
             {/* Giriş Butonu */}

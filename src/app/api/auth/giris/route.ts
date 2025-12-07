@@ -2,6 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query, testConnection } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 
+// reCAPTCHA doğrulama fonksiyonu
+async function verifyCaptcha(token: string): Promise<boolean> {
+  try {
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (!secretKey) {
+      console.error('❌ RECAPTCHA_SECRET_KEY tanımlı değil!');
+      return false;
+    }
+
+    const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `secret=${secretKey}&response=${token}`,
+    });
+
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('❌ reCAPTCHA doğrulama hatası:', error);
+    return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
   console.log('🔑 Giriş isteği alındı...');
 
@@ -17,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, sifre } = body;
+    const { email, sifre, captchaToken } = body;
     console.log('👤 Giriş denemesi:', { email });
 
     if (!email || !sifre) {
@@ -25,6 +50,30 @@ export async function POST(request: NextRequest) {
         { success: false, message: 'ایمیل و رمز عبور الزامی است' },
         { status: 400 }
       );
+    }
+
+    // reCAPTCHA doğrulaması (production'da zorunlu, development'ta opsiyonel)
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    if (isProduction) {
+      if (!captchaToken) {
+        return NextResponse.json(
+          { success: false, message: 'لطفا تأیید کنید که ربات نیستید' },
+          { status: 400 }
+        );
+      }
+
+      const isCaptchaValid = await verifyCaptcha(captchaToken);
+      if (!isCaptchaValid) {
+        console.log('⚠️ reCAPTCHA doğrulaması başarısız');
+        return NextResponse.json(
+          { success: false, message: 'تأیید امنیتی ناموفق بود. لطفا دوباره تلاش کنید' },
+          { status: 400 }
+        );
+      }
+      console.log('✅ reCAPTCHA doğrulandı');
+    } else {
+      console.log('⚠️ Development modunda reCAPTCHA atlandı');
     }
 
     // Kullanıcıyı bul

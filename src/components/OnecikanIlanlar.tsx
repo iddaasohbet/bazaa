@@ -201,7 +201,9 @@ export default function OnecikanIlanlar() {
                         console.error('Favori işlemi hatası:', error);
                       }
                     }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
+                    className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all ${
+                      favoriler.includes(ilan.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}
                   >
                     <Heart className={`h-4 w-4 transition-colors ${
                       favoriler.includes(ilan.id)

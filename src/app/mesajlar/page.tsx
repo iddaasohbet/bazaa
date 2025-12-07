@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { MessageSquare, User, Send, Search, Settings, FileText, Heart, LogOut } from "lucide-react";
+import ProfileSidebar from "@/components/ProfileSidebar";
+import { MessageSquare, User, Send, Search } from "lucide-react";
 
 interface Mesaj {
   id: number;
@@ -28,7 +29,6 @@ export default function Mesajlar() {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    // Kullanıcı kontrolü
     const user = localStorage.getItem('user');
     if (!user) {
       router.replace('/giris?redirect=/mesajlar');
@@ -47,18 +47,13 @@ export default function Mesajlar() {
   const loadMesajlar = async (user: any) => {
     try {
       const response = await fetch('/api/mesajlar', {
-        headers: {
-          'x-user-id': user.id.toString()
-        }
+        headers: { 'x-user-id': user.id.toString() }
       });
 
       const data = await response.json();
-      
       if (data.success) {
         setMesajlar(data.data || []);
-        
-        // İlk mesajı seç
-        if (data.data && data.data.length > 0 && !selectedMesaj) {
+        if (data.data?.length > 0 && !selectedMesaj) {
           setSelectedMesaj(data.data[0]);
           markAsRead(data.data[0].id, user);
         }
@@ -109,9 +104,7 @@ export default function Mesajlar() {
       });
 
       const data = await response.json();
-      
       if (data.success) {
-        // Mesajları yeniden yükle
         loadMesajlar(currentUser);
         setMesajText("");
       }
@@ -127,22 +120,12 @@ export default function Mesajlar() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    window.dispatchEvent(new Event('userLogin'));
-    router.push('/');
-  };
-
   if (!currentUser) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-white">
         <Header />
-        <main className="flex-1 py-8">
-          <div className="container mx-auto px-4">
-            <div className="border border-gray-200 rounded-lg p-16 text-center">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-            </div>
-          </div>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="h-14 w-14 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
         </main>
         <Footer />
       </div>
@@ -150,152 +133,81 @@ export default function Mesajlar() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50/50">
       <Header />
       
-      <main className="flex-1 py-8">
-        <div className="container mx-auto px-4">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">پیام های من</h1>
-            <p className="text-gray-600">با صاحبان آگهی پیام بدهید</p>
-          </div>
-
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Left Sidebar - Menu */}
-            <div className="lg:w-64 flex-shrink-0">
-              <div className="border border-gray-200 rounded-lg overflow-hidden lg:sticky lg:top-4">
-                {/* Profile Header */}
-                <div className="p-6 border-b border-gray-200">
-                  <div className="w-20 h-20 rounded-full border-2 border-gray-300 mx-auto mb-3 flex items-center justify-center">
-                    <User className="h-10 w-10 text-gray-600" />
-                  </div>
-                  <h2 className="text-center font-bold text-gray-900">{currentUser.name}</h2>
-                  <p className="text-center text-sm text-gray-600 mt-1">{currentUser.email}</p>
-                </div>
-
-                {/* Menu */}
-                <nav className="p-2">
-                  <Link
-                    href="/profilim"
-                    className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
-                  >
-                    <User className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">حساب من</span>
-                  </Link>
-                  
-                  <Link
-                    href="/ilanlarim"
-                    className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
-                  >
-                    <FileText className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">آگهی های من</span>
-                  </Link>
-                  
-                  <Link
-                    href="/favoriler"
-                    className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
-                  >
-                    <Heart className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">علاقه مندی ها</span>
-                  </Link>
-                  
-                  <Link
-                    href="/mesajlar"
-                    className="flex items-center gap-3 px-3 py-2.5 text-blue-600 bg-blue-50 rounded-md transition-colors mb-1"
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                    <span className="flex-1 text-sm font-medium">پیام ها</span>
-                  </Link>
-                  
-                  <Link
-                    href="/ayarlar"
-                    className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
-                  >
-                    <Settings className="h-5 w-5 text-gray-600" />
-                    <span className="flex-1 text-sm font-medium">تنظیمات</span>
-                  </Link>
-                </nav>
-
-                {/* Logout */}
-                <div className="p-2 border-t border-gray-200">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    <span className="flex-1 text-sm font-medium text-right">خروج</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+      <main className="flex-1 py-10">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="flex flex-col lg:flex-row gap-10">
+            <ProfileSidebar userData={currentUser} activePage="mesajlar" />
 
             {/* Right Content */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 space-y-8">
+              {/* Page Title */}
+              <div dir="rtl">
+                <h1 className="text-3xl font-bold text-gray-900">پیام‌ها</h1>
+                <p className="text-gray-500 mt-2 text-lg">با صاحبان آگهی‌ها گفتگو کنید</p>
+              </div>
+
               {mesajlar.length === 0 ? (
-                <div className="border border-gray-200 rounded-lg p-16 text-center">
-                  <MessageSquare className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">هنوز پیامی وجود ندارد</h3>
-                  <p className="text-gray-600 mb-6">
-                    با صاحبان آگهی شروع به پیام دهید.
-                  </p>
-                  <a href="/" className="inline-block border-2 border-blue-600 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                    کشف آگهی ها
-                  </a>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center" dir="rtl">
+                  <div className="w-20 h-20 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-6">
+                    <MessageSquare className="h-10 w-10 text-blue-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">هنوز پیامی ندارید</h3>
+                  <p className="text-gray-500 mb-8 text-lg">با صاحبان آگهی‌ها ارتباط برقرار کنید!</p>
+                  <Link 
+                    href="/" 
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-bold transition-colors shadow-lg shadow-blue-500/30"
+                  >
+                    <Search className="w-5 h-5" />
+                    کشف آگهی‌ها
+                  </Link>
                 </div>
               ) : (
-                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                   <div className="grid md:grid-cols-3 h-[600px]">
                     {/* Sol Taraf - Mesaj Listesi */}
-                    <div className="md:col-span-1 border-r border-gray-200 overflow-hidden">
-                      {/* Arama */}
-                      <div className="p-4 border-b border-gray-200">
+                    <div className="md:col-span-1 border-l border-gray-100 overflow-hidden">
+                      <div className="p-4 border-b border-gray-100">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                           <input
                             type="text"
-                            placeholder="جستجو در پیام ها..."
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            placeholder="جستجو در پیام‌ها..."
+                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 text-sm bg-gray-50"
                           />
                         </div>
                       </div>
 
-                      {/* Mesaj Listesi */}
                       <div className="overflow-y-auto h-[calc(600px-73px)]">
                         {mesajlar.map((mesaj) => {
                           const displayName = mesaj.gonderici_id === currentUser?.id ? mesaj.alici_ad : mesaj.gonderici_ad;
                           return (
-                          <button
-                            key={mesaj.id}
-                            onClick={() => selectMesaj(mesaj)}
-                            className={`w-full p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors text-left ${
-                              selectedMesaj?.id === mesaj.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center bg-gray-100 flex-shrink-0">
-                                <User className="h-6 w-6 text-gray-600" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                  <span className="font-semibold text-gray-900 truncate">{displayName}</span>
-                                  {!mesaj.okundu && mesaj.alici_id === currentUser?.id && (
-                                    <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                                  )}
+                            <button
+                              key={mesaj.id}
+                              onClick={() => selectMesaj(mesaj)}
+                              className={`w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors text-right ${
+                                selectedMesaj?.id === mesaj.id ? 'bg-blue-50 border-r-4 border-r-blue-600' : ''
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center flex-shrink-0">
+                                  <User className="h-6 w-6 text-gray-400" />
                                 </div>
-                                <p className="text-xs text-gray-500 mb-1 truncate">{mesaj.ilan_baslik || 'Genel Mesaj'}</p>
-                                <p className="text-sm text-gray-600 truncate">{mesaj.mesaj}</p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {new Date(mesaj.tarih).toLocaleString('tr-TR', {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })}
-                                </p>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="font-semibold text-gray-900 truncate">{displayName}</span>
+                                    {!mesaj.okundu && mesaj.alici_id === currentUser?.id && (
+                                      <span className="w-2.5 h-2.5 bg-blue-600 rounded-full"></span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-gray-400 mb-1 truncate">{mesaj.ilan_baslik || 'پیام عمومی'}</p>
+                                  <p className="text-sm text-gray-600 truncate">{mesaj.mesaj}</p>
+                                </div>
                               </div>
-                            </div>
-                          </button>
-                        );
+                            </button>
+                          );
                         })}
                       </div>
                     </div>
@@ -304,31 +216,29 @@ export default function Mesajlar() {
                     <div className="md:col-span-2">
                       {selectedMesaj ? (
                         <div className="flex flex-col h-full">
-                          {/* Mesaj Header */}
-                          <div className="p-4 border-b border-gray-200">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center bg-gray-100">
-                                <User className="h-5 w-5 text-gray-600" />
+                          <div className="p-5 border-b border-gray-100">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                                <User className="h-6 w-6 text-blue-600" />
                               </div>
                               <div className="flex-1">
-                                <div className="font-semibold text-gray-900">
+                                <div className="font-bold text-gray-900 text-lg">
                                   {selectedMesaj.gonderici_id === currentUser?.id ? selectedMesaj.alici_ad : selectedMesaj.gonderici_ad}
                                 </div>
-                                <div className="text-xs text-gray-600">{selectedMesaj.ilan_baslik || 'Genel Mesaj'}</div>
+                                <div className="text-sm text-gray-500">{selectedMesaj.ilan_baslik || 'پیام عمومی'}</div>
                               </div>
                               {selectedMesaj.ilan_id && (
-                                <a 
+                                <Link 
                                   href={`/ilan/${selectedMesaj.ilan_id}`}
-                                  className="text-sm text-blue-600 hover:underline"
+                                  className="text-sm text-blue-600 hover:underline font-medium"
                                 >
                                   مشاهده آگهی
-                                </a>
+                                </Link>
                               )}
                             </div>
                           </div>
 
-                          {/* Mesajlar */}
-                          <div className="flex-1 p-4 overflow-y-auto">
+                          <div className="flex-1 p-5 overflow-y-auto bg-gray-50/50">
                             <div className="space-y-4">
                               {mesajlar
                                 .filter(m => 
@@ -338,19 +248,16 @@ export default function Mesajlar() {
                                 )
                                 .map((mesaj) => (
                                   <div key={mesaj.id} className={`flex ${mesaj.gonderici_id === currentUser?.id ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[70%] rounded-lg p-3 ${
+                                    <div className={`max-w-[70%] rounded-2xl p-4 ${
                                       mesaj.gonderici_id === currentUser?.id
-                                        ? 'border border-blue-600 bg-blue-600 text-white' 
-                                        : 'border border-gray-200'
+                                        ? 'bg-blue-600 text-white' 
+                                        : 'bg-white border border-gray-200'
                                     }`}>
                                       <p className={`text-sm ${mesaj.gonderici_id === currentUser?.id ? 'text-white' : 'text-gray-700'}`}>
                                         {mesaj.mesaj}
                                       </p>
-                                      <p className={`text-xs mt-1 ${mesaj.gonderici_id === currentUser?.id ? 'text-blue-200' : 'text-gray-500'}`}>
-                                        {new Date(mesaj.tarih).toLocaleTimeString('tr-TR', {
-                                          hour: '2-digit',
-                                          minute: '2-digit'
-                                        })}
+                                      <p className={`text-xs mt-2 ${mesaj.gonderici_id === currentUser?.id ? 'text-blue-200' : 'text-gray-400'}`}>
+                                        {new Date(mesaj.tarih).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })}
                                       </p>
                                     </div>
                                   </div>
@@ -358,20 +265,19 @@ export default function Mesajlar() {
                             </div>
                           </div>
 
-                          {/* Mesaj Gönder */}
-                          <div className="p-4 border-t border-gray-200">
-                            <div className="flex gap-2">
+                          <div className="p-5 border-t border-gray-100 bg-white">
+                            <div className="flex gap-3">
                               <input
                                 type="text"
                                 value={mesajText}
                                 onChange={(e) => setMesajText(e.target.value)}
                                 placeholder="پیام خود را بنویسید..."
-                                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 px-5 py-3.5 border-2 border-gray-100 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50"
                                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                               />
                               <button
                                 onClick={handleSend}
-                                className="border-2 border-blue-600 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-medium transition-colors shadow-lg shadow-blue-500/30"
                               >
                                 <Send className="h-5 w-5" />
                               </button>
@@ -379,10 +285,12 @@ export default function Mesajlar() {
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center h-full text-gray-400">
+                        <div className="flex items-center justify-center h-full">
                           <div className="text-center">
-                            <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                            <p className="text-gray-600">یک پیام انتخاب کنید</p>
+                            <div className="w-20 h-20 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                              <MessageSquare className="h-10 w-10 text-gray-300" />
+                            </div>
+                            <p className="text-gray-500">یک گفتگو انتخاب کنید</p>
                           </div>
                         </div>
                       )}

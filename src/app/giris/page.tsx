@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ReCAPTCHA from "react-google-recaptcha";
 
 function GirisContent() {
   const router = useRouter();
@@ -16,9 +17,19 @@ function GirisContent() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // reCAPTCHA kontrolü (production'da zorunlu)
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (isProduction && !captchaToken) {
+      alert('لطفا تأیید کنید که ربات نیستید');
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -31,6 +42,7 @@ function GirisContent() {
         body: JSON.stringify({
           email: email,
           sifre: password,
+          captchaToken: captchaToken,
         }),
       });
 
@@ -38,6 +50,9 @@ function GirisContent() {
 
       if (!response.ok || !data.success) {
         alert(data.message || 'ایمیل یا رمز عبور اشتباه است');
+        // reCAPTCHA'yı sıfırla
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
         setLoading(false);
         return;
       }
@@ -63,8 +78,15 @@ function GirisContent() {
     } catch (error) {
       console.error('Giriş hatası:', error);
       alert('خطا در ورود. لطفا دوباره تلاش کنید');
+      // reCAPTCHA'yı sıfırla
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
       setLoading(false);
     }
+  };
+
+  const onCaptchaChange = (token: string | null) => {
+    setCaptchaToken(token);
   };
 
   return (
@@ -139,6 +161,17 @@ function GirisContent() {
                   <Link href="/sifremi-unuttum" className="text-sm text-blue-600 hover:underline">
                     رمز عبور را فراموش کرده ام
                   </Link>
+                </div>
+
+                {/* reCAPTCHA */}
+                <div className="flex justify-center">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+                    onChange={onCaptchaChange}
+                    theme="light"
+                    hl="fa"
+                  />
                 </div>
 
                 {/* Submit Button */}

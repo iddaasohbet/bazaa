@@ -142,7 +142,7 @@ function AramaContent() {
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
-                        <button className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-red-50">
+                        <button className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
                           <Heart className="h-5 w-5 text-gray-600" />
                         </button>
                       </div>

@@ -141,7 +141,7 @@ export default function KullaniciIlanlari({ params }: { params: Promise<{ id: st
                         {/* Favorite Button */}
                         <button 
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all"
+                          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all opacity-0 group-hover:opacity-100"
                         >
                           <Heart className="h-4 w-4 text-gray-600" />
                         </button>
