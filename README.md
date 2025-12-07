@@ -331,3 +331,5 @@ Sorunlarınız için:
 BazaareWatan'ı kullandığınız için teşekkürler!
 
 **بازار وطن - مارکیت شماره یک افغانستان** 🇦🇫
+
+
