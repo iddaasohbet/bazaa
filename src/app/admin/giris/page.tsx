@@ -177,15 +177,17 @@ export default function AdminGirisPage() {
               </a>
             </div>
 
-            {/* reCAPTCHA */}
-            <div className="flex justify-center">
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-                onChange={onCaptchaChange}
-                theme="light"
-              />
-            </div>
+            {/* reCAPTCHA - Sadece key varsa göster */}
+            {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+              <div className="flex justify-center">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                  onChange={onCaptchaChange}
+                  theme="light"
+                />
+              </div>
+            )}
 
             {/* Giriş Butonu */}
             <button
