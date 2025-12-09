@@ -476,7 +476,7 @@ export default function Header() {
               {/* İlan Ver - Primary */}
               <Link
                 href="/ilan-ver"
-                className="hidden sm:flex items-center gap-2 h-10 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
+                className="hidden sm:flex items-center gap-2 h-10 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20"
               >
                 <Plus className="h-5 w-5" />
                 <span className="text-sm font-medium">ثبت آگهی</span>
@@ -559,10 +559,10 @@ export default function Header() {
               <div className="mb-5 space-y-2">
                 <Link
                   href="/ilan-ver"
-                  className="flex items-center gap-3 w-full bg-gray-900 hover:bg-gray-800 text-white h-12 px-4 rounded-xl font-medium text-sm transition-all"
+                  className="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white h-12 px-4 rounded-xl font-medium text-sm transition-all shadow-md shadow-blue-500/20"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                     <Plus className="h-5 w-5" />
                   </div>
                   <span>ثبت آگهی جدید</span>

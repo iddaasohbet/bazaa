@@ -233,10 +233,10 @@ export default function PremiumAds() {
                 className="text-sm font-bold text-blue-600"
               />
 
-              {/* View Details Button - Sade */}
-              <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-[10px] font-medium hover:bg-blue-700 transition-colors">
-                <Eye className="w-3 h-3" />
-                <span>مشاهده</span>
+              {/* Görüntülenme Sayısı */}
+              <div className="flex items-center gap-1 text-gray-400 text-[11px]">
+                <Eye className="w-3.5 h-3.5" />
+                <span>{ilan.goruntulenme || 0}</span>
               </div>
             </div>
           </div>

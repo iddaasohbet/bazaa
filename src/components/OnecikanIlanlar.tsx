@@ -208,9 +208,9 @@ export default function OnecikanIlanlar() {
                       className="text-sm font-bold text-blue-600"
                     />
                     
-                    <div className="bg-blue-600 text-white text-[10px] font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      <span>مشاهده</span>
+                    <div className="flex items-center gap-1 text-gray-400 text-[11px]">
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{ilan.goruntulenme || 0}</span>
                     </div>
                   </div>
                 </div>
