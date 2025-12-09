@@ -14,6 +14,11 @@ const mockKategoriler = [
 ];
 
 export async function GET() {
+  // Kategoriler nadiren değişir - agresif cache
+  const headers = {
+    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+  };
+  
   try {
     // Database'den kategorileri al
     const kategoriler = await query(
@@ -23,7 +28,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: kategoriler,
-    });
+    }, { headers });
   } catch (error: any) {
     console.error('❌ Kategoriler yüklenirken hata:', error);
     
@@ -31,7 +36,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: mockKategoriler,
-    });
+    }, { headers });
   }
 }
 

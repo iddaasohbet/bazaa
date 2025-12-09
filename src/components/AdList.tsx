@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { MapPin, Eye, Clock, Heart } from "lucide-react";
+import { Heart, Crown, Zap, Eye, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { formatDate, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
 
 interface Ilan {
@@ -41,12 +39,12 @@ export default function AdList() {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [favoriler, setFavoriler] = useState<number[]>([]);
+  const [toplamIlan, setToplamIlan] = useState(0);
 
   useEffect(() => {
     fetchIlanlar();
     loadFavoriler();
     
-    // Favori güncellemelerini dinle
     const handleFavoriUpdate = () => {
       loadFavoriler();
     };
@@ -89,9 +87,8 @@ export default function AdList() {
       }
 
       const currentOffset = loadMore ? offset : 0;
-      // ⚡ OPTIMIZE: İlk yüklemede 12 ilan, sonrasında 12'şer daha yükle
       const response = await fetch(`/api/ilanlar?limit=12&offset=${currentOffset}`, {
-        next: { revalidate: 60 } // 60 saniye cache
+        next: { revalidate: 60 }
       });
       const data = await response.json();
       
@@ -104,6 +101,11 @@ export default function AdList() {
         
         setOffset(currentOffset + 12);
         setHasMore(data.data.length === 12);
+        
+        // Toplam ilan sayısını al
+        if (data.total) {
+          setToplamIlan(data.total);
+        }
       }
     } catch (error) {
       console.error('خطا در بارگذاری آگهی ها:', error);
@@ -113,21 +115,56 @@ export default function AdList() {
     }
   };
 
-  const durumBadges: { [key: string]: { text: string; color: string } } = {
-    'yeni': { text: 'نو', color: 'bg-green-100 text-green-700' },
-    'az_kullanilmis': { text: 'کم استفاده', color: 'bg-blue-100 text-blue-700' },
-    'kullanilmis': { text: 'استفاده شده', color: 'bg-gray-100 text-gray-700' },
-    'hasarli': { text: 'آسیب دیده', color: 'bg-red-100 text-red-700' },
+  const toggleFavori = async (e: React.MouseEvent, ilanId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      alert('لطفاً ابتدا وارد شوید');
+      return;
+    }
+
+    const user = JSON.parse(userStr);
+    if (!user?.id) {
+      alert('خطا در شناسایی کاربر');
+      return;
+    }
+    
+    const isFavorite = favoriler.includes(ilanId);
+    
+    try {
+      if (isFavorite) {
+        await fetch(`/api/favoriler?ilanId=${ilanId}`, {
+          method: 'DELETE',
+          headers: { 'x-user-id': user.id.toString() }
+        });
+        setFavoriler(prev => prev.filter(id => id !== ilanId));
+      } else {
+        await fetch('/api/favoriler', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-user-id': user.id.toString()
+          },
+          body: JSON.stringify({ ilanId })
+        });
+        setFavoriler(prev => [...prev, ilanId]);
+      }
+      window.dispatchEvent(new Event('favoriGuncelle'));
+    } catch (error) {
+      console.error('Favori işlemi hatası:', error);
+    }
   };
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        {[...Array(12)].map((_, i) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {[...Array(8)].map((_, i) => (
           <div key={i} className="animate-pulse">
-            <div className="aspect-video bg-gray-200 rounded-xl mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+            <div className="aspect-square rounded-2xl bg-gray-100 border border-gray-50 mb-2"></div>
+            <div className="h-3 bg-gray-100 rounded mb-2"></div>
+            <div className="h-3 bg-gray-100 rounded w-2/3"></div>
           </div>
         ))}
       </div>
@@ -136,11 +173,13 @@ export default function AdList() {
 
   if (ilanlar.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-12 text-center">
-        <div className="text-6xl mb-4">📦</div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">هنوز آگهی ای وجود ندارد</h3>
-        <p className="text-gray-600 mb-6">اولین آگهی را شما ثبت کنید!</p>
-        <Link href="/ilan-ver" className="btn-primary inline-block">
+      <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+          <Eye className="w-8 h-8 text-gray-400 stroke-[1.5]" />
+        </div>
+        <h3 className="text-lg font-bold text-gray-900 mb-2">هنوز آگهی ای وجود ندارد</h3>
+        <p className="text-gray-400 text-sm mb-6">اولین آگهی را شما ثبت کنید!</p>
+        <Link href="/ilan-ver" className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors inline-block">
           ثبت آگهی
         </Link>
       </div>
@@ -148,29 +187,33 @@ export default function AdList() {
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-6" dir="rtl">
-        <h2 className="text-2xl font-bold text-gray-900">همه آگهی‌ها</h2>
-        <p className="text-gray-600 text-sm mt-1">آخرین آگهی‌های ثبت شده</p>
+    <div dir="rtl">
+      {/* Header - Kurumsal & Sade */}
+      <div className="mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Eye className="w-6 h-6 text-gray-800 stroke-[1.5]" />
+          <div>
+            <h2 className="text-base font-bold text-gray-900">همه آگهی‌ها</h2>
+            <p className="text-gray-400 text-[11px]">آخرین آگهی‌های ثبت شده</p>
+          </div>
+        </div>
+        <span className="bg-gray-100 text-gray-700 text-xs font-semibold px-4 py-2 rounded-lg">
+          {toplamIlan.toLocaleString('fa-IR')} آگهی
+        </span>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {/* Grid - Kurumsal */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {ilanlar.map((ilan, index) => {
-          const durumBadge = durumBadges[ilan.durum] || durumBadges['kullanilmis'];
+          const isVIP = ilan.store_level === 'pro' || ilan.store_level === 'elite';
           
           return (
-            <motion.div
-              key={ilan.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Link href={`/ilan/${ilan.id}`} className="group block h-full">
-                <div className="overflow-hidden rounded-xl bg-white border border-gray-200 transition-all hover:shadow-xl hover:border-blue-300 h-full flex flex-col">
-                  {/* Image */}
-                  <div className="relative aspect-video bg-gray-100 overflow-hidden">
+            <div key={ilan.id}>
+              <Link href={`/ilan/${ilan.id}`} className="group block">
+                <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-200">
+                  
+                  {/* Image Area - Top */}
+                  <div className="relative aspect-square overflow-hidden bg-gray-100">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={getImageUrl(
@@ -179,177 +222,109 @@ export default function AdList() {
                           : ilan.ana_resim
                       )}
                       alt={ilan.baslik}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading={index < 8 ? "eager" : "lazy"}
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        if (target.src !== '/images/placeholder.jpg' && target.src !== '/placeholder.svg') {
+                        if (target.src !== '/images/placeholder.jpg') {
                           target.src = '/images/placeholder.jpg';
                         }
                       }}
                     />
-                    
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
-                    {/* Badge */}
-                    <div className="absolute top-2 left-2">
-                      <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
-                        {ilan.kategori_ad}
-                      </span>
-                    </div>
-                    
-                              {/* Favorite Button */}
-                              <button 
-                                onClick={async (e) => { 
-                                  e.preventDefault(); 
-                                  e.stopPropagation();
-                                  
-                                  const userStr = localStorage.getItem('user');
-                                  if (!userStr) {
-                                    alert('لطفاً ابتدا وارد شوید');
-                                    return;
-                                  }
 
-                                  const user = JSON.parse(userStr);
-                                  if (!user?.id) {
-                                    alert('خطا در شناسایی کاربر');
-                                    return;
-                                  }
-                                  
-                                  const isFavorite = favoriler.includes(ilan.id);
-                                  
-                                  console.log('❤️ Favori işlemi - İlan ID:', ilan.id, 'Favoride mi?', isFavorite);
-                                  
-                                  try {
-                                    if (isFavorite) {
-                                      // Favoriden çıkar
-                                      console.log('🗑️ Favoriden çıkarılıyor...');
-                                      const response = await fetch(`/api/favoriler?ilanId=${ilan.id}`, {
-                                        method: 'DELETE',
-                                        headers: {
-                                          'x-user-id': user.id.toString()
-                                        }
-                                      });
-                                      const data = await response.json();
-                                      console.log('✅ API Response (DELETE):', data);
-                                      setFavoriler(prev => prev.filter(id => id !== ilan.id));
-                                    } else {
-                                      // Favoriye ekle
-                                      console.log('➕ Favoriye ekleniyor...');
-                                      const response = await fetch('/api/favoriler', {
-                                        method: 'POST',
-                                        headers: {
-                                          'Content-Type': 'application/json',
-                                          'x-user-id': user.id.toString()
-                                        },
-                                        body: JSON.stringify({ ilanId: ilan.id })
-                                      });
-                                      const data = await response.json();
-                                      console.log('✅ API Response (POST):', data);
-                                      setFavoriler(prev => [...prev, ilan.id]);
-                                    }
-                                    
-                                    console.log('📢 favoriGuncelle event dispatch ediliyor...');
-                                    window.dispatchEvent(new Event('favoriGuncelle'));
-                                  } catch (error) {
-                                    console.error('❌ Favori işlemi hatası:', error);
-                                  }
-                                }}
-                                className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all ${
-                                  favoriler.includes(ilan.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                                }`}
-                              >
-                                <Heart className={`h-4 w-4 transition-colors ${
-                                  favoriler.includes(ilan.id)
-                                    ? 'text-red-500 fill-red-500' 
-                                    : 'text-gray-600'
-                                }`} />
-                              </button>
+                    {/* VIP Badge - Top Left (RTL'de sağ üst) - Dikkat Çekici */}
+                    {isVIP && (
+                      <div className={`absolute top-0 left-0 ${
+                        ilan.store_level === 'elite' 
+                          ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500' 
+                          : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600'
+                      } text-white text-[10px] font-black px-3 py-1.5 rounded-br-xl shadow-lg`}>
+                        <span className="flex items-center gap-1">
+                          {ilan.store_level === 'elite' ? <Crown className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
+                          VIP
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Favorite Button - Top Right (RTL'de sol üst) */}
+                    <button 
+                      onClick={(e) => toggleFavori(e, ilan.id)}
+                      className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center transition-all hover:bg-white ${
+                        favoriler.includes(ilan.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      }`}
+                    >
+                      <Heart className={`h-4 w-4 transition-colors ${
+                        favoriler.includes(ilan.id)
+                          ? 'text-red-500 fill-red-500' 
+                          : 'text-gray-500'
+                      }`} />
+                    </button>
+
+                    {/* Package Badge - Bottom Right (RTL'de sol alt) - Renkli */}
+                    {isVIP && (
+                      <div className={`absolute bottom-2 right-2 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white shadow-lg ${
+                        ilan.store_level === 'elite' 
+                          ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500' 
+                          : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600'
+                      }`}>
+                        {ilan.store_level === 'elite' ? <Crown className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
+                        <span>{ilan.store_level === 'elite' ? 'پریمیوم' : 'پرو'}</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Content */}
-                  <div className="p-3 flex-1 flex flex-col">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight group-hover:text-blue-600 transition-colors">
+                  {/* Content Area - Bottom */}
+                  <div className="p-3">
+                    <h3 className="font-medium text-gray-900 text-xs mb-2 line-clamp-2 min-h-[32px] leading-tight">
                       {ilan.baslik}
                     </h3>
                     
-                    {/* Fiyat Bölümü - İndirim Gösterimi */}
-                    <div className="mb-3">
-                      {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 && (ilan.store_level === 'pro' || ilan.store_level === 'elite') ? (
-                        <div className="space-y-1">
-                          {/* İndirim Badge */}
-                          <div className="flex items-center gap-2">
-                            <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
-                              {ilan.indirim_yuzdesi}% تخفیف
-                            </span>
-                          </div>
-                          {/* Eski Fiyat (Üstü Çizili) */}
-                          {ilan.eski_fiyat && (
-                            <div className="line-through">
-                              <PriceDisplay 
-                                price={ilan.eski_fiyat} 
-                                currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                                className="text-sm text-gray-500"
-                              />
-                            </div>
-                          )}
-                          {/* Yeni İndirimli Fiyat */}
-                          <PriceDisplay 
-                            price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
-                            currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                            className="text-lg font-bold text-red-600"
-                          />
-                        </div>
-                      ) : (
-                        <PriceDisplay 
-                          price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
-                          currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                          className="text-lg font-bold text-blue-600"
-                        />
-                      )}
-                    </div>
-
-                    <div className="mt-auto space-y-2 text-xs text-gray-600">
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                        <span className="truncate">{ilan.il_ad}</span>
-                      </div>
-                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                        {/* Göz ikonu - Sadece Pro/Elite mağazalarda */}
-                        {(ilan.store_level === 'pro' || ilan.store_level === 'elite') && ilan.magaza_slug ? (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              router.push(`/magaza/${ilan.magaza_slug}`);
-                            }}
-                            className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-colors ${
-                              ilan.store_level === 'elite'
-                                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                            }`}
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                            <span className="font-semibold">مغازه</span>
-                          </button>
-                        ) : (
-                          <div></div>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5 text-gray-400" />
-                          <span>{formatDate(ilan.created_at)}</span>
-                        </div>
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <PriceDisplay 
+                        price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
+                        currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
+                        className="text-sm font-bold text-gray-900"
+                      />
+                      
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          router.push(`/ilan/${ilan.id}`);
+                        }}
+                        className="bg-gray-900 text-white text-[10px] font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-1"
+                      >
+                        <Eye className="w-3 h-3" />
+                        <span>مشاهده</span>
+                      </button>
                     </div>
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           );
         })}
       </div>
 
+      {/* Load More - Sade */}
+      {hasMore && (
+        <div className="text-center mt-8">
+          <button
+            onClick={() => fetchIlanlar(true)}
+            disabled={loadingMore}
+            className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-xl font-medium text-sm transition-colors"
+          >
+            {loadingMore ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                در حال بارگذاری...
+              </span>
+            ) : (
+              'مشاهده بیشتر'
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
-

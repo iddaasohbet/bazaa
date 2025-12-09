@@ -128,9 +128,11 @@ const mockIlanlar = Array.from({ length: 4 }, (_, rowIndex) =>
 ).flat();
 
 export async function GET(request: Request) {
-  // Cache ile hızlı yanıt
+  // Agresif cache ile ultra hızlı yanıt
   const headers = {
-    'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+    'CDN-Cache-Control': 'public, s-maxage=120',
+    'Vercel-CDN-Cache-Control': 'public, s-maxage=120',
   };
   
   try {
@@ -202,9 +204,32 @@ export async function GET(request: Request) {
       resim_sayisi: ilan.ana_resim ? 1 : 0
     }));
 
+    // Toplam ilan sayısını al
+    let countSql = 'SELECT COUNT(*) as total FROM ilanlar i WHERE i.aktif = TRUE';
+    const countParams: any[] = [];
+    
+    if (kategori) {
+      countSql += ' AND EXISTS (SELECT 1 FROM kategoriler k WHERE k.id = i.kategori_id AND k.slug = ?)';
+      countParams.push(kategori);
+    }
+    
+    if (storeLevel) {
+      countSql += ' AND EXISTS (SELECT 1 FROM magazalar m WHERE m.id = i.magaza_id AND m.store_level = ?)';
+      countParams.push(storeLevel);
+    }
+    
+    if (aramaSorgusu) {
+      countSql += ' AND (i.baslik LIKE ? OR i.aciklama LIKE ?)';
+      countParams.push(`%${aramaSorgusu}%`, `%${aramaSorgusu}%`);
+    }
+    
+    const countResult = await query(countSql, countParams);
+    const total = (countResult as any[])[0]?.total || 0;
+
     return NextResponse.json({
       success: true,
       data: ilanlarWithImages,
+      total: total,
     }, { headers });
   } catch (error: any) {
     console.error('❌ İlanlar database hatası, fallback kullanılıyor:', error);
@@ -213,6 +238,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       data: mockIlanlar.slice(0, 20),
+      total: mockIlanlar.length,
     }, { headers });
   }
 }

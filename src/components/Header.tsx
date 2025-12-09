@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Search, Menu, X, Plus, User, Heart, MessageSquare, ChevronDown, MapPin, Store } from "lucide-react";
+import { Menu, X, Plus, User, Heart, MessageSquare, ChevronDown, Store, Globe, MapPin, Grid, LogIn, ShoppingBag } from "lucide-react";
 import FeedbackWidget from "./FeedbackWidget";
 
 interface Kategori {
@@ -19,7 +19,9 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [kategorilerOpen, setKategorilerOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [langOpen, setLangOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState<'dari' | 'pashto' | 'en'>('dari');
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState("");
   const [mesajSayisi, setMesajSayisi] = useState(0);
@@ -243,89 +245,218 @@ export default function Header() {
     };
   }, [isAuthenticated]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `/arama?q=${encodeURIComponent(searchQuery)}`;
-    }
-  };
-
   return (
     <>
-      <header className="border-b border-gray-200 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 lg:h-18">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 mr-6 lg:mr-8 group">
-              {logoLoading ? (
-                <div className="h-12 lg:h-14 w-32 bg-gray-200 animate-pulse rounded"></div>
-              ) : headerLogo ? (
-                <div className="relative h-12 lg:h-14">
+      <header className="bg-white border-b border-gray-100" dir="rtl">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="flex items-center justify-between h-14 lg:h-16">
+            
+            {/* Right Side - Logo */}
+            <div className="flex items-center gap-4">
+              {/* Logo */}
+              <Link href="/" className="flex items-center">
+                {logoLoading ? (
+                  <div className="h-8 lg:h-9 w-24 bg-gray-100 animate-pulse rounded"></div>
+                ) : headerLogo ? (
                   <img 
                     src={headerLogo} 
                     alt="Logo" 
-                    className="h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+                    className="h-8 lg:h-9 w-auto object-contain"
                   />
-                </div>
-              ) : (
-                <div className="text-2xl font-bold text-blue-600">
-                  WatanBazaare
-                </div>
-              )}
-            </Link>
+                ) : (
+                  <span className="text-lg font-bold text-gray-900">بازار وطن</span>
+                )}
+              </Link>
 
-            {/* Desktop: Kategoriler Dropdown */}
-            <div 
-              className="hidden lg:block relative"
-              onMouseEnter={() => setKategorilerOpen(true)}
-              onMouseLeave={() => setKategorilerOpen(false)}
-            >
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
-                <Menu className="h-4 w-4" />
-                <span>دسته بندی ها</span>
-                <ChevronDown className={`h-4 w-4 transition-transform ${kategorilerOpen ? 'rotate-180' : ''}`} />
-              </button>
+              {/* Divider */}
+              <div className="hidden lg:block w-px h-6 bg-gray-200"></div>
 
-              {kategorilerOpen && (
-                <div className="absolute top-full left-0 pt-2 z-50">
-                  <div className="w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2">
-                    {kategoriler.map((kat) => (
-                      <Link
-                        key={kat.id}
-                        href={`/kategori/${kat.slug}`}
-                        className="block px-4 py-2.5 hover:bg-gray-50 transition-colors"
-                      >
-                        <span className="text-sm font-medium text-gray-700 hover:text-blue-600">
+              {/* Categories Button */}
+              <div 
+                className="hidden lg:block relative"
+                onMouseEnter={() => setKategorilerOpen(true)}
+                onMouseLeave={() => setKategorilerOpen(false)}
+              >
+                <button className="flex items-center gap-2 h-10 px-3 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all">
+                  <Grid className="h-5 w-5" />
+                  <span className="text-sm font-medium">دسته‌بندی‌ها</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${kategorilerOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {kategorilerOpen && (
+                  <div className="absolute top-full right-0 pt-2 z-50">
+                    <div className="w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 overflow-hidden">
+                      {kategoriler.map((kat) => (
+                        <Link
+                          key={kat.id}
+                          href={`/kategori/${kat.slug}`}
+                          className="flex items-center h-11 px-4 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                        >
                           {kat.ad_dari || kat.ad}
-                        </span>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
-            {/* Search Bar - Merkez */}
-            <form onSubmit={handleSearch} className="hidden md:block flex-1 max-w-2xl mx-6">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="جستجوی املاک، وسایط نقلیه، الکترونیک، و بیشتر..."
-                  className="w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-            </form>
+            {/* Center - Language Selector */}
+            <div className="hidden md:flex items-center h-10 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setCurrentLang('dari')}
+                className={`flex items-center gap-1.5 h-8 px-3 text-sm font-medium rounded-md transition-all ${
+                  currentLang === 'dari' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <span className="text-base">🇦🇫</span>
+                <span>دری</span>
+              </button>
+              <button
+                onClick={() => setCurrentLang('pashto')}
+                className={`flex items-center gap-1.5 h-8 px-3 text-sm font-medium rounded-md transition-all ${
+                  currentLang === 'pashto' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <span className="text-base">🇦🇫</span>
+                <span>پښتو</span>
+              </button>
+              <button
+                onClick={() => setCurrentLang('en')}
+                className={`flex items-center gap-1.5 h-8 px-3 text-sm font-medium rounded-md transition-all ${
+                  currentLang === 'en' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <span className="text-base">🇬🇧</span>
+                <span>EN</span>
+              </button>
+            </div>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-2">
-              {/* Mağaza Aç - NEW! */}
+            {/* Left Side - Actions */}
+            <div className="flex items-center gap-1.5">
+              {/* Profile Dropdown */}
+              <div 
+                className="hidden md:block relative"
+                onMouseEnter={() => setProfileMenuOpen(true)}
+                onMouseLeave={() => setProfileMenuOpen(false)}
+              >
+                <button className="flex items-center gap-2 h-10 px-3 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all relative">
+                  <User className="h-5 w-5" />
+                  <span className="text-sm font-medium">{isAuthenticated ? 'حساب من' : 'ورود'}</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${profileMenuOpen ? 'rotate-180' : ''}`} />
+                  {(favoriSayisi > 0 || mesajSayisi > 0) && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                      {(favoriSayisi + mesajSayisi) > 9 ? '9+' : (favoriSayisi + mesajSayisi)}
+                    </span>
+                  )}
+                </button>
+
+                {profileMenuOpen && (
+                  <div className="absolute top-full left-0 pt-2 z-50">
+                    <div className="w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 overflow-hidden">
+                      {/* User Info */}
+                      {isAuthenticated ? (
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
+                              <User className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                              <div className="font-semibold text-gray-900 text-sm">{userName}</div>
+                              <div className="text-xs text-gray-500">حساب کاربری</div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <Link
+                            href="/giris"
+                            className="flex items-center justify-center gap-2 w-full h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium text-sm transition-colors"
+                          >
+                            <LogIn className="h-4 w-4" />
+                            <span>ورود / ثبت نام</span>
+                          </Link>
+                        </div>
+                      )}
+
+                      {/* Menu Items */}
+                      <div className="py-1">
+                        <Link
+                          href="/favoriler"
+                          className="flex items-center gap-3 h-11 px-4 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                        >
+                          <Heart className="h-5 w-5 text-gray-400" />
+                          <span className="flex-1">علاقه‌مندی‌ها</span>
+                          {favoriSayisi > 0 && (
+                            <span className="w-6 h-6 bg-red-100 text-red-600 text-xs rounded-full flex items-center justify-center font-bold">
+                              {favoriSayisi > 9 ? '9+' : favoriSayisi}
+                            </span>
+                          )}
+                        </Link>
+                        <Link
+                          href="/mesajlar"
+                          className="flex items-center gap-3 h-11 px-4 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                        >
+                          <MessageSquare className="h-5 w-5 text-gray-400" />
+                          <span className="flex-1">پیام‌ها</span>
+                          {mesajSayisi > 0 && (
+                            <span className="w-6 h-6 bg-blue-100 text-blue-600 text-xs rounded-full flex items-center justify-center font-bold">
+                              {mesajSayisi > 9 ? '9+' : mesajSayisi}
+                            </span>
+                          )}
+                        </Link>
+                        <Link
+                          href="/ilanlarim"
+                          className="flex items-center gap-3 h-11 px-4 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                        >
+                          <ShoppingBag className="h-5 w-5 text-gray-400" />
+                          <span>آگهی‌های من</span>
+                        </Link>
+                        {isAuthenticated && (
+                          <Link
+                            href="/profilim"
+                            className="flex items-center gap-3 h-11 px-4 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                          >
+                            <User className="h-5 w-5 text-gray-400" />
+                            <span>تنظیمات حساب</span>
+                          </Link>
+                        )}
+                      </div>
+
+                      {/* Logout */}
+                      {isAuthenticated && (
+                        <div className="border-t border-gray-100 pt-1">
+                          <button
+                            onClick={() => {
+                              localStorage.removeItem('user');
+                              window.location.reload();
+                            }}
+                            className="flex items-center gap-3 h-11 px-4 w-full text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <LogIn className="h-5 w-5 rotate-180" />
+                            <span>خروج از حساب</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="hidden lg:block w-px h-6 bg-gray-200 mx-1"></div>
+
+              {/* Mağaza Aç */}
               {hasMagaza ? (
                 <Link
                   href="/magazam"
-                  className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition-colors shadow-sm"
+                  className="hidden lg:flex items-center gap-2 h-10 px-4 rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
                 >
                   <Store className="h-5 w-5" />
                   <span className="text-sm font-medium">مغازه من</span>
@@ -333,93 +464,30 @@ export default function Header() {
               ) : (
                 <Link
                   href="/magaza-ac"
-                  className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-colors shadow-sm"
+                  className="hidden lg:flex items-center gap-2 h-10 px-4 rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
                 >
-                  <Plus className="h-5 w-5" />
+                  <Store className="h-5 w-5" />
                   <span className="text-sm font-medium">افتتاح مغازه</span>
                 </Link>
               )}
 
-              {/* İlan Ver */}
+              {/* İlan Ver - Primary */}
               <Link
                 href="/ilan-ver"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="hidden sm:flex items-center gap-2 h-10 px-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all"
               >
-                <Plus className="h-5 w-5 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">ثبت آگهی</span>
+                <Plus className="h-5 w-5" />
+                <span className="text-sm font-medium">ثبت آگهی</span>
               </Link>
-
-              {/* Favoriler */}
-              <Link
-                href="/favoriler"
-                className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors relative"
-                title="Favoriler"
-              >
-                <Heart className="h-5 w-5 text-gray-600" />
-                {favoriSayisi > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                    {favoriSayisi > 9 ? '9+' : favoriSayisi}
-                  </span>
-                )}
-              </Link>
-
-              {/* Mesajlar */}
-              <Link
-                href="/mesajlar"
-                className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors relative"
-                title="Mesajlar"
-              >
-                <MessageSquare className="h-5 w-5 text-gray-600" />
-                {mesajSayisi > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                    {mesajSayisi > 9 ? '9+' : mesajSayisi}
-                  </span>
-                )}
-              </Link>
-
-              {/* Giriş Yap / Profil */}
-              {isAuthenticated ? (
-                <Link
-                  href="/profilim"
-                  className="hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <User className="h-5 w-5 text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">حساب من</span>
-                </Link>
-              ) : (
-                <Link
-                  href="/giris"
-                  className="hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <User className="h-5 w-5 text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">ورود</span>
-                </Link>
-              )}
 
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:bg-gray-100 transition-all"
               >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
             </div>
-          </div>
-
-          {/* Mobile Search */}
-          <div className="md:hidden pb-3">
-            <form onSubmit={handleSearch}>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="جستجوی املاک، وسایط نقلیه، الکترونیک..."
-                  className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </form>
           </div>
         </div>
       </header>
@@ -433,54 +501,42 @@ export default function Header() {
             onClick={() => setMobileMenuOpen(false)}
           />
           
-          {/* Menu Panel - SOLDAN AÇILAN */}
-          <div className="absolute top-0 left-0 h-full w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-out overflow-y-auto">
+          {/* Menu Panel - SAĞDAN AÇILAN (RTL) */}
+          <div className="absolute top-0 right-0 h-full w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-out overflow-y-auto">
             {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between border-b border-blue-500 z-10">
+            <div className="sticky top-0 bg-gray-900 px-5 py-4 flex items-center justify-between z-10">
               <div className="flex items-center gap-3">
-                <div className="bg-white rounded-lg p-2">
-                  {logoLoading ? (
-                    <div className="h-8 w-24 bg-gray-200 animate-pulse rounded"></div>
-                  ) : headerLogo.startsWith('data:') ? (
-                    <img 
-                      src={headerLogo} 
-                      alt="WatanBazaare Logo" 
-                      className="h-8 w-auto object-contain"
-                    />
-                  ) : (
-                    <Image 
-                      src={headerLogo || '/images/logo.png'} 
-                      alt="WatanBazaare Logo" 
-                      width={120}
-                      height={40}
-                      className="h-8 w-auto object-contain"
-                    />
-                  )}
-                </div>
-                <div>
-                  <div className="text-white font-bold text-lg invisible hidden">BazaareWatan</div>
-                  <div className="text-blue-100 text-xs">بازار وطن</div>
-                </div>
+                {logoLoading ? (
+                  <div className="h-8 w-24 bg-gray-700 animate-pulse rounded"></div>
+                ) : headerLogo ? (
+                  <img 
+                    src={headerLogo} 
+                    alt="Logo" 
+                    className="h-8 w-auto object-contain brightness-0 invert"
+                  />
+                ) : (
+                  <span className="text-lg font-bold text-white">بازار وطن</span>
+                )}
               </div>
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
               >
-                <X className="h-6 w-6 text-white" />
+                <X className="h-5 w-5 text-white" />
               </button>
             </div>
 
-            <div className="px-4 py-6">
+            <div className="p-4">
               {/* User Section */}
-              <div className="mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <div className="mb-5 bg-gray-50 rounded-xl p-4">
                 {isAuthenticated ? (
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-                      <User className="h-6 w-6 text-white" />
+                    <div className="w-12 h-12 rounded-full bg-gray-900 flex items-center justify-center">
+                      <User className="h-5 w-5 text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-bold text-gray-900">{userName}</div>
-                      <Link href="/profilim" className="text-sm text-blue-600 hover:underline">
+                      <div className="font-semibold text-gray-900 text-sm">{userName}</div>
+                      <Link href="/profilim" className="text-xs text-gray-500 hover:text-gray-700">
                         مشاهده پروفایل
                       </Link>
                     </div>
@@ -488,129 +544,140 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/giris"
-                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold transition-colors"
+                    className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white h-11 rounded-lg font-medium text-sm transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <User className="h-5 w-5" />
+                    <LogIn className="h-5 w-5" />
                     <span>ورود / ثبت نام</span>
                   </Link>
                 )}
               </div>
 
               {/* Quick Actions */}
-              <div className="mb-6 space-y-3">
+              <div className="mb-5 space-y-2">
                 <Link
                   href="/ilan-ver"
-                  className="flex items-center gap-3 w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-5 py-3.5 rounded-xl font-bold transition-all shadow-lg"
+                  className="flex items-center gap-3 w-full bg-gray-900 hover:bg-gray-800 text-white h-12 px-4 rounded-xl font-medium text-sm transition-all"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Plus className="h-5 w-5" />
+                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                    <Plus className="h-5 w-5" />
+                  </div>
                   <span>ثبت آگهی جدید</span>
                 </Link>
                 
                 {hasMagaza ? (
                   <Link
                     href="/magazam"
-                    className="flex items-center gap-3 w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-5 py-3.5 rounded-xl font-bold transition-all shadow-lg"
+                    className="flex items-center gap-3 w-full bg-gray-100 hover:bg-gray-200 text-gray-800 h-12 px-4 rounded-xl font-medium text-sm transition-all"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Store className="h-5 w-5" />
+                    <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center">
+                      <Store className="h-5 w-5 text-gray-600" />
+                    </div>
                     <span>مغازه من</span>
                   </Link>
                 ) : (
                   <Link
                     href="/magaza-ac"
-                    className="flex items-center gap-3 w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-5 py-3.5 rounded-xl font-bold transition-all shadow-lg"
+                    className="flex items-center gap-3 w-full bg-gray-100 hover:bg-gray-200 text-gray-800 h-12 px-4 rounded-xl font-medium text-sm transition-all"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Plus className="h-5 w-5" />
+                    <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center">
+                      <Store className="h-5 w-5 text-gray-600" />
+                    </div>
                     <span>افتتاح مغازه</span>
                   </Link>
                 )}
               </div>
 
+              {/* User Actions Grid */}
+              <div className="mb-5 grid grid-cols-4 gap-2">
+                <Link
+                  href="/favoriler"
+                  className="flex flex-col items-center gap-1.5 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Heart className="h-5 w-5 text-gray-600" />
+                  <span className="text-[10px] font-medium text-gray-600">علاقه‌مندی</span>
+                </Link>
+                <Link
+                  href="/mesajlar"
+                  className="flex flex-col items-center gap-1.5 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <MessageSquare className="h-5 w-5 text-gray-600" />
+                  <span className="text-[10px] font-medium text-gray-600">پیام‌ها</span>
+                </Link>
+                <Link
+                  href="/profilim"
+                  className="flex flex-col items-center gap-1.5 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5 text-gray-600" />
+                  <span className="text-[10px] font-medium text-gray-600">حساب</span>
+                </Link>
+                <Link
+                  href="/ilanlarim"
+                  className="flex flex-col items-center gap-1.5 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <ShoppingBag className="h-5 w-5 text-gray-600" />
+                  <span className="text-[10px] font-medium text-gray-600">آگهی‌ها</span>
+                </Link>
+              </div>
+
               {/* Kategoriler */}
-              <div className="mb-6">
-                <div className="text-sm font-bold text-gray-900 mb-3 px-2 flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-blue-600" />
-                  دسته بندی ها
+              <div className="mb-5">
+                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1 flex items-center gap-2">
+                  <Grid className="h-3.5 w-3.5" />
+                  دسته بندی‌ها
                 </div>
                 <div className="space-y-1">
                   {kategoriler.map((kat) => (
                     <Link
                       key={kat.id}
                       href={`/kategori/${kat.slug}`}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors group"
+                      className="flex items-center justify-between h-11 px-3 hover:bg-gray-50 rounded-lg transition-colors group"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
                         {kat.ad_dari || kat.ad}
                       </span>
-                      <ChevronDown className="h-4 w-4 text-gray-400 mr-auto -rotate-90" />
+                      <ChevronDown className="h-4 w-4 text-gray-300 -rotate-90 group-hover:text-gray-500" />
                     </Link>
                   ))}
                 </div>
               </div>
 
               {/* Diğer Linkler */}
-              <div className="border-t border-gray-200 pt-4 space-y-1">
-                <Link
-                  href="/"
-                  className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  صفحه اصلی
-                </Link>
-                <Link
-                  href="/hakkimizda"
-                  className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  درباره ما
-                </Link>
-                <Link
-                  href="/iletisim"
-                  className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  تماس با ما
-                </Link>
-              </div>
-
-              {/* Kullanıcı İşlemleri */}
-              <div className="border-t border-gray-200 mt-3 pt-3 grid grid-cols-2 gap-2">
-                <Link
-                  href="/favoriler"
-                  className="flex flex-col items-center justify-center gap-1 py-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Heart className="h-5 w-5 text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">علاقه مندی ها</span>
-                </Link>
-                <Link
-                  href="/mesajlar"
-                  className="flex flex-col items-center justify-center gap-1 py-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <MessageSquare className="h-5 w-5 text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">پیام ها</span>
-                </Link>
-                <Link
-                  href="/profilim"
-                  className="flex flex-col items-center justify-center gap-1 py-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User className="h-5 w-5 text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">حساب من</span>
-                </Link>
-                <Link
-                  href="/giris"
-                  className="flex flex-col items-center justify-center gap-1 py-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User className="h-5 w-5 text-blue-600" />
-                  <span className="text-xs font-medium text-blue-600">ورود</span>
-                </Link>
+              <div className="border-t border-gray-100 pt-4">
+                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-1">
+                  صفحات
+                </div>
+                <div className="space-y-1">
+                  <Link
+                    href="/"
+                    className="flex items-center h-11 px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    صفحه اصلی
+                  </Link>
+                  <Link
+                    href="/hakkimizda"
+                    className="flex items-center h-11 px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    درباره ما
+                  </Link>
+                  <Link
+                    href="/iletisim"
+                    className="flex items-center h-11 px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    تماس با ما
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

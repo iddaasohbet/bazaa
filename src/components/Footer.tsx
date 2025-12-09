@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, Store, QrCode } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Download, Store, QrCode, Zap, Shield, Bell, Star, ChevronLeft } from "lucide-react";
 
 interface FooterSettings {
   site_baslik: string;
@@ -59,7 +59,6 @@ export default function Footer() {
       const response = await fetch('/api/kategoriler');
       const data = await response.json();
       if (data.success) {
-        // Sadece aktif kategorilerden ilk 5'ini al
         const aktifKategoriler = data.data.filter((k: any) => k.aktif).slice(0, 5);
         setKategoriler(aktifKategoriler);
       }
@@ -70,23 +69,16 @@ export default function Footer() {
 
   const loadLogo = async () => {
     try {
-      console.log('📊 Footer: Logo yükleniyor...');
       setLogoLoading(true);
-      
       const response = await fetch('/api/admin/logo?t=' + Date.now(), { cache: 'no-store' });
       const data = await response.json();
-      
-      console.log('📋 Footer: API Response:', data);
-      
       if (data.success && data.data.footer_logo && data.data.footer_logo.trim() !== '') {
-        console.log('✅ Footer: Logo bulundu, uzunluk:', data.data.footer_logo.length);
         setFooterLogo(data.data.footer_logo);
       } else {
-        console.log('⚠️ Footer: Logo yok');
         setFooterLogo('');
       }
     } catch (error) {
-      console.error('❌ Footer logo yüklenemedi:', error);
+      console.error('Footer logo yüklenemedi:', error);
       setFooterLogo('');
     } finally {
       setLogoLoading(false);
@@ -94,11 +86,9 @@ export default function Footer() {
   };
 
   useEffect(() => {
-    // Logo güncellendiğinde yeniden yükle
     const handleLogoUpdate = () => {
       loadLogo();
     };
-
     window.addEventListener('logoUpdated', handleLogoUpdate);
     return () => window.removeEventListener('logoUpdated', handleLogoUpdate);
   }, []);
@@ -111,7 +101,6 @@ export default function Footer() {
       if (data.success) {
         setSettings(data.data);
         
-        // JSON linklerini parse et
         try {
           const hizli = JSON.parse(data.data.hizli_linkler || '[]');
           setHizliLinkler(hizli);
@@ -140,7 +129,6 @@ export default function Footer() {
     }
   };
 
-  // Default değerler (yüklenene kadar)
   const siteBaslik = settings?.site_baslik || 'BazaareWatan';
   const siteAciklama = settings?.site_aciklama || 'معتبرترین پلتفرم آگهی در افغانستان. کالای دست دوم، خودرو، املاک و بیشتر.';
   const copyrightMetni = settings?.copyright_metni || 'آگهی های افغانستان. تمامی حقوق محفوظ است.';
@@ -152,8 +140,6 @@ export default function Footer() {
   const sosyalInstagram = settings?.sosyal_instagram || '';
   const sosyalYoutube = settings?.sosyal_youtube || '';
   const sosyalTiktok = settings?.sosyal_tiktok || '';
-  // Varsayılan olarak açık, admin panelden kapatılabilir
-  // Sadece açıkça '0' yazılmışsa kapalı, diğer tüm durumlarda açık
   const androidAktif = settings?.android_aktif === undefined || settings?.android_aktif === '' || settings?.android_aktif !== '0';
   const iosAktif = settings?.ios_aktif === undefined || settings?.ios_aktif === '' || settings?.ios_aktif !== '0';
   const appBaslik = settings?.app_baslik || 'اپلیکیشن موبایل ما را دانلود کنید';
@@ -164,88 +150,121 @@ export default function Footer() {
 
   return (
     <footer className="bg-white border-t border-gray-200 mt-16">
-      {/* Kurumsal Mobil Uygulama İndirme Alanı */}
+      {/* App Download Section */}
       {(androidAktif || iosAktif) && (
-        <div className="relative border-b border-gray-200 bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-              {/* Sol taraf - Başlık */}
-              <div className="text-center lg:text-right" dir="rtl">
-                <div className="inline-flex items-center gap-2 mb-2">
-                  <QrCode className="h-5 w-5 text-blue-400" />
-                  <h3 className="text-xl md:text-2xl font-bold text-white">
-                    {appBaslik}
-                  </h3>
-                </div>
-                <p className="text-blue-200 text-sm">
-                  {appAciklama}
-                </p>
-                <div className="flex flex-wrap gap-3 justify-center lg:justify-end text-xs text-blue-300 mt-3">
-                  <span>• دسترسی سریع</span>
-                  <span>• امن و مطمئن</span>
-                  <span>• رایگان</span>
+        <div className="relative" style={{ backgroundColor: '#111827', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}>
+          <div className="mx-auto max-w-7xl px-4 py-10">
+            <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12" dir="rtl">
+              
+              {/* Phone Mockup */}
+              <div className="relative flex-shrink-0 hidden md:block">
+                <div className="relative w-40">
+                  <img 
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 320'%3E%3Crect x='0' y='0' width='160' height='320' rx='32' fill='%231f2937'/%3E%3Crect x='4' y='4' width='152' height='312' rx='28' fill='%23111827'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='50%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='12' y='12' width='136' height='296' rx='20' fill='url(%23g)'/%3E%3Crect x='50' y='16' width='60' height='20' rx='10' fill='%23111827'/%3E%3Crect x='24' y='48' width='112' height='40' rx='8' fill='rgba(255,255,255,0.2)'/%3E%3Crect x='32' y='56' width='60' height='8' rx='4' fill='rgba(255,255,255,0.3)'/%3E%3Crect x='32' y='70' width='40' height='6' rx='3' fill='rgba(255,255,255,0.2)'/%3E%3Crect x='24' y='100' width='52' height='52' rx='8' fill='rgba(255,255,255,0.2)'/%3E%3Crect x='84' y='100' width='52' height='52' rx='8' fill='rgba(255,255,255,0.2)'/%3E%3Crect x='24' y='160' width='52' height='52' rx='8' fill='rgba(255,255,255,0.2)'/%3E%3Crect x='84' y='160' width='52' height='52' rx='8' fill='rgba(255,255,255,0.2)'/%3E%3C/svg%3E"
+                    alt="Mobile App"
+                    className="w-full h-auto"
+                  />
+                  {/* Floating Badge */}
+                  <div className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg z-10">
+                    رایگان
+                  </div>
                 </div>
               </div>
 
-              {/* Sağ taraf - Download butonları */}
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                {/* Android */}
-                {androidAktif && (
-                  <div className="flex flex-col items-center gap-2">
+              {/* Content */}
+              <div className="flex-1 text-center lg:text-right">
+                <div className="inline-flex items-center gap-2 bg-white/10 h-8 px-4 rounded-full mb-4">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-green-400 text-xs font-medium">نسخه جدید</span>
+                </div>
+                
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  {appBaslik}
+                </h3>
+                <p className="text-gray-400 text-sm mb-6 max-w-md mx-auto lg:mx-0">
+                  {appAciklama}
+                </p>
+
+                {/* Features */}
+                <div className="flex flex-wrap gap-3 justify-center lg:justify-start mb-6">
+                  <div className="flex items-center gap-2 h-10 px-4 bg-white/5 rounded-lg text-gray-300 text-sm">
+                    <Zap className="h-4 w-4" />
+                    <span>سریع</span>
+                  </div>
+                  <div className="flex items-center gap-2 h-10 px-4 bg-white/5 rounded-lg text-gray-300 text-sm">
+                    <Shield className="h-4 w-4" />
+                    <span>امن</span>
+                  </div>
+                  <div className="flex items-center gap-2 h-10 px-4 bg-white/5 rounded-lg text-gray-300 text-sm">
+                    <Bell className="h-4 w-4" />
+                    <span>اعلان آنی</span>
+                  </div>
+                </div>
+
+                {/* Download Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                  {androidAktif && (
                     <a
                       href={appGooglePlayLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-center gap-3 bg-white hover:bg-gray-50 text-gray-900 px-5 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                      className="flex items-center gap-3 h-12 px-5 bg-white text-gray-900 rounded-xl hover:bg-gray-100 transition-all"
                     >
-                      <svg className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
                       </svg>
                       <div className="text-right">
-                        <div className="text-[10px] text-gray-500">دانلود از</div>
-                        <div className="text-sm font-bold">Google Play</div>
+                        <div className="text-[10px] text-gray-500 leading-none">دانلود از</div>
+                        <div className="text-sm font-semibold">Google Play</div>
                       </div>
-                      <Download className="h-4 w-4 text-gray-400" />
                     </a>
-                    <div className="bg-white p-2 rounded-lg shadow-md">
-                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(appGooglePlayLink)}&bgcolor=ffffff&color=000000&margin=0`}
-                        alt="Android QR"
-                        className="w-16 h-16"
-                      />
-                      <p className="text-center text-[9px] text-gray-500 mt-1">اسکن برای دانلود</p>
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {/* iOS */}
-                {iosAktif && (
-                  <div className="flex flex-col items-center gap-2">
+                  {iosAktif && (
                     <a
                       href={appAppStoreLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-center gap-3 bg-white hover:bg-gray-50 text-gray-900 px-5 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                      className="flex items-center gap-3 h-12 px-5 bg-white text-gray-900 rounded-xl hover:bg-gray-100 transition-all"
                     >
-                      <svg className="h-8 w-8 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C1.79 15.25 2.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                       </svg>
                       <div className="text-right">
-                        <div className="text-[10px] text-gray-500">دانلود از</div>
-                        <div className="text-sm font-bold">App Store</div>
+                        <div className="text-[10px] text-gray-500 leading-none">دانلود از</div>
+                        <div className="text-sm font-semibold">App Store</div>
                       </div>
-                      <Download className="h-4 w-4 text-gray-400" />
                     </a>
-                    <div className="bg-white p-2 rounded-lg shadow-md">
-                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(appAppStoreLink)}&bgcolor=ffffff&color=000000&margin=0`}
-                        alt="iOS QR"
-                        className="w-16 h-16"
-                      />
-                      <p className="text-center text-[9px] text-gray-500 mt-1">اسکن برای دانلود</p>
-                    </div>
+                  )}
+                </div>
+
+                {/* Stats */}
+                <div className="flex gap-6 justify-center lg:justify-start mt-6 pt-6 border-t border-white/10">
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-white">۱۰K+</div>
+                    <div className="text-[10px] text-gray-500">دانلود</div>
                   </div>
-                )}
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-white">۴.۸</div>
+                    <div className="text-[10px] text-gray-500">امتیاز</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xl font-bold text-white">۵۰۰+</div>
+                    <div className="text-[10px] text-gray-500">نظر مثبت</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* QR Code */}
+              <div className="hidden lg:flex flex-col items-center gap-2">
+                <div className="bg-white p-3 rounded-xl">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(appQrUrl)}&bgcolor=ffffff&color=111827&margin=0`}
+                    alt="QR Code"
+                    className="w-24 h-24"
+                  />
+                </div>
+                <p className="text-gray-500 text-[10px]">اسکن کنید</p>
               </div>
             </div>
           </div>
@@ -253,54 +272,51 @@ export default function Footer() {
       )}
 
       {/* Main Footer */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="mx-auto max-w-7xl px-4 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12" dir="rtl">
           {/* About */}
-            <div>
-              <Link href="/" className="flex items-center gap-3 mb-4 group">
-                {logoLoading ? (
-                  <div className="h-14 w-36 bg-gray-200 animate-pulse rounded"></div>
-                ) : footerLogo ? (
-                  <div className="relative h-14">
-                    <img 
-                      src={footerLogo} 
-                      alt="Logo" 
-                      className="h-14 w-auto object-contain transition-transform group-hover:scale-105"
-                    />
-                  </div>
-                ) : (
-                  <div className="text-2xl font-bold text-blue-600">
-                    WatanBazaare
-                  </div>
-                )}
-              </Link>
-            <p className="text-sm text-gray-600 mb-4">
+          <div className="lg:col-span-1">
+            <Link href="/" className="inline-block mb-5">
+              {logoLoading ? (
+                <div className="h-10 w-28 bg-gray-100 animate-pulse rounded-lg"></div>
+              ) : footerLogo ? (
+                <img 
+                  src={footerLogo} 
+                  alt="Logo" 
+                  className="h-10 w-auto object-contain"
+                />
+              ) : (
+                <span className="text-xl font-bold text-gray-900">بازار وطن</span>
+              )}
+            </Link>
+            <p className="text-sm text-gray-500 leading-relaxed mb-5">
               {siteAciklama}
             </p>
-            <div className="flex gap-3">
+            {/* Social Links */}
+            <div className="flex items-center gap-2">
               {sosyalFacebook && sosyalFacebook.trim() !== '' && (
-                <a href={sosyalFacebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
-                  <Facebook className="h-4 w-4" />
+                <a href={sosyalFacebook} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-900 hover:text-white transition-all">
+                  <Facebook className="h-5 w-5" />
                 </a>
               )}
               {sosyalTwitter && sosyalTwitter.trim() !== '' && (
-                <a href={sosyalTwitter} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-colors">
-                  <Twitter className="h-4 w-4" />
+                <a href={sosyalTwitter} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-900 hover:text-white transition-all">
+                  <Twitter className="h-5 w-5" />
                 </a>
               )}
               {sosyalInstagram && sosyalInstagram.trim() !== '' && (
-                <a href={sosyalInstagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-colors">
-                  <Instagram className="h-4 w-4" />
+                <a href={sosyalInstagram} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-900 hover:text-white transition-all">
+                  <Instagram className="h-5 w-5" />
                 </a>
               )}
               {sosyalYoutube && sosyalYoutube.trim() !== '' && (
-                <a href={sosyalYoutube} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors">
-                  <Youtube className="h-4 w-4" />
+                <a href={sosyalYoutube} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-900 hover:text-white transition-all">
+                  <Youtube className="h-5 w-5" />
                 </a>
               )}
               {sosyalTiktok && sosyalTiktok.trim() !== '' && (
-                <a href={sosyalTiktok} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition-colors">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <a href={sosyalTiktok} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-10 h-10 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-900 hover:text-white transition-all">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                   </svg>
                 </a>
@@ -310,11 +326,17 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-bold text-gray-900 mb-4">لینک های سریع</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+              لینک های سریع
+            </h4>
+            <ul className="space-y-1">
               {hizliLinkler.map((link, index) => (
                 <li key={index}>
-                  <Link href={link.href} className="text-gray-600 hover:text-blue-600 transition-colors">
+                  <Link 
+                    href={link.href} 
+                    className="flex items-center h-10 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
                     {link.label}
                   </Link>
                 </li>
@@ -324,13 +346,16 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h4 className="text-sm font-bold text-gray-900 mb-4">دسته بندی ها</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+              دسته بندی‌ها
+            </h4>
+            <ul className="space-y-1">
               {kategoriler.map((kat) => (
                 <li key={kat.id}>
                   <Link 
                     href={`/kategori/${kat.slug}`} 
-                    className="text-gray-600 hover:text-blue-600 transition-colors"
+                    className="flex items-center h-10 text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     {kat.ad_dari || kat.ad}
                   </Link>
@@ -341,22 +366,39 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-sm font-bold text-gray-900 mb-4">تماس با ما</h4>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-600">{iletisimAdres}</span>
+            <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+              تماس با ما
+            </h4>
+            <ul className="space-y-2">
+              <li>
+                <div className="flex items-center gap-3 h-10 text-sm text-gray-600">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                  </div>
+                  <span>{iletisimAdres}</span>
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <a href={`tel:${iletisimTelefon.replace(/\s/g, '')}`} className="text-gray-600 hover:text-blue-600 transition-colors">
-                  {iletisimTelefon}
+              <li>
+                <a 
+                  href={`tel:${iletisimTelefon.replace(/\s/g, '')}`} 
+                  className="flex items-center gap-3 h-10 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100">
+                    <Phone className="h-4 w-4 text-gray-500" />
+                  </div>
+                  <span dir="ltr">{iletisimTelefon}</span>
                 </a>
               </li>
-              <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <a href={`mailto:${iletisimEmail}`} className="text-gray-600 hover:text-blue-600 transition-colors">
-                  {iletisimEmail}
+              <li>
+                <a 
+                  href={`mailto:${iletisimEmail}`} 
+                  className="flex items-center gap-3 h-10 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100">
+                    <Mail className="h-4 w-4 text-gray-500" />
+                  </div>
+                  <span className="truncate">{iletisimEmail}</span>
                 </a>
               </li>
             </ul>
@@ -365,17 +407,25 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-200 bg-gray-50">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
-            <div>
+      <div className="border-t border-gray-100">
+        <div className="mx-auto max-w-7xl px-4 py-5">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4" dir="rtl">
+            <p className="text-sm text-gray-500">
               {copyrightMetni}
-            </div>
-            <div className="flex gap-6">
+            </p>
+            <div className="flex items-center gap-1">
               {altLinkler.map((link, index) => (
-                <Link key={index} href={link.href} className="hover:text-blue-600 transition-colors">
-                  {link.label}
-                </Link>
+                <React.Fragment key={index}>
+                  <Link 
+                    href={link.href} 
+                    className="text-sm text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-all"
+                  >
+                    {link.label}
+                  </Link>
+                  {index < altLinkler.length - 1 && (
+                    <span className="text-gray-300">|</span>
+                  )}
+                </React.Fragment>
               ))}
             </div>
           </div>

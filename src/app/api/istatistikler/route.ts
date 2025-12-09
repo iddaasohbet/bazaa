@@ -74,7 +74,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Genel istatistikler
+    // Genel istatistikler - cache headers
+    const headers = {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+    };
+    
     // Aktif ilan sayısı
     const ilanlarResult: any = await query(
       'SELECT COUNT(*) as toplam FROM ilanlar WHERE aktif = 1'
@@ -107,7 +111,7 @@ export async function GET(request: NextRequest) {
         bugunEklenen,
         toplamKullanicilar,
       },
-    });
+    }, { headers });
   } catch (error: any) {
     console.error('❌ İstatistik hatası:', error);
     return NextResponse.json(

@@ -32,7 +32,11 @@ import {
   Gamepad2,
   Bed,
   UtensilsCrossed,
-  Package
+  Package,
+  TrendingUp,
+  Eye,
+  Store,
+  Calendar
 } from "lucide-react";
 
 interface Kategori {
@@ -109,7 +113,6 @@ export default function Sidebar() {
     fetchIstatistikler();
   }, []);
 
-  // URL'den aktif kategoriyi algıla ve alt kategorilerini aç
   useEffect(() => {
     if (pathname?.startsWith('/kategori/') && kategoriler.length > 0) {
       const slug = pathname.split('/kategori/')[1];
@@ -180,98 +183,168 @@ export default function Sidebar() {
 
   if (loading) {
     return (
-      <aside className="w-full lg:w-64 bg-white rounded-lg shadow-md p-4">
+      <aside className="categories-sidebar">
         <div className="animate-pulse space-y-3">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-12 bg-gray-200 rounded"></div>
+            <div key={i} className="h-12 bg-gray-100 rounded-xl"></div>
           ))}
         </div>
       </aside>
     );
   }
 
-  return (
-    <aside className="w-full lg:w-64 border border-gray-200 rounded-lg overflow-hidden lg:sticky lg:top-4">
-      <nav className="p-2">
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-50 rounded-md transition-colors mb-1"
-        >
-          <Grid className="h-5 w-5 text-gray-600" />
-          <span className="flex-1 text-sm font-medium">تمام آگهی ها</span>
-          <ChevronRight className="h-4 w-4 text-gray-400" />
-        </Link>
-        
-        {kategoriler.map((kategori) => {
-          const Icon = iconMap[kategori.ikon || 'grid'] || Grid;
-          const isExpanded = expandedKategori === kategori.id;
-          const altKats = altKategoriler[kategori.id] || [];
-          const isActive = pathname?.includes(`/kategori/${kategori.slug}`);
-          
-          return (
-            <div key={kategori.id}>
-              <div className={`flex items-center gap-1 mb-1 ${isActive ? 'bg-blue-50' : ''} rounded-md`}>
-                {altKats.length > 0 && (
-                  <button
-                    onClick={(e) => toggleKategori(e, kategori.id)}
-                    className="p-1 hover:bg-gray-100 rounded transition-colors"
-                  >
-                    <ChevronRight className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                  </button>
-                )}
-                <Link
-                  href={`/kategori/${kategori.slug}`}
-                  className={`flex-1 flex items-center gap-3 px-2 py-2.5 hover:bg-gray-50 rounded-md transition-colors ${
-                    isActive ? 'text-blue-700 font-semibold' : 'text-gray-700'
-                  } ${altKats.length === 0 ? 'mr-6' : ''}`}
-                >
-                  <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-600'}`} />
-                  <span className="flex-1 text-sm">{kategori.ad}</span>
-                </Link>
-              </div>
-              
-              {/* Alt Kategoriler */}
-              {isExpanded && altKats.length > 0 && (
-                <div className="mr-9 mb-2 space-y-1">
-                  {altKats.map((altKat) => (
-                    <Link
-                      key={altKat.id}
-                      href={`/kategori/${kategori.slug}?alt=${altKat.slug}`}
-                      className="flex items-center justify-between px-3 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-md transition-colors text-xs"
-                    >
-                      <span>{altKat.ad_dari || altKat.ad}</span>
-                      <span className="text-gray-400">({altKat.ilan_sayisi || 0})</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </nav>
+  // Kategori renkleri
+  const categoryColors: { [key: string]: string } = {
+    'car': 'from-blue-500 to-blue-600',
+    'home': 'from-emerald-500 to-emerald-600',
+    'smartphone': 'from-purple-500 to-purple-600',
+    'sofa': 'from-amber-500 to-amber-600',
+    'shirt': 'from-pink-500 to-pink-600',
+    'laptop': 'from-indigo-500 to-indigo-600',
+    'tractor': 'from-green-500 to-green-600',
+    'briefcase': 'from-slate-500 to-slate-600',
+  };
 
-      {/* Quick Stats */}
-      <div className="m-3 p-4 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white">
-        <div className="space-y-3 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-blue-100">آگهی های فعال</span>
-            <span className="font-bold text-white">{istatistikler.aktifIlanlar.toLocaleString('fa-IR')}</span>
+  const isHomePage = pathname === '/';
+
+  return (
+    <aside className="space-y-3 md:space-y-4">
+      {/* Mağaza Aç Reklam - Sadece Anasayfada - Kurumsal - Mobilde Gizli */}
+      {isHomePage && (
+      <Link href="/magaza-ac" className="hidden md:block">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center group hover:shadow-lg hover:border-gray-200 transition-all duration-300">
+          <Store className="w-10 h-10 text-gray-800 mx-auto mb-2 stroke-[1.5]" />
+          <h3 className="text-gray-900 font-bold text-sm mb-1">مغازه باز کنید!</h3>
+          <p className="text-gray-400 text-[11px] mb-3">رایگان شروع کنید و بفروشید</p>
+          <div className="bg-gray-900 text-white font-semibold text-[11px] px-4 py-2 rounded-lg inline-flex items-center gap-1.5 group-hover:bg-gray-800 transition-colors">
+            شروع کنید
+            <ChevronRight className="w-3.5 h-3.5 rotate-180" />
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-blue-100">مغازه ها</span>
-            <span className="font-bold text-white">{istatistikler.aktifMagazalar.toLocaleString('fa-IR')}</span>
+        </div>
+      </Link>
+      )}
+
+      {/* Stats - Sadece Anasayfada - Kurumsal - Mobilde Compact */}
+      {isHomePage && (
+      <div className="bg-white rounded-2xl border border-gray-100 p-4">
+        <h4 className="text-gray-400 text-[10px] md:text-[11px] font-medium mb-3 tracking-wide">آمار سایت</h4>
+        <div className="grid grid-cols-3 md:grid-cols-1 gap-2 md:space-y-3 md:gap-0">
+          <div className="flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 text-center md:text-right">
+            <Users className="w-4 h-4 md:w-5 md:h-5 text-gray-400 stroke-[1.5]" />
+            <div className="flex-1">
+              <p className="text-[9px] md:text-[10px] text-gray-400">کاربران</p>
+              <p className="text-base md:text-xl font-bold text-gray-900">{istatistikler.toplamKullanicilar.toLocaleString('fa-IR')}</p>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-blue-100">امروز</span>
-            <span className="font-bold text-emerald-300">+{istatistikler.bugunEklenen.toLocaleString('fa-IR')}</span>
+          
+          <div className="flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 text-center md:text-right">
+            <Store className="w-4 h-4 md:w-5 md:h-5 text-gray-400 stroke-[1.5]" />
+            <div className="flex-1">
+              <p className="text-[9px] md:text-[10px] text-gray-400">مغازه ها</p>
+              <p className="text-base md:text-xl font-bold text-gray-900">{istatistikler.aktifMagazalar.toLocaleString('fa-IR')}</p>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-blue-100">کاربران</span>
-            <span className="font-bold text-white">{istatistikler.toplamKullanicilar.toLocaleString('fa-IR')}</span>
+          
+          <div className="flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 text-center md:text-right">
+            <Package className="w-4 h-4 md:w-5 md:h-5 text-gray-400 stroke-[1.5]" />
+            <div className="flex-1">
+              <p className="text-[9px] md:text-[10px] text-gray-400">آگهی ها</p>
+              <p className="text-base md:text-xl font-bold text-gray-900">{istatistikler.aktifIlanlar.toLocaleString('fa-IR')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      )}
+
+      {/* Categories - Kurumsal */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-5">
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-3 md:mb-4 pb-2 md:pb-3 border-b border-gray-50">
+          <Grid className="w-4 h-4 md:w-5 md:h-5 text-gray-400 stroke-[1.5]" />
+          <h3 className="font-semibold text-gray-900 text-xs md:text-sm">دسته بندی ها</h3>
+        </div>
+        
+        {/* Mobile: Horizontal Scroll */}
+        <div className="md:hidden">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+            {/* All Ads - Mobile */}
+            <Link
+              href="/"
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-medium transition-all ${
+                pathname === '/' 
+                  ? 'bg-gray-900 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Grid className="w-3.5 h-3.5" />
+              <span>همه</span>
+            </Link>
+            
+            {kategoriler.map((kategori) => {
+              const Icon = iconMap[kategori.ikon || 'grid'] || Grid;
+              const isActive = pathname?.includes(`/kategori/${kategori.slug}`);
+              
+              return (
+                <Link
+                  key={kategori.id}
+                  href={`/kategori/${kategori.slug}`}
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-medium transition-all ${
+                    isActive 
+                      ? 'bg-gray-900 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{kategori.ad_dari || kategori.ad}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Desktop: Vertical List */}
+        <div className="hidden md:block">
+          {/* All Ads */}
+          <Link
+            href="/"
+            className={`flex items-center gap-3 p-3 rounded-xl mb-2 transition-all duration-200 ${
+              pathname === '/' 
+                ? 'bg-gray-900 text-white' 
+                : 'hover:bg-gray-50 text-gray-700'
+            }`}
+          >
+            <Grid className={`w-5 h-5 stroke-[1.5] ${pathname === '/' ? 'text-white' : 'text-gray-500'}`} />
+            <span className="flex-1 text-sm font-medium">همه آگهی ها</span>
+            <ChevronRight className={`w-4 h-4 rotate-180 ${pathname === '/' ? 'text-white/50' : 'text-gray-300'}`} />
+          </Link>
+
+          {/* Categories List */}
+          <div className="space-y-1">
+            {kategoriler.map((kategori) => {
+              const Icon = iconMap[kategori.ikon || 'grid'] || Grid;
+              const isActive = pathname?.includes(`/kategori/${kategori.slug}`);
+              
+              return (
+                <Link
+                  key={kategori.id}
+                  href={`/kategori/${kategori.slug}`}
+                  className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group ${
+                    isActive 
+                      ? 'bg-gray-900 text-white' 
+                      : 'hover:bg-gray-50 text-gray-700'
+                  }`}
+                >
+                  <Icon className={`w-5 h-5 stroke-[1.5] ${isActive ? 'text-white' : 'text-gray-500'}`} />
+                  <span className="flex-1 text-sm font-medium">{kategori.ad_dari || kategori.ad}</span>
+                  <ChevronRight className={`w-4 h-4 rotate-180 transition-transform group-hover:-translate-x-1 ${
+                    isActive ? 'text-white/50' : 'text-gray-300'
+                  }`} />
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
     </aside>
   );
 }
-

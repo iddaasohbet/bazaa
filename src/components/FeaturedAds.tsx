@@ -3,12 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { Store, Megaphone, ArrowLeft } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { getImageUrl } from "@/lib/utils";
-import PriceDisplay from "./PriceDisplay";
 
 interface Slider {
   id: number;
@@ -43,9 +40,8 @@ export default function FeaturedAds() {
 
   const fetchSliders = async () => {
     try {
-      // ⚡ OPTIMIZE: Cache kullan
       const response = await fetch('/api/slider', {
-        cache: 'no-store' // Client-side fresh data
+        next: { revalidate: 60 }
       });
       const data = await response.json();
       if (data.success) {
@@ -76,101 +72,121 @@ export default function FeaturedAds() {
 
   if (loading || sliders.length === 0) {
     return (
-      <section className="relative h-[400px] sm:h-[450px] lg:h-[500px] overflow-hidden bg-gray-900 rounded-lg flex items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
-      </section>
+      <div className="space-y-3">
+        {/* Slider Loading */}
+        <div className="h-[160px] md:h-[200px] rounded-2xl bg-gray-50 border border-gray-100 animate-pulse"></div>
+        {/* Ad Banners Loading - Mobilde yan yana */}
+        <div className="grid grid-cols-2 gap-3 md:hidden">
+          <div className="h-[120px] rounded-2xl bg-gray-50 border border-gray-100 animate-pulse"></div>
+          <div className="h-[120px] rounded-2xl bg-gray-50 border border-gray-100 animate-pulse"></div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <section className="relative h-[400px] sm:h-[450px] lg:h-[500px] overflow-hidden bg-gray-900 rounded-lg">
-      <div className="h-full w-full" ref={emblaRef} dir="ltr">
-        <div className="flex h-full">
-          {sliders.map((slider) => (
-            <div
-              key={slider.id}
-              className="relative flex-[0_0_100%] min-w-0 h-full"
-            >
-              <div className="relative h-full w-full overflow-hidden">
+    <div className="space-y-3 md:space-y-0 md:flex md:flex-row-reverse md:gap-4 md:h-[200px]">
+      {/* Main Slider - Modern & Minimal */}
+      <div className="flex-1 relative h-[160px] md:h-full">
+        <div className="relative h-full rounded-2xl overflow-hidden border border-gray-100" ref={emblaRef}>
+          <div className="flex h-full">
+            {sliders.map((slider, idx) => (
+              <div
+                key={slider.id}
+                className="relative flex-[0_0_100%] min-w-0 h-full"
+              >
+                {/* Background Image - Clean */}
                 <Image
                   src={slider.resim}
                   alt={slider.baslik}
                   fill
-                  priority={slider.id === sliders[0]?.id}
-                  className="object-cover object-center"
-                  sizes="100vw"
-                  quality={85}
+                  priority={idx === 0}
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 700px"
+                  quality={90}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
-                <div className="absolute inset-0 flex items-center" dir="rtl">
-                  <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6 }}
-                      className="max-w-2xl"
-                    >
-                      <p className="mb-4 text-base sm:text-lg font-bold text-white tracking-wide flex items-center gap-3">
-                        <span className="inline-block w-16 h-1 bg-white rounded-full"></span>
-                        <span className="text-xl sm:text-2xl">بازار وطن</span>
-                      </p>
-                      <h1 className="mb-4 text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight">
+                
+                {/* Minimal Bottom Info Bar */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-3 md:p-4">
+                  <div className="flex items-end justify-between">
+                    <div className="text-right flex-1">
+                      <h2 className="text-white font-semibold text-xs md:text-sm mb-0.5 line-clamp-1">
                         {slider.baslik}
-                      </h1>
-                      <p className="mb-4 text-base sm:text-lg lg:text-xl text-gray-200 line-clamp-2">
-                        {slider.aciklama}
-                      </p>
-                      
-                      {/* Eğer ilan ise fiyat göster */}
-                      {slider.ilan_id && slider.fiyat !== undefined && (
-                        <div className="mb-6 flex items-baseline gap-3 flex-wrap">
-                          <PriceDisplay 
-                            price={slider.fiyat}
-                            currency="AFN"
-                            className="text-4xl sm:text-5xl font-bold text-white"
-                          />
-                          {slider.kategori_ad && (
-                            <span className="inline-block bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                              {slider.kategori_ad}
-                            </span>
-                          )}
-                        </div>
+                      </h2>
+                      {slider.aciklama && (
+                        <p className="text-white/70 text-[10px] md:text-[11px] line-clamp-1 hidden sm:block">
+                          {slider.aciklama}
+                        </p>
                       )}
-                      
-                      {slider.link && (
-                        <Link
-                          href={slider.link}
-                          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-white transition-all hover:bg-blue-700 hover:shadow-2xl hover:scale-105"
-                        >
-                          <span>{slider.ilan_id ? 'مشاهده آگهی' : 'مشاهده بیشتر'}</span>
-                          <ArrowRight className="h-5 w-5" />
-                        </Link>
-                      )}
-                    </motion.div>
+                    </div>
+                    {slider.link && (
+                      <Link 
+                        href={slider.link} 
+                        className="bg-white text-gray-900 text-[10px] md:text-[11px] font-semibold px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1 mr-3 md:mr-4"
+                      >
+                        مشاهده
+                        <ArrowLeft className="w-3 h-3" />
+                      </Link>
+                    )}
                   </div>
                 </div>
+
+                {/* Slide Number Badge */}
+                <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-black/50 backdrop-blur-sm text-white text-[9px] md:text-[10px] font-medium px-2 py-0.5 md:px-2.5 md:py-1 rounded-full">
+                  {idx + 1} / {sliders.length}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Dots Indicator - Bottom Center Only */}
+          <div className="absolute bottom-12 md:bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 md:gap-2">
+            {sliders.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => emblaApi?.scrollTo(index)}
+                className={`rounded-full transition-all duration-300 ${
+                  index === selectedIndex
+                    ? "w-5 md:w-6 h-1.5 md:h-2 bg-white"
+                    : "w-1.5 md:w-2 h-1.5 md:h-2 bg-white/50 hover:bg-white/70"
+                }`}
+                aria-label={`Slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Dots Indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-        {sliders.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => emblaApi?.scrollTo(index)}
-            className={`h-2 rounded-full transition-all ${
-              index === selectedIndex
-                ? "w-8 bg-white"
-                : "w-2 bg-white/50 hover:bg-white/75"
-            }`}
-            aria-label={`Slide ${index + 1}`}
-          />
-        ))}
+      {/* Ad Banners - Mobilde alt alta, Desktop'ta yan yana */}
+      <div className="grid grid-cols-2 gap-3 md:flex md:gap-3">
+        {/* Ad Banner 1 - Mağaza Aç */}
+        <Link 
+          href="/magaza-ac" 
+          className="relative md:w-[160px] h-[120px] md:h-full rounded-2xl overflow-hidden bg-white border border-gray-100 flex flex-col items-center justify-center p-3 md:p-4 text-center group hover:shadow-lg hover:border-gray-200 transition-all duration-300"
+        >
+          <Store className="w-7 h-7 md:w-9 md:h-9 text-gray-800 stroke-[1.5] mb-2 md:mb-3" />
+          <h3 className="text-gray-900 font-bold text-[11px] md:text-[12px] mb-0.5 md:mb-1">مغازه باز کنید</h3>
+          <p className="text-gray-400 text-[9px] md:text-[10px] mb-2 md:mb-3">رایگان شروع کنید</p>
+          <div className="bg-gray-900 text-white text-[9px] md:text-[10px] font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 group-hover:bg-gray-800 transition-colors">
+            شروع کنید
+            <ArrowLeft className="w-2.5 h-2.5 md:w-3 md:h-3" />
+          </div>
+        </Link>
+
+        {/* Ad Banner 2 - Öne Çıkan İlan */}
+        <Link 
+          href="/ilan-ver" 
+          className="relative md:w-[160px] h-[120px] md:h-full rounded-2xl overflow-hidden bg-white border border-gray-100 flex flex-col items-center justify-center p-3 md:p-4 text-center group hover:shadow-lg hover:border-gray-200 transition-all duration-300"
+        >
+          <Megaphone className="w-7 h-7 md:w-9 md:h-9 text-gray-800 stroke-[1.5] mb-2 md:mb-3" />
+          <h3 className="text-gray-900 font-bold text-[11px] md:text-[12px] mb-0.5 md:mb-1">آگهی ویژه</h3>
+          <p className="text-gray-400 text-[9px] md:text-[10px] mb-2 md:mb-3">دیده شدن بیشتر</p>
+          <div className="bg-gray-900 text-white text-[9px] md:text-[10px] font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 group-hover:bg-gray-800 transition-colors">
+            ثبت آگهی
+            <ArrowLeft className="w-2.5 h-2.5 md:w-3 md:h-3" />
+          </div>
+        </Link>
       </div>
-    </section>
+    </div>
   );
 }
-
