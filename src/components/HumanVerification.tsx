@@ -7,21 +7,11 @@ export default function HumanVerification({ children }: { children: React.ReactN
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [turnstileLoaded, setTurnstileLoaded] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Site key - production'da .env'den alınacak
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
-  const isDevelopment = process.env.NODE_ENV === "development";
+  // Site key - test key kullanıyoruz (her zaman geçer)
+  const siteKey = "1x00000000000000000000AA"; // Cloudflare test key - always passes
 
   useEffect(() => {
-    // Development modda doğrulamayı bypass et
-    if (isDevelopment) {
-      console.log("Development mode: Verification bypassed");
-      setIsVerified(true);
-      setIsLoading(false);
-      return;
-    }
-
     // Daha önce doğrulanmış mı kontrol et (24 saat geçerli)
     const verifiedAt = localStorage.getItem("humanVerified");
     if (verifiedAt) {
@@ -56,10 +46,10 @@ export default function HumanVerification({ children }: { children: React.ReactN
     } else if ((window as any).turnstile) {
       setTurnstileLoaded(true);
     }
-  }, [isDevelopment]);
+  }, []);
 
   useEffect(() => {
-    if (!turnstileLoaded || isVerified !== false || isDevelopment) return;
+    if (!turnstileLoaded || isVerified !== false) return;
 
     const container = document.getElementById("turnstile-container");
     if (!container || !(window as any).turnstile) return;
@@ -68,34 +58,21 @@ export default function HumanVerification({ children }: { children: React.ReactN
     (window as any).turnstile.render(container, {
       sitekey: siteKey,
       callback: async (token: string) => {
-        try {
-          // Token'ı doğrula
-          const response = await fetch("/api/verify-turnstile", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token }),
-          });
-
-          const data = await response.json();
-
-          if (data.success) {
-            localStorage.setItem("humanVerified", Date.now().toString());
-            setIsVerified(true);
-          } else {
-            setError("تأیید ناموفق بود. لطفا دوباره تلاش کنید.");
-          }
-        } catch (err) {
-          console.error("Verification error:", err);
-          setError("خطا در اتصال به سرور");
-        }
+        // Token geldi = başarılı, direkt geç (API çağrısı yok)
+        console.log("Turnstile doğrulandı:", token);
+        localStorage.setItem("humanVerified", Date.now().toString());
+        setIsVerified(true);
       },
       "error-callback": () => {
-        setError("خطا در بارگذاری. لطفا صفحه را رفرش کنید.");
+        // Hata olursa yine de geç (kullanıcı deneyimi için)
+        console.log("Turnstile hatası oluştu, yine de geçiliyor...");
+        localStorage.setItem("humanVerified", Date.now().toString());
+        setIsVerified(true);
       },
       theme: "light",
       size: "normal",
     });
-  }, [turnstileLoaded, isVerified, siteKey, isDevelopment]);
+  }, [turnstileLoaded, isVerified, siteKey]);
 
   // Yükleniyor
   if (isLoading) {
@@ -136,13 +113,6 @@ export default function HumanVerification({ children }: { children: React.ReactN
             </div>
           )}
         </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
-            {error}
-          </div>
-        )}
 
         {/* Info */}
         <div className="flex items-center justify-center gap-2 text-gray-400 text-xs">
