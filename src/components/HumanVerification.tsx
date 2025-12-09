@@ -3,16 +3,17 @@
 import { useState, useEffect } from "react";
 import { Shield, CheckCircle } from "lucide-react";
 
-interface TurnstileWindow extends Window {
-  turnstile?: {
-    render: (container: HTMLElement, options: any) => string;
-    reset: (widgetId: string) => void;
-    remove: (widgetId: string) => void;
-  };
-  onloadTurnstileCallback?: () => void;
+// Global window type extension
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement, options: Record<string, unknown>) => string;
+      reset: (widgetId: string) => void;
+      remove: (widgetId: string) => void;
+    };
+    onloadTurnstileCallback?: () => void;
+  }
 }
-
-declare const window: TurnstileWindow;
 
 export default function HumanVerification({ children }: { children: React.ReactNode }) {
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
@@ -30,7 +31,7 @@ export default function HumanVerification({ children }: { children: React.ReactN
       const verifiedTime = parseInt(verifiedAt);
       const now = Date.now();
       const hoursPassed = (now - verifiedTime) / (1000 * 60 * 60);
-      
+
       if (hoursPassed < 24) {
         setIsVerified(true);
         setIsLoading(false);
@@ -86,7 +87,7 @@ export default function HumanVerification({ children }: { children: React.ReactN
           } else {
             setError("تأیید ناموفق بود. لطفا دوباره تلاش کنید.");
           }
-        } catch (err) {
+        } catch {
           // Development modda her zaman geç
           if (process.env.NODE_ENV === "development") {
             localStorage.setItem("humanVerified", Date.now().toString());
@@ -160,4 +161,3 @@ export default function HumanVerification({ children }: { children: React.ReactN
     </div>
   );
 }
-
