@@ -39,7 +39,7 @@ export default function PaketCard({ paket, onay = false }: { paket: PaketProps; 
     : "from-gray-50 to-white";
 
   const buttonColor = isElite
-    ? "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+    ? "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-yellow-600 hover:to-orange-600"
     : isPro
     ? "bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
     : "bg-gray-600 hover:bg-gray-700";
@@ -59,7 +59,7 @@ export default function PaketCard({ paket, onay = false }: { paket: PaketProps; 
     >
       {isElite && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 px-4 py-1.5 text-sm font-bold text-white shadow-lg">
+          <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-1.5 text-sm font-bold text-white shadow-lg">
             <Star className="h-4 w-4 fill-white" />
             <span>محبوب‌ترین</span>
           </div>

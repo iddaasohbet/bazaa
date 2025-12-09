@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Store, Megaphone, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -72,14 +72,11 @@ export default function FeaturedAds() {
 
   if (loading || sliders.length === 0) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3 md:space-y-0 md:flex md:flex-row-reverse md:gap-4 md:h-[200px]">
         {/* Slider Loading */}
-        <div className="h-[160px] md:h-[200px] rounded-2xl bg-gray-50 border border-gray-100 animate-pulse"></div>
-        {/* Ad Banners Loading - Mobilde yan yana */}
-        <div className="grid grid-cols-2 gap-3 md:hidden">
-          <div className="h-[120px] rounded-2xl bg-gray-50 border border-gray-100 animate-pulse"></div>
-          <div className="h-[120px] rounded-2xl bg-gray-50 border border-gray-100 animate-pulse"></div>
-        </div>
+        <div className="flex-1 h-[160px] md:h-full rounded-2xl bg-gray-50 border border-gray-100 animate-pulse"></div>
+        {/* Ad Banner Loading */}
+        <div className="md:w-[340px] h-[120px] md:h-full rounded-2xl bg-gray-50 border border-gray-100 animate-pulse"></div>
       </div>
     );
   }
@@ -157,35 +154,33 @@ export default function FeaturedAds() {
         </div>
       </div>
 
-      {/* Ad Banners - Mobilde alt alta, Desktop'ta yan yana */}
-      <div className="grid grid-cols-2 gap-3 md:flex md:gap-3">
-        {/* Ad Banner 1 - Mağaza Aç */}
-        <Link 
-          href="/magaza-ac" 
-          className="relative md:w-[160px] h-[120px] md:h-full rounded-2xl overflow-hidden bg-white border border-gray-100 flex flex-col items-center justify-center p-3 md:p-4 text-center group hover:shadow-lg hover:border-gray-200 transition-all duration-300"
+      {/* Reklam Banner Alanı */}
+      <div className="md:w-[340px] h-[120px] md:h-full">
+        <a 
+          href="#" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative w-full h-full rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 flex items-center justify-center group hover:shadow-xl transition-all duration-300 block"
         >
-          <Store className="w-7 h-7 md:w-9 md:h-9 text-gray-800 stroke-[1.5] mb-2 md:mb-3" />
-          <h3 className="text-gray-900 font-bold text-[11px] md:text-[12px] mb-0.5 md:mb-1">مغازه باز کنید</h3>
-          <p className="text-gray-400 text-[9px] md:text-[10px] mb-2 md:mb-3">رایگان شروع کنید</p>
-          <div className="bg-gray-900 text-white text-[9px] md:text-[10px] font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 group-hover:bg-gray-800 transition-colors">
-            شروع کنید
-            <ArrowLeft className="w-2.5 h-2.5 md:w-3 md:h-3" />
+          {/* Decorative Elements */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvZz48L3N2Zz4=')] opacity-50"></div>
+          
+          {/* Glow Effect */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/20 rounded-full blur-2xl"></div>
+          
+          {/* Content */}
+          <div className="relative z-10 text-center px-4">
+            <div className="text-white/80 text-[10px] md:text-xs font-medium mb-1">تبلیغات</div>
+            <h3 className="text-white font-bold text-sm md:text-lg mb-1">فضای تبلیغاتی شما</h3>
+            <p className="text-white/70 text-[10px] md:text-xs">برای رزرو این فضا تماس بگیرید</p>
           </div>
-        </Link>
 
-        {/* Ad Banner 2 - Öne Çıkan İlan */}
-        <Link 
-          href="/ilan-ver" 
-          className="relative md:w-[160px] h-[120px] md:h-full rounded-2xl overflow-hidden bg-white border border-gray-100 flex flex-col items-center justify-center p-3 md:p-4 text-center group hover:shadow-lg hover:border-gray-200 transition-all duration-300"
-        >
-          <Megaphone className="w-7 h-7 md:w-9 md:h-9 text-gray-800 stroke-[1.5] mb-2 md:mb-3" />
-          <h3 className="text-gray-900 font-bold text-[11px] md:text-[12px] mb-0.5 md:mb-1">آگهی ویژه</h3>
-          <p className="text-gray-400 text-[9px] md:text-[10px] mb-2 md:mb-3">دیده شدن بیشتر</p>
-          <div className="bg-gray-900 text-white text-[9px] md:text-[10px] font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 group-hover:bg-gray-800 transition-colors">
-            ثبت آگهی
-            <ArrowLeft className="w-2.5 h-2.5 md:w-3 md:h-3" />
+          {/* Badge */}
+          <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-white/20 backdrop-blur-sm text-white text-[8px] md:text-[9px] font-medium px-2 py-0.5 rounded-full">
+            AD
           </div>
-        </Link>
+        </a>
       </div>
     </div>
   );

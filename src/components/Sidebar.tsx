@@ -107,11 +107,54 @@ export default function Sidebar() {
     toplamKullanicilar: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [hasMagaza, setHasMagaza] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     fetchKategoriler();
     fetchIstatistikler();
+    checkUserAndMagaza();
+    
+    // Event listener'lar
+    window.addEventListener('magazaGuncelle', checkUserAndMagaza);
+    window.addEventListener('userLogin', checkUserAndMagaza);
+    window.addEventListener('storage', checkUserAndMagaza);
+    
+    return () => {
+      window.removeEventListener('magazaGuncelle', checkUserAndMagaza);
+      window.removeEventListener('userLogin', checkUserAndMagaza);
+      window.removeEventListener('storage', checkUserAndMagaza);
+    };
   }, []);
+
+  const checkUserAndMagaza = async () => {
+    try {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        if (userData && userData.id) {
+          setIsAuthenticated(true);
+          // Mağaza kontrolü
+          const response = await fetch(`/api/magazalar?kullanici_id=${userData.id}`);
+          const data = await response.json();
+          if (data.success && data.data && data.data.length > 0) {
+            setHasMagaza(true);
+          } else {
+            setHasMagaza(false);
+          }
+        } else {
+          setIsAuthenticated(false);
+          setHasMagaza(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+        setHasMagaza(false);
+      }
+    } catch (error) {
+      console.error('Kullanıcı/Mağaza kontrolü hatası:', error);
+      setHasMagaza(false);
+    }
+  };
 
   useEffect(() => {
     if (pathname?.startsWith('/kategori/') && kategoriler.length > 0) {
@@ -209,15 +252,33 @@ export default function Sidebar() {
 
   return (
     <aside className="space-y-3 md:space-y-4">
-      {/* Mağaza Aç Reklam - Sadece Anasayfada - Kurumsal - Mobilde Gizli */}
+      {/* Mağaza Aç/Mağazam - Sadece Anasayfada - Mobilde Gizli */}
       {isHomePage && (
-      <Link href="/magaza-ac" className="hidden md:block">
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center group hover:shadow-lg hover:border-gray-200 transition-all duration-300">
-          <Store className="w-10 h-10 text-gray-800 mx-auto mb-2 stroke-[1.5]" />
-          <h3 className="text-gray-900 font-bold text-sm mb-1">مغازه باز کنید!</h3>
-          <p className="text-gray-400 text-[11px] mb-3">رایگان شروع کنید و بفروشید</p>
-          <div className="bg-gray-900 text-white font-semibold text-[11px] px-4 py-2 rounded-lg inline-flex items-center gap-1.5 group-hover:bg-gray-800 transition-colors">
-            شروع کنید
+      <Link href={hasMagaza ? "/magazam" : "/magaza-ac"} className="hidden md:block">
+        <div className={`rounded-2xl border p-5 text-center group hover:shadow-lg transition-all duration-300 ${
+          hasMagaza 
+            ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:border-amber-300' 
+            : 'bg-white border-gray-100 hover:border-gray-200'
+        }`}>
+          <Store className={`w-10 h-10 mx-auto mb-2 stroke-[1.5] ${
+            hasMagaza ? 'text-amber-600' : 'text-gray-800'
+          }`} />
+          <h3 className={`font-bold text-sm mb-1 ${
+            hasMagaza ? 'text-amber-800' : 'text-gray-900'
+          }`}>
+            {hasMagaza ? 'مغازه من' : 'مغازه باز کنید!'}
+          </h3>
+          <p className={`text-[11px] mb-3 ${
+            hasMagaza ? 'text-amber-600' : 'text-gray-400'
+          }`}>
+            {hasMagaza ? 'مدیریت مغازه و آگهی‌ها' : 'رایگان شروع کنید و بفروشید'}
+          </p>
+          <div className={`font-semibold text-[11px] px-4 py-2 rounded-lg inline-flex items-center gap-1.5 transition-colors ${
+            hasMagaza 
+              ? 'bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600 text-white group-hover:from-amber-700 group-hover:to-orange-700' 
+              : 'bg-gray-900 text-white group-hover:bg-gray-800'
+          }`}>
+            {hasMagaza ? 'مغازه من' : 'شروع کنید'}
             <ChevronRight className="w-3.5 h-3.5 rotate-180" />
           </div>
         </div>

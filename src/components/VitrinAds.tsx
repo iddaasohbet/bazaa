@@ -84,7 +84,7 @@ export default function VitrinAds({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-1 bg-gradient-to-b from-yellow-500 to-orange-500 rounded-full"></div>
+          <div className="h-10 w-1 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full"></div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
           <Star className="h-6 w-6 text-yellow-500 fill-yellow-500" />
         </div>
@@ -103,7 +103,7 @@ export default function VitrinAds({
               <div className="relative overflow-hidden rounded-xl bg-white border-2 border-yellow-200 shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                 {/* Vitrin Badge */}
                 <div className="absolute top-2 right-2 z-10">
-                  <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                  <div className="flex items-center gap-1 bg-gradient-to-r from-amber-600 to-orange-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                     <Star className="h-3 w-3 fill-white" />
                     <span>ویترین</span>
                   </div>

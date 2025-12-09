@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import FeaturedAds from "@/components/FeaturedAds";
+import OnecikanIlanlar from "@/components/OnecikanIlanlar";
 import PremiumAds from "@/components/PremiumAds";
 import AdList from "@/components/AdList";
 
@@ -58,6 +59,11 @@ export default function Home() {
 
             {/* Content Area - Sol taraf (RTL'de ikinci) */}
             <div className="flex-1 min-w-0">
+              {/* Admin Öne Çıkan İlanlar - En üstte */}
+              <Suspense fallback={null}>
+                <OnecikanIlanlar />
+              </Suspense>
+
               {/* Premium Ads Section */}
               <Suspense fallback={
                 <div className="mb-8">

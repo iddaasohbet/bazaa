@@ -59,7 +59,7 @@ export default function SponsorluMagazalar() {
           <div className="flex items-center gap-3">
             <Store className="h-8 w-8 text-blue-600" />
             <h2 className="text-3xl font-bold text-gray-900">مغازه های اسپانسر شده</h2>
-            <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs px-3 py-1 rounded-full font-bold">
+            <span className="bg-gradient-to-r from-amber-600 to-orange-600 text-white text-xs px-3 py-1 rounded-full font-bold">
               ویژه
             </span>
           </div>
@@ -78,7 +78,7 @@ export default function SponsorluMagazalar() {
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-yellow-200 hover:shadow-2xl hover:border-yellow-400 transition-all group">
                   {/* Sponsorlu Badge */}
                   <div className="absolute top-4 right-4 z-10">
-                    <div className="flex items-center gap-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
+                    <div className="flex items-center gap-1 bg-gradient-to-r from-amber-600 to-orange-600 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
                       <Star className="h-4 w-4 fill-white" />
                       <span>اسپانسر</span>
                     </div>
@@ -163,7 +163,7 @@ export default function SponsorluMagazalar() {
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
                         magaza.paket_turu === 'premium'
-                          ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'
+                          ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white'
                           : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
                       }`}>
                         {magaza.paket_turu === 'premium' ? 'مغازه ممتاز' : 'مغازه حرفه‌ای'}

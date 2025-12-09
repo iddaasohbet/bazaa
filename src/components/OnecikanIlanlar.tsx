@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { Star, MapPin, Eye, Heart, TrendingUp, Sparkles } from "lucide-react";
+import { Star, Eye, Heart } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
 
@@ -91,39 +89,27 @@ export default function OnecikanIlanlar() {
   }
 
   return (
-    <div className="mb-12" dir="rtl">
-      {/* Header */}
-      <div className="relative mb-6 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50 rounded-xl border border-orange-200 p-4 overflow-hidden">
-        <div className="absolute top-0 right-0 opacity-5">
-          <Star className="h-24 w-24 text-orange-600" />
-        </div>
-        <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg">
-            <Star className="h-6 w-6 text-white fill-white" />
-          </div>
+    <div className="mb-8" dir="rtl">
+      {/* Header - Sade Kurumsal */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <Star className="h-6 w-6 text-amber-500 fill-amber-500" />
           <div>
-            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              آگهی‌های ویژه
-              <Sparkles className="h-4 w-4 text-orange-500" />
-            </h2>
-            <p className="text-sm text-gray-600">محصولات برگزیده توسط تیم ما</p>
+            <h2 className="text-base font-bold text-gray-900">آگهی‌های ویژه</h2>
+            <p className="text-gray-400 text-[11px]">محصولات برگزیده توسط تیم ما</p>
           </div>
         </div>
       </div>
 
       {/* Öne Çıkan İlanlar Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
         {ilanlar.map((ilan, index) => (
-          <motion.div
-            key={ilan.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Link href={`/ilan/${ilan.id}`} className="group block h-full">
-              <div className="overflow-hidden rounded-xl bg-white border-2 border-orange-400 transition-all hover:shadow-xl hover:border-orange-500 h-full flex flex-col">
-                {/* Image */}
-                <div className="relative aspect-video bg-gray-100 overflow-hidden">
+          <div key={ilan.id}>
+            <Link href={`/ilan/${ilan.id}`} className="group block">
+              <div className="relative rounded-2xl bg-white shadow-[0_4px_15px_rgba(0,0,0,0.15),0_1px_3px_rgba(0,0,0,0.1)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300">
+                
+                {/* Image Area - Top */}
+                <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-t-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={getImageUrl(
@@ -132,28 +118,18 @@ export default function OnecikanIlanlar() {
                         : ilan.ana_resim
                     )}
                     alt={ilan.baslik}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading={index < 8 ? "eager" : "lazy"}
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      if (target.src !== '/images/placeholder.jpg' && target.src !== '/placeholder.svg') {
+                      if (target.src !== '/images/placeholder.jpg') {
                         target.src = '/images/placeholder.jpg';
                       }
                     }}
                   />
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
-                  {/* Öne Çıkan Badge - Sol üst */}
-                  <div className="absolute top-2 left-2">
-                    <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow-lg">
-                      <Star className="h-3 w-3 fill-white" />
-                      <span>ویژه</span>
-                    </div>
-                  </div>
 
-                  
-                  {/* Favorite Button */}
+                  {/* Favorite Button - Top Right */}
                   <button 
                     onClick={async (e) => { 
                       e.preventDefault();
@@ -201,76 +177,46 @@ export default function OnecikanIlanlar() {
                         console.error('Favori işlemi hatası:', error);
                       }
                     }}
-                    className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:bg-white transition-all ${
+                    className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center transition-all hover:bg-white ${
                       favoriler.includes(ilan.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                     }`}
                   >
                     <Heart className={`h-4 w-4 transition-colors ${
                       favoriler.includes(ilan.id)
                         ? 'text-red-500 fill-red-500' 
-                        : 'text-gray-600'
+                        : 'text-gray-500'
                     }`} />
                   </button>
+
+                  {/* Öne Çıkan Badge - Bottom Right */}
+                  <div className="absolute bottom-2 right-2 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white shadow-lg bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600">
+                    <Star className="w-3 h-3 fill-white" />
+                    <span>ویژه</span>
+                  </div>
                 </div>
 
-                {/* Content */}
-                <div className="p-3 flex-1 flex flex-col">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight group-hover:text-orange-600 transition-colors">
+                {/* Content Area - Bottom */}
+                <div className="p-3">
+                  <h3 className="font-medium text-gray-900 text-xs mb-2 line-clamp-2 min-h-[32px] leading-tight">
                     {ilan.baslik}
                   </h3>
                   
-                  {/* Fiyat Bölümü */}
-                  <div className="mb-3">
-                    {ilan.indirim_yuzdesi && ilan.indirim_yuzdesi > 0 ? (
-                      <div className="space-y-1">
-                        {/* İndirim Badge */}
-                        <div className="flex items-center gap-2">
-                          <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
-                            {ilan.indirim_yuzdesi}% تخفیف
-                          </span>
-                        </div>
-                        {/* Eski Fiyat */}
-                        {ilan.eski_fiyat && (
-                          <div className="line-through">
-                            <PriceDisplay 
-                              price={ilan.eski_fiyat}
-                              currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                              className="text-sm text-gray-500"
-                            />
-                          </div>
-                        )}
-                        {/* Yeni Fiyat */}
-                        <PriceDisplay 
-                          price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
-                          currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                          className="text-lg font-bold text-red-600"
-                        />
-                      </div>
-                    ) : (
-                      <PriceDisplay 
-                        price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
-                        currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                        className="text-lg font-bold text-orange-600"
-                      />
-                    )}
-                  </div>
-
-                  <div className="mt-auto space-y-2 text-xs text-gray-600">
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                      <span className="truncate">{ilan.il_ad}</span>
+                  <div className="flex items-center justify-between">
+                    <PriceDisplay 
+                      price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
+                      currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
+                      className="text-sm font-bold text-blue-600"
+                    />
+                    
+                    <div className="bg-blue-600 text-white text-[10px] font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      <span>مشاهده</span>
                     </div>
-                    {ilan.goruntulenme > 0 && (
-                      <div className="flex items-center gap-1 pt-2 border-t border-gray-100">
-                        <Eye className="h-3.5 w-3.5 text-gray-400" />
-                        <span>{ilan.goruntulenme}</span>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
             </Link>
-          </motion.div>
+          </div>
         ))}
       </div>
 

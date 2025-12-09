@@ -237,7 +237,7 @@ export default function AdList() {
                     {isVIP && (
                       <div className={`absolute top-0 left-0 ${
                         ilan.store_level === 'elite' 
-                          ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500' 
+                          ? 'bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600' 
                           : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600'
                       } text-white text-[10px] font-black px-3 py-1.5 rounded-br-xl shadow-lg`}>
                         <span className="flex items-center gap-1">
@@ -265,7 +265,7 @@ export default function AdList() {
                     {isVIP && (
                       <div className={`absolute bottom-2 right-2 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white shadow-lg ${
                         ilan.store_level === 'elite' 
-                          ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500' 
+                          ? 'bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600' 
                           : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600'
                       }`}>
                         {ilan.store_level === 'elite' ? <Crown className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
@@ -284,7 +284,7 @@ export default function AdList() {
                       <PriceDisplay 
                         price={ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd : ilan.fiyat}
                         currency={(ilan.para_birimi as 'AFN' | 'USD') || 'AFN'}
-                        className="text-sm font-bold text-gray-900"
+                        className="text-sm font-bold text-blue-600"
                       />
                       
                       <button 
@@ -292,7 +292,7 @@ export default function AdList() {
                           e.preventDefault();
                           router.push(`/ilan/${ilan.id}`);
                         }}
-                        className="bg-gray-900 text-white text-[10px] font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-1"
+                        className="bg-blue-600 text-white text-[10px] font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
                       >
                         <Eye className="w-3 h-3" />
                         <span>مشاهده</span>

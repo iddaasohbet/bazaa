@@ -261,7 +261,7 @@ export default function Header() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex items-center justify-between h-14 lg:h-16">
             
-            {/* Right Side - Logo */}
+            {/* Right Side - Logo & Language */}
             <div className="flex items-center gap-4">
               {/* Logo */}
               <Link href="/" className="flex items-center">
@@ -277,6 +277,33 @@ export default function Header() {
                   <span className="text-lg font-bold text-gray-900">بازار وطن</span>
                 )}
               </Link>
+
+              {/* Language Dropdown - Logo yanında */}
+              <div className="relative">
+                <button
+                  onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                  className="flex items-center gap-1.5 h-9 px-2.5 rounded-lg hover:bg-gray-100 transition-all border border-gray-200"
+                >
+                  <Globe className="w-4 h-4 text-gray-600" />
+                  <span className="text-xs font-medium text-gray-600 hidden sm:inline">
+                    {currentLang === 'dari' ? 'دری' : currentLang === 'pashto' ? 'پښتو' : 'EN'}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {langDropdownOpen && (
+                  <div className="absolute top-11 right-0 bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-[140px] z-50">
+                    <button onClick={() => { setCurrentLang('dari'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'dari' ? 'bg-gray-50 font-medium' : ''}`}>
+                      <span>🇦🇫</span><span>دری</span>
+                    </button>
+                    <button onClick={() => { setCurrentLang('pashto'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'pashto' ? 'bg-gray-50 font-medium' : ''}`}>
+                      <span>🇦🇫</span><span>پښتو</span>
+                    </button>
+                    <button onClick={() => { setCurrentLang('en'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'en' ? 'bg-gray-50 font-medium' : ''}`}>
+                      <span>🇬🇧</span><span>English</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Divider */}
               <div className="hidden lg:block w-px h-6 bg-gray-200"></div>
@@ -309,30 +336,6 @@ export default function Header() {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Language Dropdown */}
-            <div className="hidden md:block relative">
-              <button
-                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                className="flex items-center gap-2 h-10 px-3 rounded-lg hover:bg-gray-100 transition-all"
-              >
-                <Globe className="w-5 h-5 text-gray-600" />
-                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {langDropdownOpen && (
-                <div className="absolute top-12 right-0 bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-[160px] z-50">
-                  <button onClick={() => { setCurrentLang('dari'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'dari' ? 'bg-gray-50 font-medium' : ''}`}>
-                    <span>🇦🇫</span><span>دری</span>
-                  </button>
-                  <button onClick={() => { setCurrentLang('pashto'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'pashto' ? 'bg-gray-50 font-medium' : ''}`}>
-                    <span>🇦🇫</span><span>پښتو</span>
-                  </button>
-                  <button onClick={() => { setCurrentLang('en'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'en' ? 'bg-gray-50 font-medium' : ''}`}>
-                    <span>🇬🇧</span><span>English</span>
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Left Side - Actions */}
@@ -453,7 +456,7 @@ export default function Header() {
               {hasMagaza ? (
                 <Link
                   href="/magazam"
-                  className="hidden lg:flex items-center gap-2 h-10 px-4 rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                  className="hidden lg:flex items-center gap-2 h-10 px-4 rounded-lg bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 transition-all shadow-md shadow-amber-500/20"
                 >
                   <Store className="h-5 w-5" />
                   <span className="text-sm font-medium">مغازه من</span>
@@ -566,11 +569,11 @@ export default function Header() {
                 {hasMagaza ? (
                   <Link
                     href="/magazam"
-                    className="flex items-center gap-3 w-full bg-gray-100 hover:bg-gray-200 text-gray-800 h-12 px-4 rounded-xl font-medium text-sm transition-all"
+                    className="flex items-center gap-3 w-full bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white h-12 px-4 rounded-xl font-medium text-sm transition-all shadow-md shadow-amber-500/20"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center">
-                      <Store className="h-5 w-5 text-gray-600" />
+                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                      <Store className="h-5 w-5 text-white" />
                     </div>
                     <span>مغازه من</span>
                   </Link>
