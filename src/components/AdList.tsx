@@ -159,7 +159,7 @@ export default function AdList() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-2">
         {[...Array(8)].map((_, i) => (
           <div key={i} className="animate-pulse">
             <div className="aspect-square rounded-2xl bg-gray-100 border border-gray-50 mb-2"></div>
@@ -203,7 +203,7 @@ export default function AdList() {
       </div>
 
       {/* Grid - Kurumsal */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-2">
         {ilanlar.map((ilan, index) => {
           const isVIP = ilan.store_level === 'pro' || ilan.store_level === 'elite';
           
@@ -328,6 +328,7 @@ export default function AdList() {
     </div>
   );
 }
+
 
 
 

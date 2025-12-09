@@ -140,7 +140,7 @@ export default function PremiumAds() {
       <div className="space-y-8 mb-8">
         <div>
           <div className="h-12 w-48 rounded-lg bg-gray-100 animate-pulse mb-4"></div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-2">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-square rounded-2xl bg-gray-100 border border-gray-50"></div>
@@ -271,7 +271,7 @@ export default function PremiumAds() {
           </div>
 
           {/* Premium Products Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-2">
             {eliteIlanlar.slice(0, 8).map((ilan, index) => (
               <IlanCard key={ilan.id} ilan={ilan} isElite={true} index={index} />
             ))}
@@ -302,7 +302,7 @@ export default function PremiumAds() {
           </div>
 
           {/* Pro Products Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-2">
             {proIlanlar.slice(0, 8).map((ilan, index) => (
               <IlanCard key={ilan.id} ilan={ilan} isElite={false} index={index} />
             ))}
@@ -336,6 +336,7 @@ export default function PremiumAds() {
     </div>
   );
 }
+
 
 
 
