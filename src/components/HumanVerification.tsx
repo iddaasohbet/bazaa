@@ -3,18 +3,6 @@
 import { useState, useEffect } from "react";
 import { Shield, CheckCircle } from "lucide-react";
 
-// Global window type extension
-declare global {
-  interface Window {
-    turnstile?: {
-      render: (container: HTMLElement, options: Record<string, unknown>) => string;
-      reset: (widgetId: string) => void;
-      remove: (widgetId: string) => void;
-    };
-    onloadTurnstileCallback?: () => void;
-  }
-}
-
 export default function HumanVerification({ children }: { children: React.ReactNode }) {
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,12 +39,12 @@ export default function HumanVerification({ children }: { children: React.ReactN
       script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback";
       script.async = true;
 
-      window.onloadTurnstileCallback = () => {
+      (window as any).onloadTurnstileCallback = () => {
         setTurnstileLoaded(true);
       };
 
       document.head.appendChild(script);
-    } else if (window.turnstile) {
+    } else if ((window as any).turnstile) {
       setTurnstileLoaded(true);
     }
   }, []);
@@ -65,10 +53,10 @@ export default function HumanVerification({ children }: { children: React.ReactN
     if (!turnstileLoaded || isVerified !== false) return;
 
     const container = document.getElementById("turnstile-container");
-    if (!container || !window.turnstile) return;
+    if (!container || !(window as any).turnstile) return;
 
     // Turnstile widget'ı render et
-    window.turnstile.render(container, {
+    (window as any).turnstile.render(container, {
       sitekey: siteKey,
       callback: async (token: string) => {
         try {
