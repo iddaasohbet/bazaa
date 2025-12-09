@@ -140,7 +140,7 @@ export default function PremiumAds() {
       <div className="space-y-8 mb-8">
         <div>
           <div className="h-12 w-48 rounded-lg bg-gray-100 animate-pulse mb-4"></div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-square rounded-2xl bg-gray-100 border border-gray-50"></div>
@@ -156,10 +156,10 @@ export default function PremiumAds() {
   const IlanCard = ({ ilan, isElite, index }: { ilan: PremiumIlan; isElite: boolean; index?: number }) => (
     <div>
       <Link href={`/ilan/${ilan.id}`} className="group block">
-        <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+        <div className="relative rounded-2xl bg-white shadow-[0_4px_15px_rgba(0,0,0,0.15),0_1px_3px_rgba(0,0,0,0.1)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300">
           
           {/* Image Area */}
-          <div className="relative aspect-square overflow-hidden bg-gray-100">
+          <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-t-2xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={(() => {
@@ -174,7 +174,7 @@ export default function PremiumAds() {
               alt={ilan.baslik}
               loading={(index !== undefined && index < 4) ? "eager" : "lazy"}
               decoding="async"
-              className="w-full h-full object-contain p-4 rounded-xl transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 if (!target.src.includes('placeholder')) {
@@ -271,7 +271,7 @@ export default function PremiumAds() {
           </div>
 
           {/* Premium Products Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
             {eliteIlanlar.slice(0, 8).map((ilan, index) => (
               <IlanCard key={ilan.id} ilan={ilan} isElite={true} index={index} />
             ))}
@@ -302,7 +302,7 @@ export default function PremiumAds() {
           </div>
 
           {/* Pro Products Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-2">
             {proIlanlar.slice(0, 8).map((ilan, index) => (
               <IlanCard key={ilan.id} ilan={ilan} isElite={false} index={index} />
             ))}
@@ -336,5 +336,11 @@ export default function PremiumAds() {
     </div>
   );
 }
+
+
+
+
+
+
 
 

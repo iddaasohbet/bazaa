@@ -21,6 +21,7 @@ export default function Header() {
   const [kategorilerOpen, setKategorilerOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState<'dari' | 'pashto' | 'en'>('dari');
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState("");
@@ -301,41 +302,28 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Center - Language Selector */}
-            <div className="hidden md:flex items-center h-10 bg-gray-100 rounded-lg p-1">
+            {/* Language Dropdown */}
+            <div className="hidden md:block relative">
               <button
-                onClick={() => setCurrentLang('dari')}
-                className={`flex items-center gap-1.5 h-8 px-3 text-sm font-medium rounded-md transition-all ${
-                  currentLang === 'dari' 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                className="flex items-center gap-2 h-10 px-3 rounded-lg hover:bg-gray-100 transition-all"
               >
-                <span className="text-base">🇦🇫</span>
-                <span>دری</span>
+                <Globe className="w-5 h-5 text-gray-600" />
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-              <button
-                onClick={() => setCurrentLang('pashto')}
-                className={`flex items-center gap-1.5 h-8 px-3 text-sm font-medium rounded-md transition-all ${
-                  currentLang === 'pashto' 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <span className="text-base">🇦🇫</span>
-                <span>پښتو</span>
-              </button>
-              <button
-                onClick={() => setCurrentLang('en')}
-                className={`flex items-center gap-1.5 h-8 px-3 text-sm font-medium rounded-md transition-all ${
-                  currentLang === 'en' 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <span className="text-base">🇬🇧</span>
-                <span>EN</span>
-              </button>
+              {langDropdownOpen && (
+                <div className="absolute top-12 right-0 bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-[160px] z-50">
+                  <button onClick={() => { setCurrentLang('dari'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'dari' ? 'bg-gray-50 font-medium' : ''}`}>
+                    <span>🇦🇫</span><span>دری</span>
+                  </button>
+                  <button onClick={() => { setCurrentLang('pashto'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'pashto' ? 'bg-gray-50 font-medium' : ''}`}>
+                    <span>🇦🇫</span><span>پښتو</span>
+                  </button>
+                  <button onClick={() => { setCurrentLang('en'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'en' ? 'bg-gray-50 font-medium' : ''}`}>
+                    <span>🇬🇧</span><span>English</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Left Side - Actions */}
@@ -689,3 +677,5 @@ export default function Header() {
     </>
   );
 }
+
+
