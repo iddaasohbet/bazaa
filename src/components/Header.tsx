@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, Search, X, Plus, User, Heart, MessageSquare, ChevronDown, Store, Globe, MapPin, Grid, LogIn, ShoppingBag } from "lucide-react";
 import FeedbackWidget from "./FeedbackWidget";
@@ -16,6 +17,7 @@ interface Kategori {
 }
 
 export default function Header() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [kategorilerOpen, setKategorilerOpen] = useState(false);
