@@ -156,7 +156,7 @@ export default function PremiumAds() {
   const IlanCard = ({ ilan, isElite, index }: { ilan: PremiumIlan; isElite: boolean; index?: number }) => (
     <div>
       <Link href={`/ilan/${ilan.id}`} className="group block">
-        <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-200">
+        <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
           
           {/* Image Area */}
           <div className="relative aspect-square overflow-hidden bg-gray-100">
@@ -174,7 +174,7 @@ export default function PremiumAds() {
               alt={ilan.baslik}
               loading={(index !== undefined && index < 4) ? "eager" : "lazy"}
               decoding="async"
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-contain p-4 rounded-xl transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 if (!target.src.includes('placeholder')) {
@@ -336,3 +336,5 @@ export default function PremiumAds() {
     </div>
   );
 }
+
+
