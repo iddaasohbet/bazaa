@@ -11,8 +11,17 @@ export default function HumanVerification({ children }: { children: React.ReactN
 
   // Site key - production'da .env'den alınacak
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   useEffect(() => {
+    // Development modda doğrulamayı bypass et
+    if (isDevelopment) {
+      console.log("Development mode: Verification bypassed");
+      setIsVerified(true);
+      setIsLoading(false);
+      return;
+    }
+
     // Daha önce doğrulanmış mı kontrol et (24 saat geçerli)
     const verifiedAt = localStorage.getItem("humanVerified");
     if (verifiedAt) {
@@ -47,10 +56,10 @@ export default function HumanVerification({ children }: { children: React.ReactN
     } else if ((window as any).turnstile) {
       setTurnstileLoaded(true);
     }
-  }, []);
+  }, [isDevelopment]);
 
   useEffect(() => {
-    if (!turnstileLoaded || isVerified !== false) return;
+    if (!turnstileLoaded || isVerified !== false || isDevelopment) return;
 
     const container = document.getElementById("turnstile-container");
     if (!container || !(window as any).turnstile) return;
@@ -75,14 +84,9 @@ export default function HumanVerification({ children }: { children: React.ReactN
           } else {
             setError("تأیید ناموفق بود. لطفا دوباره تلاش کنید.");
           }
-        } catch {
-          // Development modda her zaman geç
-          if (process.env.NODE_ENV === "development") {
-            localStorage.setItem("humanVerified", Date.now().toString());
-            setIsVerified(true);
-          } else {
-            setError("خطا در اتصال به سرور");
-          }
+        } catch (err) {
+          console.error("Verification error:", err);
+          setError("خطا در اتصال به سرور");
         }
       },
       "error-callback": () => {
@@ -91,7 +95,7 @@ export default function HumanVerification({ children }: { children: React.ReactN
       theme: "light",
       size: "normal",
     });
-  }, [turnstileLoaded, isVerified, siteKey]);
+  }, [turnstileLoaded, isVerified, siteKey, isDevelopment]);
 
   // Yükleniyor
   if (isLoading) {
