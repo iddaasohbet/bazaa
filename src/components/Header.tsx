@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, X, Plus, User, Heart, MessageSquare, ChevronDown, Store, Globe, MapPin, Grid, LogIn, ShoppingBag } from "lucide-react";
+import { Menu, Search, X, Plus, User, Heart, MessageSquare, ChevronDown, Store, Globe, MapPin, Grid, LogIn, ShoppingBag } from "lucide-react";
 import FeedbackWidget from "./FeedbackWidget";
 
 interface Kategori {
@@ -22,6 +22,7 @@ export default function Header() {
   const [langOpen, setLangOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState<'dari' | 'pashto' | 'en'>('dari');
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState("");
@@ -32,6 +33,14 @@ export default function Header() {
   const [headerLogo, setHeaderLogo] = useState<string>("");
   const [logoLoading, setLogoLoading] = useState(true);
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
+
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/ara?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
