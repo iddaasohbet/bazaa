@@ -576,7 +576,7 @@ export default function IlanVer() {
                 
                 {/* Upload Area */}
                 <div
-                  className={`relative border-2 border-dashed rounded-2xl p-8 transition-all h-[280px] flex flex-col items-center justify-center ${
+                  className={`relative border-2 border-dashed rounded-2xl p-8 transition-all min-h-[380px] flex flex-col items-center justify-center ${
                     isDragging
                       ? 'border-white/60 bg-white/10'
                       : 'border-white/30 bg-transparent hover:border-white/50'
