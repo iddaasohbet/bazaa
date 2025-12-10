@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Lock, Phone, Eye, EyeOff, MapPin, ArrowLeft, Store } from "lucide-react";
+import { User, Mail, Lock, Phone, Eye, EyeOff, MapPin, ArrowLeft, FileText, ChevronDown } from "lucide-react";
 import { getCitiesList, getDistrictsList } from "@/lib/cities";
 
 export default function KayitOl() {
@@ -21,9 +21,27 @@ export default function KayitOl() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [districts, setDistricts] = useState<string[]>([]);
-  const [wantsStore, setWantsStore] = useState(false);
+  const [verifyMethod, setVerifyMethod] = useState<'email' | 'phone'>('email');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [headerLogo, setHeaderLogo] = useState<string>("");
 
   const cities = getCitiesList();
+
+  // Logo yükle
+  useEffect(() => {
+    const loadLogo = async () => {
+      try {
+        const response = await fetch('/api/admin/logo');
+        const data = await response.json();
+        if (data.success && data.data.header_logo) {
+          setHeaderLogo(data.data.header_logo);
+        }
+      } catch (error) {
+        console.error('Logo yüklenemedi:', error);
+      }
+    };
+    loadLogo();
+  }, []);
 
   // Şifre gücü hesapla
   const getPasswordStrength = (password: string) => {
@@ -39,13 +57,6 @@ export default function KayitOl() {
 
   const passwordStrength = getPasswordStrength(formData.sifre);
 
-  const getStrengthColor = (strength: number) => {
-    if (strength < 25) return "bg-gradient-to-r from-red-500 to-red-600";
-    if (strength < 50) return "bg-gradient-to-r from-orange-500 to-yellow-500";
-    if (strength < 75) return "bg-gradient-to-r from-yellow-500 to-green-500";
-    return "bg-gradient-to-r from-green-500 to-emerald-500";
-  };
-
   const handleCityChange = (cityId: string) => {
     setFormData({ ...formData, il: cityId, ilce: "" });
     setDistricts(getDistrictsList(cityId));
@@ -53,6 +64,11 @@ export default function KayitOl() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!acceptTerms) {
+      alert('لطفا قوانین و مقررات را بپذیرید');
+      return;
+    }
     
     if (formData.sifre !== formData.sifreTekrar) {
       alert('رمزهای عبور مطابقت ندارند!');
@@ -99,13 +115,7 @@ export default function KayitOl() {
       
       window.dispatchEvent(new Event('userLogin'));
       alert(data.message || 'ثبت نام با موفقیت انجام شد');
-      
-      // Eğer mağaza açmak istiyorsa oraya yönlendir
-      if (wantsStore) {
-        router.push('/magaza-ac');
-      } else {
-        router.push('/');
-      }
+      router.push('/');
     } catch (error) {
       console.error('Kayıt hatası:', error);
       alert('خطا در ثبت نام. لطفا دوباره تلاش کنید');
@@ -122,10 +132,9 @@ export default function KayitOl() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      {/* Back to Home Button - Top Left */}
+      {/* Back to Home Button */}
       <Link 
         href="/" 
         className="absolute top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors group z-10"
@@ -138,105 +147,135 @@ export default function KayitOl() {
       <div className="relative w-full max-w-md my-8">
         <div className="bg-white/20 backdrop-blur-2xl rounded-3xl border-2 border-white/30 p-8 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
           
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            {headerLogo ? (
+              <img src={headerLogo} alt="Logo" className="h-16 w-auto object-contain" />
+            ) : (
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                <span className="text-2xl font-bold text-white">BV</span>
+              </div>
+            )}
+          </div>
+
+          {/* Site Name */}
+          <h2 className="text-2xl font-bold text-white text-center mb-2">
+            بازار وطن
+          </h2>
+
           {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
+          <h1 className="text-xl font-semibold text-white/90 text-center mb-6">
             ایجاد حساب کاربری
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Full Name */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <User className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-                <input
-                  type="text"
-                  value={formData.ad}
-                  onChange={(e) => setFormData({ ...formData, ad: e.target.value })}
-                  className="w-full pr-12 pl-4 py-3.5 bg-white/90 backdrop-blur-sm border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:bg-white transition-all placeholder:text-gray-400"
-                  placeholder="Full Name"
-                  required
-                />
-              </div>
+            {/* Full Name - %50 şeffaf */}
+            <div className="relative">
+              <User className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 z-10" />
+              <input
+                type="text"
+                value={formData.ad}
+                onChange={(e) => setFormData({ ...formData, ad: e.target.value })}
+                className="w-full pr-12 pl-4 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
+                placeholder="Full Name"
+                required
+              />
             </div>
 
-            {/* Phone Number */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <Phone className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-                <input
-                  type="tel"
-                  value={formData.telefon}
-                  onChange={(e) => setFormData({ ...formData, telefon: e.target.value })}
-                  className="w-full pr-12 pl-4 py-3.5 bg-white/90 backdrop-blur-sm border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:bg-white transition-all placeholder:text-gray-400"
-                  placeholder="Phone Number"
-                />
-              </div>
+            {/* Verification Method Selection */}
+            <div className="flex gap-2 p-1 bg-white/30 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => setVerifyMethod('email')}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  verifyMethod === 'email' 
+                    ? 'bg-white text-gray-800 shadow-md' 
+                    : 'text-white hover:bg-white/20'
+                }`}
+              >
+                <Mail className="w-4 h-4 inline-block ml-1" />
+                ایمیل
+              </button>
+              <button
+                type="button"
+                onClick={() => setVerifyMethod('phone')}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  verifyMethod === 'phone' 
+                    ? 'bg-white text-gray-800 shadow-md' 
+                    : 'text-white hover:bg-white/20'
+                }`}
+              >
+                <Phone className="w-4 h-4 inline-block ml-1" />
+                شماره تلفن
+              </button>
             </div>
 
-            {/* Email */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pr-12 pl-4 py-3.5 bg-white/90 backdrop-blur-sm border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:bg-white transition-all placeholder:text-gray-400"
-                  placeholder="Email Address"
-                  required
-                />
-              </div>
+            {/* Phone Number - %50 şeffaf */}
+            <div className="relative">
+              <Phone className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 z-10" />
+              <input
+                type="tel"
+                value={formData.telefon}
+                onChange={(e) => setFormData({ ...formData, telefon: e.target.value })}
+                className="w-full pr-12 pl-4 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
+                placeholder="Phone Number"
+                required={verifyMethod === 'phone'}
+              />
             </div>
 
-            {/* Password */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={formData.sifre}
-                  onChange={(e) => setFormData({ ...formData, sifre: e.target.value })}
-                  className="w-full pr-12 pl-12 py-3.5 bg-white/90 backdrop-blur-sm border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:bg-white transition-all placeholder:text-gray-400"
-                  placeholder="Password"
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
+            {/* Email - %50 şeffaf */}
+            <div className="relative">
+              <Mail className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 z-10" />
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full pr-12 pl-4 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
+                placeholder="Email Address"
+                required={verifyMethod === 'email'}
+              />
             </div>
 
-            {/* Confirm Password */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={formData.sifreTekrar}
-                  onChange={(e) => setFormData({ ...formData, sifreTekrar: e.target.value })}
-                  className="w-full pr-12 pl-12 py-3.5 bg-white/90 backdrop-blur-sm border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:bg-white transition-all placeholder:text-gray-400"
-                  placeholder="Confirm Password"
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
-                >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
+            {/* Password - %50 şeffaf */}
+            <div className="relative">
+              <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 z-10" />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={formData.sifre}
+                onChange={(e) => setFormData({ ...formData, sifre: e.target.value })}
+                className="w-full pr-12 pl-12 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
+                placeholder="Password"
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors z-10"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+
+            {/* Confirm Password - %50 şeffaf */}
+            <div className="relative">
+              <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 z-10" />
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={formData.sifreTekrar}
+                onChange={(e) => setFormData({ ...formData, sifreTekrar: e.target.value })}
+                className="w-full pr-12 pl-12 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
+                placeholder="Confirm Password"
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors z-10"
+              >
+                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
 
             {/* Password Strength Bar - Segmented */}
@@ -260,43 +299,45 @@ export default function KayitOl() {
               </div>
             )}
 
-            {/* Select Country */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-                <select
-                  value={formData.il}
-                  onChange={(e) => handleCityChange(e.target.value)}
-                  className="w-full pr-12 pl-4 py-3.5 bg-white/90 backdrop-blur-sm border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:bg-white transition-all text-gray-700 appearance-none cursor-pointer"
-                  required
-                >
-                  <option value="">Select Country</option>
-                  {cities.map(city => (
-                    <option key={city.id} value={city.id}>{city.name}</option>
-                  ))}
-                </select>
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
+            {/* Select Country - %50 şeffaf */}
+            <div className="relative">
+              <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 z-10" />
+              <select
+                value={formData.il}
+                onChange={(e) => handleCityChange(e.target.value)}
+                className="w-full pr-12 pl-10 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all text-gray-700 appearance-none cursor-pointer"
+                required
+              >
+                <option value="">Select Country</option>
+                {cities.map(city => (
+                  <option key={city.id} value={city.id}>{city.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
             </div>
 
-            {/* Open a Store Checkbox */}
-            <label className="flex items-center gap-3 cursor-pointer group">
-              <div className="relative">
+            {/* Terms & Conditions Checkbox */}
+            <label className="flex items-start gap-3 cursor-pointer group p-3 bg-white/30 rounded-2xl border border-white/20">
+              <div className="relative mt-0.5">
                 <input
                   type="checkbox"
-                  checked={wantsStore}
-                  onChange={(e) => setWantsStore(e.target.checked)}
-                  className="w-5 h-5 rounded border-2 border-white/50 bg-white/20 checked:bg-gradient-to-r checked:from-blue-500 checked:to-purple-500 cursor-pointer transition-all"
+                  checked={acceptTerms}
+                  onChange={(e) => setAcceptTerms(e.target.checked)}
+                  className="w-5 h-5 rounded border-2 border-white/50 bg-white/30 checked:bg-gradient-to-r checked:from-blue-500 checked:to-purple-500 cursor-pointer transition-all appearance-none"
+                  required
                 />
+                {acceptTerms && (
+                  <svg className="absolute top-0.5 left-0.5 w-4 h-4 text-white pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
               </div>
-              <div className="flex items-center gap-2 text-white text-sm font-medium">
-                <Store className="w-4 h-4" />
-                <span>Open a store</span>
+              <div className="flex items-center gap-2 text-white text-sm">
+                <FileText className="w-4 h-4" />
+                <span>
+                  <Link href="/kullanim-kosullari" className="underline hover:text-white/80">قوانین و مقررات</Link>
+                  {' '}را می‌پذیرم
+                </span>
               </div>
             </label>
 
@@ -304,21 +345,20 @@ export default function KayitOl() {
             <button
               type="submit"
               disabled={loading}
-              className="relative w-full group overflow-hidden mt-6"
+              className="relative w-full group overflow-hidden mt-2"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-400 to-purple-500 rounded-2xl"></div>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative px-6 py-3.5 text-white font-bold text-base rounded-2xl">
                 {loading ? 'در حال ثبت نام...' : 'SIGN UP'}
               </div>
-              {/* Shine Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 rounded-2xl"></div>
             </button>
           </form>
 
           {/* Sign In Link */}
           <div className="mt-6 text-center">
-            <span className="text-gray-100 text-sm">حساب کاربری دارید؟ </span>
+            <span className="text-white/80 text-sm">حساب کاربری دارید؟ </span>
             <Link href="/giris" className="text-white font-bold hover:underline text-sm">
               وارد شوید
             </Link>
@@ -337,7 +377,7 @@ export default function KayitOl() {
           animation: gradient-shift 15s ease infinite;
         }
         
-        /* Custom scrollbar for form */
+        /* Custom scrollbar */
         .overflow-y-auto::-webkit-scrollbar {
           width: 6px;
         }
@@ -348,9 +388,6 @@ export default function KayitOl() {
         .overflow-y-auto::-webkit-scrollbar-thumb {
           background: rgba(255, 255, 255, 0.3);
           border-radius: 10px;
-        }
-        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.5);
         }
       `}</style>
     </div>
