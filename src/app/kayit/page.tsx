@@ -177,7 +177,7 @@ export default function KayitOl() {
                 value={formData.ad}
                 onChange={(e) => setFormData({ ...formData, ad: e.target.value })}
                 className="w-full pr-12 pl-4 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
-                placeholder="Full Name"
+                placeholder="نام کامل"
                 required
               />
             </div>
@@ -218,7 +218,7 @@ export default function KayitOl() {
                 value={formData.telefon}
                 onChange={(e) => setFormData({ ...formData, telefon: e.target.value })}
                 className="w-full pr-12 pl-4 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
-                placeholder="Phone Number"
+                placeholder="شماره تلفن"
                 required={verifyMethod === 'phone'}
               />
             </div>
@@ -231,7 +231,7 @@ export default function KayitOl() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full pr-12 pl-4 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
-                placeholder="Email Address"
+                placeholder="آدرس ایمیل"
                 required={verifyMethod === 'email'}
               />
             </div>
@@ -244,7 +244,7 @@ export default function KayitOl() {
                 value={formData.sifre}
                 onChange={(e) => setFormData({ ...formData, sifre: e.target.value })}
                 className="w-full pr-12 pl-12 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
-                placeholder="Password"
+                placeholder="رمز عبور"
                 required
                 minLength={6}
               />
@@ -265,7 +265,7 @@ export default function KayitOl() {
                 value={formData.sifreTekrar}
                 onChange={(e) => setFormData({ ...formData, sifreTekrar: e.target.value })}
                 className="w-full pr-12 pl-12 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
-                placeholder="Confirm Password"
+                placeholder="تکرار رمز عبور"
                 required
                 minLength={6}
               />
@@ -308,7 +308,7 @@ export default function KayitOl() {
                 className="w-full pr-12 pl-10 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all text-gray-700 appearance-none cursor-pointer"
                 required
               >
-                <option value="">Select Country</option>
+                <option value="">انتخاب کشور</option>
                 {cities.map(city => (
                   <option key={city.id} value={city.id}>{city.name}</option>
                 ))}
@@ -350,7 +350,7 @@ export default function KayitOl() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-400 to-purple-500 rounded-2xl"></div>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative px-6 py-3.5 text-white font-bold text-base rounded-2xl">
-                {loading ? 'در حال ثبت نام...' : 'SIGN UP'}
+                {loading ? 'در حال ثبت نام...' : 'ثبت نام'}
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 rounded-2xl"></div>
             </button>
