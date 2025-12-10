@@ -470,9 +470,9 @@ export default function IlanVer() {
                       <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${allCatOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {allCatOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                         <div 
-                          className="px-4 py-3 hover:bg-white/20 cursor-pointer text-white/90 text-sm transition-colors rounded-t-2xl"
+                          className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm transition-colors rounded-t-2xl"
                           onClick={() => { handleKategoriChange(''); setAllCatOpen(false); }}
                         >
                           همه دسته بندی ها
@@ -480,7 +480,7 @@ export default function IlanVer() {
                         {kategoriler.map(kat => (
                           <div 
                             key={kat.id}
-                            className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.kategori_id === kat.id.toString() ? 'bg-white/20 text-white' : 'text-white/80'}`}
+                            className={`px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm transition-colors ${formData.kategori_id === kat.id.toString() ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
                             onClick={() => { handleKategoriChange(kat.id.toString()); setAllCatOpen(false); }}
                           >
                             {kat.ad_dari || kat.ad}
@@ -511,9 +511,9 @@ export default function IlanVer() {
                       <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${subCatOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {subCatOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                         <div 
-                          className="px-4 py-3 hover:bg-white/20 cursor-pointer text-white/90 text-sm transition-colors rounded-t-2xl"
+                          className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm transition-colors rounded-t-2xl"
                           onClick={() => { setFormData({ ...formData, alt_kategori_id: '' }); setSubCatOpen(false); }}
                         >
                           زیردسته بندی انتخاب کنید
@@ -521,7 +521,7 @@ export default function IlanVer() {
                         {altKategoriler.map(alt => (
                           <div 
                             key={alt.id}
-                            className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.alt_kategori_id === alt.id.toString() ? 'bg-white/20 text-white' : 'text-white/80'}`}
+                            className={`px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm transition-colors ${formData.alt_kategori_id === alt.id.toString() ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
                             onClick={() => { setFormData({ ...formData, alt_kategori_id: alt.id.toString() }); setSubCatOpen(false); }}
                           >
                             {alt.ad_dari || alt.ad}
@@ -551,11 +551,11 @@ export default function IlanVer() {
                         <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${cityOpen ? 'rotate-180' : ''}`} />
                       </button>
                       {cityOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                           {cities.map(city => (
                             <div 
                               key={city.id}
-                              className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.il_id === city.id ? 'bg-white/20 text-white' : 'text-white/80'}`}
+                              className={`px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm transition-colors ${formData.il_id === city.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
                               onClick={() => { handleCityChange(city.id); setCityOpen(false); }}
                             >
                               {city.name}
@@ -579,11 +579,11 @@ export default function IlanVer() {
                         <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${districtOpen ? 'rotate-180' : ''}`} />
                       </button>
                       {districtOpen && districts.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                           {districts.map((district, index) => (
                             <div 
                               key={`${district}-${index}`}
-                              className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.ilce === district ? 'bg-white/20 text-white' : 'text-white/80'}`}
+                              className={`px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm transition-colors ${formData.ilce === district ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
                               onClick={() => { setFormData({ ...formData, ilce: district }); setDistrictOpen(false); }}
                             >
                               {district}
@@ -699,7 +699,7 @@ export default function IlanVer() {
                       <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${durumOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {durumOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {[
                           { value: 'yeni', label: 'نو (جدید)' },
                           { value: 'az_kullanilmis', label: 'کم استفاده شده' },
@@ -708,7 +708,7 @@ export default function IlanVer() {
                         ].map(item => (
                           <div 
                             key={item.value}
-                            className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.durum === item.value ? 'bg-white/20 text-white font-medium' : 'text-white/80'}`}
+                            className={`px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm transition-colors ${formData.durum === item.value ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
                             onClick={() => { setFormData({ ...formData, durum: item.value }); setDurumOpen(false); }}
                           >
                             {item.label}
