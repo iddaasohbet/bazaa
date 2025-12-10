@@ -318,7 +318,7 @@ export default function IlanVer() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden" dir="ltr">
+    <div className="min-h-screen relative overflow-hidden" dir="rtl">
       {/* Animated Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1a1f4e] via-[#2d3a8c] to-[#6b3fa0]"></div>
       
@@ -355,16 +355,16 @@ export default function IlanVer() {
               <div className="lg:col-span-4 space-y-6">
                 
                 {/* Title */}
-                <div className="text-center lg:text-left mb-2">
+                <div className="text-center lg:text-right mb-2">
                   <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                    Ürün Ekle
+                    ثبت آگهی
                   </h1>
-                  <p className="text-white/60 text-sm mt-2">Yeni ilan oluşturun</p>
+                  <p className="text-white/60 text-sm mt-2">آگهی جدید ایجاد کنید</p>
                 </div>
 
                 {/* Category - İlk 6 kategori butonları */}
                 <div>
-                  <h3 className="text-white font-semibold text-sm mb-4">Category</h3>
+                  <h3 className="text-white font-semibold text-sm mb-4">دسته بندی</h3>
                   <div className="grid grid-cols-3 gap-2.5">
                     {kategoriler.slice(0, 6).map((kat, index) => {
                       const gradients = [
@@ -445,7 +445,7 @@ export default function IlanVer() {
 
                 {/* Location */}
                 <div>
-                  <h3 className="text-white font-semibold text-sm mb-4">Location</h3>
+                  <h3 className="text-white font-semibold text-sm mb-4">موقعیت</h3>
                   <div className="space-y-2.5">
                     {/* Şehir */}
                     <div className="relative">
@@ -455,12 +455,12 @@ export default function IlanVer() {
                         className="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl text-white/80 text-sm focus:outline-none appearance-none cursor-pointer"
                         required
                       >
-                        <option value="" className="text-gray-900">Şehir seçimi</option>
+                        <option value="" className="text-gray-900">انتخاب شهر</option>
                         {cities.map(city => (
                           <option key={city.id} value={city.id} className="text-gray-900">{city.name}</option>
                         ))}
                       </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+                      <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
                     </div>
 
                     {/* İlçe */}
@@ -471,12 +471,12 @@ export default function IlanVer() {
                         className="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl text-white/80 text-sm focus:outline-none appearance-none cursor-pointer disabled:opacity-40"
                         disabled={!formData.il_id}
                       >
-                        <option value="" className="text-gray-900">İlçe seçimi</option>
+                        <option value="" className="text-gray-900">انتخاب ناحیه</option>
                         {districts.map(district => (
                           <option key={district} value={district} className="text-gray-900">{district}</option>
                         ))}
                       </select>
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+                      <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
                     </div>
                   </div>
                 </div>
@@ -484,7 +484,7 @@ export default function IlanVer() {
 
               {/* MIDDLE COLUMN - Product Info */}
               <div className="lg:col-span-4 space-y-4">
-                <h3 className="text-white font-semibold text-base mb-3">Product Info</h3>
+                <h3 className="text-white font-semibold text-base mb-3">اطلاعات محصول</h3>
                 
                 {/* Ürün başlığı */}
                 <input
@@ -492,12 +492,12 @@ export default function IlanVer() {
                   value={formData.baslik}
                   onChange={(e) => setFormData({ ...formData, baslik: e.target.value })}
                   className="w-full px-4 py-3.5 bg-white/90 rounded-xl text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
-                  placeholder="Ürün başlığı"
+                  placeholder="عنوان آگهی"
                   required
                 />
 
                 {/* Ürün açıklaması label */}
-                <p className="text-white/80 text-sm">Ürün açıklaması</p>
+                <p className="text-white/80 text-sm">توضیحات آگهی</p>
 
                 {/* Ürün açıklaması textarea */}
                 <textarea
@@ -505,7 +505,7 @@ export default function IlanVer() {
                   onChange={(e) => setFormData({ ...formData, aciklama: e.target.value })}
                   className="w-full px-4 py-3.5 bg-white/90 rounded-xl text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none text-sm"
                   rows={4}
-                  placeholder="Ürün açıklaması"
+                  placeholder="توضیحات آگهی"
                   required
                 />
 
@@ -527,7 +527,7 @@ export default function IlanVer() {
                         }
                       }}
                       className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm"
-                      placeholder="Fiyat"
+                      placeholder="قیمت"
                       required
                     />
                   </div>
@@ -536,8 +536,8 @@ export default function IlanVer() {
                   <div className="flex items-center gap-2 px-4 py-3 bg-white/90 rounded-xl">
                     <div className="w-3 h-3 rounded-full bg-purple-500"></div>
                     <div className="flex-1">
-                      <p className="text-gray-700 text-sm font-medium leading-none">Durum</p>
-                      <p className="text-gray-400 text-[10px]">(Yeni/Kullanılmış)</p>
+                      <p className="text-gray-700 text-sm font-medium leading-none">وضعیت</p>
+                      <p className="text-gray-400 text-[10px]">(نو/کارکرده)</p>
                     </div>
                   </div>
                 </div>
@@ -552,7 +552,7 @@ export default function IlanVer() {
                       value={formData.marka}
                       onChange={(e) => setFormData({ ...formData, marka: e.target.value })}
                       className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm"
-                      placeholder="Marka"
+                      placeholder="برند"
                     />
                   </div>
 
@@ -564,7 +564,7 @@ export default function IlanVer() {
                       value={formData.model}
                       onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                       className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm"
-                      placeholder="Model"
+                      placeholder="مدل"
                     />
                   </div>
                 </div>
@@ -572,7 +572,7 @@ export default function IlanVer() {
 
               {/* RIGHT COLUMN - Photos */}
               <div className="lg:col-span-4 flex flex-col">
-                <h3 className="text-white font-semibold text-base mb-3">Photos</h3>
+                <h3 className="text-white font-semibold text-base mb-3">تصاویر</h3>
                 
                 {/* Upload Area - Tüm alanı kapla */}
                 <div
@@ -602,7 +602,7 @@ export default function IlanVer() {
                       <Upload className="w-7 h-7 text-white/60" />
                     </div>
                     <p className="text-white/70 text-sm text-center">
-                      Fotoğraf yükle veya buraya bırak
+                      عکس آپلود کنید یا اینجا رها کنید
                     </p>
                   </label>
                 </div>
@@ -620,7 +620,7 @@ export default function IlanVer() {
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-gray-700 border border-white/30 text-white flex items-center justify-center text-xs"
+                          className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-gray-700 border border-white/30 text-white flex items-center justify-center text-xs"
                         >
                           ×
                         </button>
@@ -630,19 +630,19 @@ export default function IlanVer() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 justify-end mt-4">
+                <div className="flex gap-3 justify-start mt-4">
                   <button
                     type="submit"
                     disabled={loading}
                     className="px-8 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg"
                   >
-                    {loading ? 'در حال ثبت...' : 'İlanı Yayınla'}
+                    {loading ? 'در حال ثبت...' : 'ثبت آگهی'}
                   </button>
                   <Link
                     href="/"
                     className="px-8 py-3 rounded-full font-semibold text-white/80 border border-white/30 hover:bg-white/10 transition-all"
                   >
-                    İptal Et
+                    انصراف
                   </Link>
                 </div>
               </div>
