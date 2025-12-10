@@ -324,12 +324,12 @@ export default function Header() {
 
                 {kategorilerOpen && (
                   <div className="absolute top-full right-0 pt-2 z-50">
-                    <div className="w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 overflow-hidden">
+                    <div className="w-56 bg-white/30 backdrop-blur-md rounded-xl shadow-xl border border-white/50 py-2 overflow-hidden">
                       {kategoriler.map((kat) => (
                         <Link
                           key={kat.id}
                           href={`/kategori/${kat.slug}`}
-                          className="flex items-center h-11 px-4 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                          className="flex items-center h-11 px-4 text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-white/50 transition-colors"
                         >
                           {kat.ad_dari || kat.ad}
                         </Link>
@@ -361,25 +361,25 @@ export default function Header() {
 
                 {profileMenuOpen && (
                   <div className="absolute top-full left-0 pt-2 z-50">
-                    <div className="w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 overflow-hidden">
+                    <div className="w-64 bg-white/30 backdrop-blur-md rounded-xl shadow-xl border border-white/50 py-2 overflow-hidden">
                       {/* User Info */}
                       {isAuthenticated ? (
-                        <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="px-4 py-3 border-b border-white/50">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
                               <User className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                              <div className="font-semibold text-gray-900 text-sm">{userName}</div>
-                              <div className="text-xs text-gray-500">حساب کاربری</div>
+                              <div className="font-bold text-gray-900 text-sm">{userName}</div>
+                              <div className="text-xs font-bold text-gray-500">حساب کاربری</div>
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="px-4 py-3 border-b border-white/50">
                           <Link
                             href="/giris"
-                            className="flex items-center justify-center gap-2 w-full h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium text-sm transition-colors"
+                            className="flex items-center justify-center gap-2 w-full h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-bold text-sm transition-colors"
                           >
                             <LogIn className="h-4 w-4" />
                             <span>ورود / ثبت نام</span>
@@ -391,7 +391,7 @@ export default function Header() {
                       <div className="py-1">
                         <Link
                           href="/favoriler"
-                          className="flex items-center gap-3 h-11 px-4 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-3 h-11 px-4 text-sm font-bold text-gray-700 hover:text-gray-900 hover:bg-white/50 transition-colors"
                         >
                           <Heart className="h-5 w-5 text-gray-400" />
                           <span className="flex-1">علاقه‌مندی‌ها</span>
@@ -403,7 +403,7 @@ export default function Header() {
                         </Link>
                         <Link
                           href="/mesajlar"
-                          className="flex items-center gap-3 h-11 px-4 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-3 h-11 px-4 text-sm font-bold text-gray-700 hover:text-gray-900 hover:bg-white/50 transition-colors"
                         >
                           <MessageSquare className="h-5 w-5 text-gray-400" />
                           <span className="flex-1">پیام‌ها</span>
@@ -415,7 +415,7 @@ export default function Header() {
                         </Link>
                         <Link
                           href="/ilanlarim"
-                          className="flex items-center gap-3 h-11 px-4 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-3 h-11 px-4 text-sm font-bold text-gray-700 hover:text-gray-900 hover:bg-white/50 transition-colors"
                         >
                           <ShoppingBag className="h-5 w-5 text-gray-400" />
                           <span>آگهی‌های من</span>
@@ -423,7 +423,7 @@ export default function Header() {
                         {isAuthenticated && (
                           <Link
                             href="/profilim"
-                            className="flex items-center gap-3 h-11 px-4 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-3 h-11 px-4 text-sm font-bold text-gray-700 hover:text-gray-900 hover:bg-white/50 transition-colors"
                           >
                             <User className="h-5 w-5 text-gray-400" />
                             <span>تنظیمات حساب</span>
@@ -433,13 +433,13 @@ export default function Header() {
 
                       {/* Logout */}
                       {isAuthenticated && (
-                        <div className="border-t border-gray-100 pt-1">
+                        <div className="border-t border-white/50 pt-1">
                           <button
                             onClick={() => {
                               localStorage.removeItem('user');
                               window.location.reload();
                             }}
-                            className="flex items-center gap-3 h-11 px-4 w-full text-sm text-red-600 hover:bg-red-50 transition-colors"
+                            className="flex items-center gap-3 h-11 px-4 w-full text-sm font-bold text-red-600 hover:bg-white/50 transition-colors"
                           >
                             <LogIn className="h-5 w-5 rotate-180" />
                             <span>خروج از حساب</span>

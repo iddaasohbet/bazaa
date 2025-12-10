@@ -255,31 +255,58 @@ export default function Sidebar() {
       {/* Mağaza Aç/Mağazam - Sadece Anasayfada - Mobilde Gizli */}
       {isHomePage && (
       <Link href={hasMagaza ? "/magazam" : "/magaza-ac"} className="hidden md:block">
-        <div className={`rounded-2xl border p-5 text-center group hover:shadow-lg transition-all duration-300 ${
+        <div className={`relative rounded-2xl border-2 p-6 text-center group hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 overflow-hidden ${
           hasMagaza 
-            ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:border-amber-300' 
-            : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-300'
+            ? 'bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-amber-500/5 border-amber-300/50 hover:border-amber-400' 
+            : 'bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-blue-500/5 border-blue-300/50 hover:border-blue-400'
         }`}>
-          <Store className={`w-10 h-10 mx-auto mb-2 stroke-[1.5] ${
-            hasMagaza ? 'text-amber-600' : 'text-blue-600'
-          }`} />
-          <h3 className={`font-bold text-sm mb-1 ${
-            hasMagaza ? 'text-amber-800' : 'text-blue-800'
-          }`}>
-            {hasMagaza ? 'مغازه من' : 'مغازه باز کنید!'}
-          </h3>
-          <p className={`text-[11px] mb-3 ${
-            hasMagaza ? 'text-amber-600' : 'text-blue-600'
-          }`}>
-            {hasMagaza ? 'مدیریت مغازه و آگهی‌ها' : 'رایگان شروع کنید و بفروشید'}
-          </p>
-          <div className={`font-semibold text-[11px] px-4 py-2 rounded-lg inline-flex items-center gap-1.5 transition-colors ${
-            hasMagaza 
-              ? 'bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600 text-white group-hover:from-amber-700 group-hover:to-orange-700' 
-              : 'bg-blue-600 text-white group-hover:bg-blue-700'
-          }`}>
-            {hasMagaza ? 'مغازه من' : 'شروع کنید'}
-            <ChevronRight className="w-3.5 h-3.5 rotate-180" />
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full ${
+              hasMagaza ? 'bg-amber-500' : 'bg-blue-500'
+            } blur-3xl`}></div>
+            <div className={`absolute -bottom-10 -left-10 w-32 h-32 rounded-full ${
+              hasMagaza ? 'bg-orange-500' : 'bg-indigo-500'
+            } blur-3xl`}></div>
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10">
+            {/* Icon with Animation */}
+            <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 ${
+              hasMagaza 
+                ? 'bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30' 
+                : 'bg-gradient-to-br from-blue-500 to-indigo-500 shadow-lg shadow-blue-500/30'
+            }`}>
+              <Store className="w-8 h-8 text-white stroke-[1.5] group-hover:scale-110 transition-transform duration-500" />
+            </div>
+
+            {/* Title */}
+            <h3 className={`font-bold text-base mb-2 ${
+              hasMagaza ? 'text-amber-900' : 'text-blue-900'
+            }`}>
+              {hasMagaza ? 'مغازه من' : 'مغازه باز کنید!'}
+            </h3>
+
+            {/* Description */}
+            <p className={`text-xs mb-4 font-medium ${
+              hasMagaza ? 'text-amber-700/80' : 'text-blue-700/80'
+            }`}>
+              {hasMagaza ? 'مدیریت مغازه و آگهی‌ها' : 'رایگان شروع کنید و بفروشید'}
+            </p>
+
+            {/* Button */}
+            <div className={`relative font-bold text-xs px-5 py-2.5 rounded-xl inline-flex items-center gap-2 transition-all duration-300 group-hover:gap-3 shadow-lg ${
+              hasMagaza 
+                ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white hover:shadow-amber-500/50' 
+                : 'bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 text-white hover:shadow-blue-500/50'
+            }`}>
+              <span>{hasMagaza ? 'مغازه من' : 'شروع کنید'}</span>
+              <ChevronRight className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform duration-300" />
+              
+              {/* Shine Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            </div>
           </div>
         </div>
       </Link>
