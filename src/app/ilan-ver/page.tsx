@@ -71,17 +71,13 @@ export default function IlanVer() {
   const canAddDiscount = storeLevel === 'pro' || storeLevel === 'elite' || isAdmin;
 
   // Dışarı tıklanınca dropdown'ları kapat
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setAllCatOpen(false);
-      setSubCatOpen(false);
-      setCityOpen(false);
-      setDistrictOpen(false);
-      setDurumOpen(false);
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  const closeAllDropdowns = () => {
+    setAllCatOpen(false);
+    setSubCatOpen(false);
+    setCityOpen(false);
+    setDistrictOpen(false);
+    setDurumOpen(false);
+  };
 
   // Auth check
   useEffect(() => {
@@ -382,7 +378,7 @@ export default function IlanVer() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden" dir="rtl">
+    <div className="min-h-screen relative overflow-hidden" dir="rtl" onClick={closeAllDropdowns}>
       {/* Animated Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1a1f4e] via-[#2d3a8c] to-[#6b3fa0]"></div>
       
@@ -462,7 +458,7 @@ export default function IlanVer() {
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); setAllCatOpen(!allCatOpen); setSubCatOpen(false); setCityOpen(false); setDistrictOpen(false); setDurumOpen(false); }}
+                      onClick={(e) => { e.stopPropagation(); setSubCatOpen(false); setCityOpen(false); setDistrictOpen(false); setDurumOpen(false); setAllCatOpen(!allCatOpen); }}
                       className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl hover:bg-white/15 transition-all"
                     >
                       <Tag className="w-4 h-4 text-blue-400" />
@@ -500,7 +496,7 @@ export default function IlanVer() {
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); setSubCatOpen(!subCatOpen); setAllCatOpen(false); setCityOpen(false); setDistrictOpen(false); setDurumOpen(false); }}
+                      onClick={(e) => { e.stopPropagation(); setAllCatOpen(false); setCityOpen(false); setDistrictOpen(false); setDurumOpen(false); setSubCatOpen(!subCatOpen); }}
                       className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl hover:bg-white/15 transition-all"
                     >
                       <div className="flex gap-1">
@@ -544,7 +540,7 @@ export default function IlanVer() {
                     <div className="relative">
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); setCityOpen(!cityOpen); setAllCatOpen(false); setSubCatOpen(false); setDistrictOpen(false); setDurumOpen(false); }}
+                        onClick={(e) => { e.stopPropagation(); setAllCatOpen(false); setSubCatOpen(false); setDistrictOpen(false); setDurumOpen(false); setCityOpen(!cityOpen); }}
                         className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl hover:bg-white/15 transition-all"
                       >
                         <span className="flex-1 text-right text-white/80 text-sm">
@@ -573,7 +569,7 @@ export default function IlanVer() {
                     <div className="relative">
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); if(formData.il_id) { setDistrictOpen(!districtOpen); setAllCatOpen(false); setSubCatOpen(false); setCityOpen(false); setDurumOpen(false); } }}
+                        onClick={(e) => { e.stopPropagation(); if(formData.il_id) { setAllCatOpen(false); setSubCatOpen(false); setCityOpen(false); setDurumOpen(false); setDistrictOpen(!districtOpen); } }}
                         className={`w-full flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl transition-all ${formData.il_id ? 'hover:bg-white/15 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
                         disabled={!formData.il_id}
                       >
@@ -609,7 +605,7 @@ export default function IlanVer() {
                   type="text"
                   value={formData.baslik}
                   onChange={(e) => setFormData({ ...formData, baslik: e.target.value })}
-                  className="w-full px-4 py-3.5 bg-white/90 rounded-xl text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                  className="w-full px-4 py-3.5 bg-white/50 backdrop-blur-sm rounded-xl text-gray-900 font-semibold placeholder:text-gray-600 placeholder:font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
                   placeholder="عنوان آگهی"
                   required
                 />
@@ -621,7 +617,7 @@ export default function IlanVer() {
                 <textarea
                   value={formData.aciklama}
                   onChange={(e) => setFormData({ ...formData, aciklama: e.target.value })}
-                  className="w-full px-4 py-3.5 bg-white/90 rounded-xl text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none text-sm"
+                  className="w-full px-4 py-3.5 bg-white/50 backdrop-blur-sm rounded-xl text-gray-900 font-semibold placeholder:text-gray-600 placeholder:font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none text-sm"
                   rows={4}
                   placeholder="توضیحات آگهی"
                   required
@@ -630,7 +626,7 @@ export default function IlanVer() {
                 {/* Fiyat & Durum */}
                 <div className="grid grid-cols-2 gap-3">
                   {/* Fiyat - Pro tasarım */}
-                  <div className="flex items-center bg-white/90 rounded-xl overflow-hidden">
+                  <div className="flex items-center bg-white/50 backdrop-blur-sm rounded-xl overflow-hidden">
                     <div className="flex items-center gap-2 px-4 py-3 flex-1">
                       <FolderOpen className="w-5 h-5 text-pink-500" />
                       <input
@@ -645,7 +641,7 @@ export default function IlanVer() {
                             setFormData({ ...formData, fiyat_usd: usdValue, fiyat: afnValue });
                           }
                         }}
-                        className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="flex-1 bg-transparent text-gray-900 font-semibold placeholder:text-gray-600 placeholder:font-semibold focus:outline-none text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         placeholder="قیمت"
                         required
                       />
@@ -690,11 +686,11 @@ export default function IlanVer() {
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); setDurumOpen(!durumOpen); setAllCatOpen(false); setSubCatOpen(false); setCityOpen(false); setDistrictOpen(false); }}
-                      className="w-full flex items-center gap-2 px-4 py-3 bg-white/90 rounded-xl hover:bg-white transition-all"
+                      onClick={(e) => { e.stopPropagation(); setAllCatOpen(false); setSubCatOpen(false); setCityOpen(false); setDistrictOpen(false); setDurumOpen(!durumOpen); }}
+                      className="w-full flex items-center gap-2 px-4 py-3 bg-white/50 backdrop-blur-sm rounded-xl hover:bg-white/70 transition-all"
                     >
                       <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                      <span className="flex-1 text-right text-gray-700 text-sm">
+                      <span className="flex-1 text-right text-gray-900 font-semibold text-sm">
                         {formData.durum === 'yeni' && 'نو (جدید)'}
                         {formData.durum === 'az_kullanilmis' && 'کم استفاده شده'}
                         {formData.durum === 'kullanilmis' && 'استفاده شده'}
@@ -703,7 +699,7 @@ export default function IlanVer() {
                       <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${durumOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {durumOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white/80 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl z-50 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {[
                           { value: 'yeni', label: 'نو (جدید)' },
                           { value: 'az_kullanilmis', label: 'کم استفاده شده' },
@@ -712,7 +708,7 @@ export default function IlanVer() {
                         ].map(item => (
                           <div 
                             key={item.value}
-                            className={`px-4 py-3 hover:bg-white/50 cursor-pointer text-sm transition-colors ${formData.durum === item.value ? 'bg-white/50 text-gray-900 font-medium' : 'text-gray-700'}`}
+                            className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.durum === item.value ? 'bg-white/20 text-white font-medium' : 'text-white/80'}`}
                             onClick={() => { setFormData({ ...formData, durum: item.value }); setDurumOpen(false); }}
                           >
                             {item.label}
@@ -726,25 +722,25 @@ export default function IlanVer() {
                 {/* Marka & Model */}
                 <div className="grid grid-cols-2 gap-3">
                   {/* Marka */}
-                  <div className="flex items-center gap-2 px-4 py-3 bg-white/90 rounded-xl">
+                  <div className="flex items-center gap-2 px-4 py-3 bg-white/50 backdrop-blur-sm rounded-xl">
                     <Tag className="w-5 h-5 text-orange-500" />
                     <input
                       type="text"
                       value={formData.marka}
                       onChange={(e) => setFormData({ ...formData, marka: e.target.value })}
-                      className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm"
+                      className="flex-1 bg-transparent text-gray-900 font-semibold placeholder:text-gray-600 placeholder:font-semibold focus:outline-none text-sm"
                       placeholder="برند"
                     />
                   </div>
 
                   {/* Model */}
-                  <div className="flex items-center gap-2 px-4 py-3 bg-white/90 rounded-xl">
+                  <div className="flex items-center gap-2 px-4 py-3 bg-white/50 backdrop-blur-sm rounded-xl">
                     <Menu className="w-5 h-5 text-blue-500" />
                     <input
                       type="text"
                       value={formData.model}
                       onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                      className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm"
+                      className="flex-1 bg-transparent text-gray-900 font-semibold placeholder:text-gray-600 placeholder:font-semibold focus:outline-none text-sm"
                       placeholder="مدل"
                     />
                   </div>
@@ -760,7 +756,7 @@ export default function IlanVer() {
                       <span className="text-white font-semibold text-sm">قیمت با تخفیف (اختیاری)</span>
                       <span className="text-amber-300 text-xs">(ویژه Pro/Premium)</span>
                     </div>
-                    <div className="flex items-center bg-white/90 rounded-xl overflow-hidden">
+                    <div className="flex items-center bg-white/50 backdrop-blur-sm rounded-xl overflow-hidden">
                       <div className="flex items-center gap-2 px-4 py-3 flex-1">
                         <span className="text-green-600 font-bold text-sm">💰</span>
                         <input
@@ -775,7 +771,7 @@ export default function IlanVer() {
                               setFormData({ ...formData, indirimli_fiyat_usd: usdValue, indirimli_fiyat: afnValue });
                             }
                           }}
-                          className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className="flex-1 bg-transparent text-gray-900 font-semibold placeholder:text-gray-600 placeholder:font-semibold focus:outline-none text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           placeholder="قیمت تخفیف خورده"
                         />
                       </div>
