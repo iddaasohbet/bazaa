@@ -329,13 +329,6 @@ export default function IlanVer() {
         <div className="absolute top-[50%] right-[30%] w-[400px] h-[400px] bg-pink-500/15 rounded-full blur-[80px]"></div>
       </div>
 
-      {/* Star Decoration - Bottom Right */}
-      <div className="absolute bottom-8 right-8 z-20">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="text-white/40">
-          <path d="M12 2L14 8L20 8L15 12L17 18L12 14L7 18L9 12L4 8L10 8L12 2Z" fill="currentColor"/>
-        </svg>
-      </div>
-
       {/* Back Button */}
       <Link 
         href="/" 
