@@ -384,10 +384,10 @@ export default function IlanVer() {
                           key={kat.id}
                           type="button"
                           onClick={() => handleKategoriChange(kat.id.toString())}
-                          className={`p-3 rounded-2xl backdrop-blur-md border transition-all flex flex-col items-center gap-2 ${
+                          className={`p-3 rounded-2xl backdrop-blur-md border-2 transition-all flex flex-col items-center gap-2 ${
                             isSelected
-                              ? 'bg-white/20 border-white/40'
-                              : 'bg-white/5 border-white/10 hover:bg-white/10'
+                              ? 'bg-white/15 border-amber-400 shadow-lg shadow-amber-400/20'
+                              : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                           }`}
                         >
                           <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradients[index] || 'from-gray-400 to-gray-500'} flex items-center justify-center shadow-lg`}>
