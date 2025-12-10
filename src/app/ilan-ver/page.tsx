@@ -229,8 +229,8 @@ export default function IlanVer() {
       return;
     }
     
-    if (formData.aciklama.length < 50) {
-      alert('توضیحات باید حداقل ۵۰ کاراکتر باشد');
+    if (formData.aciklama.length < 20) {
+      alert('توضیحات باید حداقل ۲۰ کاراکتر باشد');
       return;
     }
     
@@ -465,8 +465,8 @@ export default function IlanVer() {
                         disabled={!formData.il_id}
                       >
                         <option value="" className="text-gray-900">انتخاب ناحیه</option>
-                        {districts.map(district => (
-                          <option key={district} value={district} className="text-gray-900">{district}</option>
+                        {districts.map((district, index) => (
+                          <option key={`${district}-${index}`} value={district} className="text-gray-900">{district}</option>
                         ))}
                       </select>
                       <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
