@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
   Upload, X, ArrowLeft, Smartphone, Car, Wrench,
-  ChevronDown, FolderOpen, Tag, Menu, Shirt, Home as HomeIcon, BookOpen
+  ChevronDown, FolderOpen, Tag, Menu, Shirt, Home as HomeIcon, BookOpen, Star
 } from "lucide-react";
 import { getCitiesList, getDistrictsList } from "@/lib/cities";
 
@@ -29,6 +29,7 @@ export default function IlanVer() {
   const [altKategoriler, setAltKategoriler] = useState<AltKategori[]>([]);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
+  const [mainImageIndex, setMainImageIndex] = useState(0); // Ana fotoğraf indexi
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
   const [districts, setDistricts] = useState<string[]>([]);
@@ -197,6 +198,12 @@ export default function IlanVer() {
 
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
+    // Ana resim silinirse veya öncesindeki bir resim silinirse index'i ayarla
+    if (index === mainImageIndex) {
+      setMainImageIndex(0);
+    } else if (index < mainImageIndex) {
+      setMainImageIndex(prev => prev - 1);
+    }
   };
 
   // Drag & Drop
@@ -270,8 +277,15 @@ export default function IlanVer() {
 
       const userData = JSON.parse(userStr);
       
+      // Resimleri sırala - ana resim ilk sıraya
+      const sortedImages = [...images];
+      if (mainImageIndex > 0 && mainImageIndex < sortedImages.length) {
+        const mainImage = sortedImages.splice(mainImageIndex, 1)[0];
+        sortedImages.unshift(mainImage);
+      }
+      
       const resimlerBase64: string[] = [];
-      for (const image of images) {
+      for (const image of sortedImages) {
         const base64 = await new Promise<string>((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result as string);
@@ -748,16 +762,42 @@ export default function IlanVer() {
                 {images.length > 0 && (
                   <div className="grid grid-cols-5 gap-2 mt-4">
                     {images.map((image, index) => (
-                      <div key={index} className="relative group aspect-square">
+                      <div 
+                        key={index} 
+                        className={`relative group aspect-square cursor-pointer ${
+                          mainImageIndex === index 
+                            ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-transparent rounded-lg' 
+                            : ''
+                        }`}
+                        onClick={() => setMainImageIndex(index)}
+                        title={mainImageIndex === index ? 'عکس اصلی' : 'کلیک کنید برای انتخاب عکس اصلی'}
+                      >
                         <img
                           src={URL.createObjectURL(image)}
                           alt={`${index + 1}`}
                           className="w-full h-full object-cover rounded-lg"
                         />
+                        {/* Ana Resim Badge */}
+                        {mainImageIndex === index && (
+                          <div className="absolute bottom-1 right-1 bg-amber-400 text-amber-900 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-0.5">
+                            <Star className="w-2.5 h-2.5 fill-current" />
+                            اصلی
+                          </div>
+                        )}
+                        {/* Yıldız ikonu - ana resim değilse göster */}
+                        {mainImageIndex !== index && (
+                          <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="bg-white/80 backdrop-blur-sm text-gray-600 px-1.5 py-0.5 rounded text-[9px] flex items-center gap-0.5">
+                              <Star className="w-2.5 h-2.5" />
+                              اصلی کنید
+                            </div>
+                          </div>
+                        )}
+                        {/* Silme butonu */}
                         <button
                           type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-gray-700 border border-white/30 text-white flex items-center justify-center text-xs"
+                          onClick={(e) => { e.stopPropagation(); removeImage(index); }}
+                          className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-gray-700 border border-white/30 text-white flex items-center justify-center text-xs hover:bg-red-500 transition-colors"
                         >
                           ×
                         </button>
