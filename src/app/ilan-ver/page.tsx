@@ -511,34 +511,77 @@ export default function IlanVer() {
 
                 {/* Fiyat & Durum */}
                 <div className="grid grid-cols-2 gap-3">
-                  {/* Fiyat */}
-                  <div className="flex items-center gap-2 px-4 py-3 bg-white/90 rounded-xl">
-                    <FolderOpen className="w-5 h-5 text-pink-500" />
-                    <input
-                      type="number"
-                      value={formData.para_birimi === 'AFN' ? formData.fiyat : formData.fiyat_usd}
-                      onChange={(e) => {
-                        if (formData.para_birimi === 'AFN') {
-                          setFormData({ ...formData, fiyat: e.target.value, fiyat_usd: '' });
-                        } else {
-                          const usdValue = e.target.value;
-                          const afnValue = usdValue ? (parseFloat(usdValue) * 70).toString() : '';
-                          setFormData({ ...formData, fiyat_usd: usdValue, fiyat: afnValue });
-                        }
-                      }}
-                      className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm"
-                      placeholder="قیمت"
-                      required
-                    />
+                  {/* Fiyat - Pro tasarım */}
+                  <div className="flex items-center bg-white/90 rounded-xl overflow-hidden">
+                    <div className="flex items-center gap-2 px-4 py-3 flex-1">
+                      <FolderOpen className="w-5 h-5 text-pink-500" />
+                      <input
+                        type="number"
+                        value={formData.para_birimi === 'AFN' ? formData.fiyat : formData.fiyat_usd}
+                        onChange={(e) => {
+                          if (formData.para_birimi === 'AFN') {
+                            setFormData({ ...formData, fiyat: e.target.value, fiyat_usd: '' });
+                          } else {
+                            const usdValue = e.target.value;
+                            const afnValue = usdValue ? (parseFloat(usdValue) * 70).toString() : '';
+                            setFormData({ ...formData, fiyat_usd: usdValue, fiyat: afnValue });
+                          }
+                        }}
+                        className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        placeholder="قیمت"
+                        required
+                      />
+                    </div>
+                    {/* Spinner Buttons */}
+                    <div className="flex flex-col border-r border-gray-200">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const current = parseFloat(formData.para_birimi === 'AFN' ? formData.fiyat : formData.fiyat_usd) || 0;
+                          if (formData.para_birimi === 'AFN') {
+                            setFormData({ ...formData, fiyat: (current + 100).toString() });
+                          } else {
+                            setFormData({ ...formData, fiyat_usd: (current + 10).toString(), fiyat: ((current + 10) * 70).toString() });
+                          }
+                        }}
+                        className="px-2 py-1 hover:bg-gray-100 text-gray-500 text-xs"
+                      >
+                        ▲
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const current = parseFloat(formData.para_birimi === 'AFN' ? formData.fiyat : formData.fiyat_usd) || 0;
+                          if (current > 0) {
+                            if (formData.para_birimi === 'AFN') {
+                              setFormData({ ...formData, fiyat: Math.max(0, current - 100).toString() });
+                            } else {
+                              const newVal = Math.max(0, current - 10);
+                              setFormData({ ...formData, fiyat_usd: newVal.toString(), fiyat: (newVal * 70).toString() });
+                            }
+                          }
+                        }}
+                        className="px-2 py-1 hover:bg-gray-100 text-gray-500 text-xs"
+                      >
+                        ▼
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Durum */}
+                  {/* Durum - Seçilebilir */}
                   <div className="flex items-center gap-2 px-4 py-3 bg-white/90 rounded-xl">
                     <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                    <div className="flex-1">
-                      <p className="text-gray-700 text-sm font-medium leading-none">وضعیت</p>
-                      <p className="text-gray-400 text-[10px]">(نو/کارکرده)</p>
-                    </div>
+                    <select
+                      value={formData.durum}
+                      onChange={(e) => setFormData({ ...formData, durum: e.target.value })}
+                      className="flex-1 bg-transparent text-gray-700 text-sm focus:outline-none cursor-pointer appearance-none"
+                    >
+                      <option value="yeni">نو (جدید)</option>
+                      <option value="az_kullanilmis">کم کارکرده</option>
+                      <option value="kullanilmis">کارکرده</option>
+                      <option value="hasarli">معیوب</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
                   </div>
                 </div>
 
