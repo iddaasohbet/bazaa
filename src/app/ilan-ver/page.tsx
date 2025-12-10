@@ -83,9 +83,9 @@ export default function IlanVer() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  // Auth check ve mağaza bilgilerini al
+  // Auth check
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = () => {
       try {
         const user = localStorage.getItem('user');
         if (!user) {
@@ -101,22 +101,22 @@ export default function IlanVer() {
         // Admin kontrolü
         if (userData.rol === 'admin') {
           setIsAdmin(true);
-          setStoreLevel('elite'); // Admin'e elite yetkileri ver
-        }
-        
-        // Mağaza bilgilerini çek
-        try {
-          const storeRes = await fetch(`/api/magazalar/kullanici/${userData.id}`);
-          const storeData = await storeRes.json();
-          if (storeData.success && storeData.data) {
-            setStoreLevel(storeData.data.store_level || '');
-          }
-        } catch (e) {
-          console.log('Mağaza bilgisi alınamadı');
+          setStoreLevel('elite');
         }
         
         setIsAuthenticated(true);
         setChecking(false);
+        
+        // Mağaza bilgilerini arka planda çek
+        fetch(`/api/magazalar/kullanici/${userData.id}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.data?.store_level) {
+              setStoreLevel(data.data.store_level);
+            }
+          })
+          .catch(() => console.log('Mağaza bilgisi alınamadı'));
+          
       } catch (error) {
         router.replace('/giris?redirect=/ilan-ver');
       }
