@@ -34,6 +34,13 @@ export default function IlanVer() {
   const [districts, setDistricts] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   
+  // Dropdown states
+  const [allCatOpen, setAllCatOpen] = useState(false);
+  const [subCatOpen, setSubCatOpen] = useState(false);
+  const [cityOpen, setCityOpen] = useState(false);
+  const [districtOpen, setDistrictOpen] = useState(false);
+  const [durumOpen, setDurumOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     baslik: "",
     aciklama: "",
@@ -51,6 +58,19 @@ export default function IlanVer() {
   });
 
   const cities = getCitiesList();
+
+  // Dışarı tıklanınca dropdown'ları kapat
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setAllCatOpen(false);
+      setSubCatOpen(false);
+      setCityOpen(false);
+      setDistrictOpen(false);
+      setDurumOpen(false);
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Auth check
   useEffect(() => {
@@ -393,46 +413,82 @@ export default function IlanVer() {
                   </div>
                 </div>
 
-                {/* Tüm Kategoriler Dropdown */}
+                {/* Tüm Kategoriler Dropdown - Glassmorphism */}
                 {kategoriler.length > 6 && (
                   <div className="relative">
-                    <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setAllCatOpen(!allCatOpen); setSubCatOpen(false); setCityOpen(false); setDistrictOpen(false); setDurumOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl hover:bg-white/15 transition-all"
+                    >
                       <Tag className="w-4 h-4 text-blue-400" />
-                      <select
-                        value={formData.kategori_id}
-                        onChange={(e) => handleKategoriChange(e.target.value)}
-                        className="flex-1 bg-transparent text-white/80 text-sm focus:outline-none cursor-pointer"
-                      >
-                        <option value="" className="text-gray-900">همه دسته بندی ها</option>
+                      <span className="flex-1 text-right text-white/80 text-sm">
+                        {formData.kategori_id 
+                          ? kategoriler.find(k => k.id.toString() === formData.kategori_id)?.ad_dari || kategoriler.find(k => k.id.toString() === formData.kategori_id)?.ad
+                          : 'همه دسته بندی ها'}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${allCatOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {allCatOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div 
+                          className="px-4 py-3 hover:bg-white/20 cursor-pointer text-white/90 text-sm transition-colors rounded-t-2xl"
+                          onClick={() => { handleKategoriChange(''); setAllCatOpen(false); }}
+                        >
+                          همه دسته بندی ها
+                        </div>
                         {kategoriler.map(kat => (
-                          <option key={kat.id} value={kat.id} className="text-gray-900">{kat.ad_dari || kat.ad}</option>
+                          <div 
+                            key={kat.id}
+                            className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.kategori_id === kat.id.toString() ? 'bg-white/20 text-white' : 'text-white/80'}`}
+                            onClick={() => { handleKategoriChange(kat.id.toString()); setAllCatOpen(false); }}
+                          >
+                            {kat.ad_dari || kat.ad}
+                          </div>
                         ))}
-                      </select>
-                      <ChevronDown className="w-4 h-4 text-white/50" />
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* Alt Kategoriler Dropdown - Sadece alt kategori varsa göster */}
+                {/* Alt Kategoriler Dropdown - Glassmorphism */}
                 {altKategoriler.length > 0 && (
                   <div className="relative">
-                    <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setSubCatOpen(!subCatOpen); setAllCatOpen(false); setCityOpen(false); setDistrictOpen(false); setDurumOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl hover:bg-white/15 transition-all"
+                    >
                       <div className="flex gap-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
                         <div className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
                       </div>
-                      <select
-                        value={formData.alt_kategori_id}
-                        onChange={(e) => setFormData({ ...formData, alt_kategori_id: e.target.value })}
-                        className="flex-1 bg-transparent text-white/80 text-sm focus:outline-none cursor-pointer"
-                      >
-                        <option value="" className="text-gray-900">زیردسته بندی انتخاب کنید</option>
+                      <span className="flex-1 text-right text-white/80 text-sm">
+                        {formData.alt_kategori_id 
+                          ? altKategoriler.find(a => a.id.toString() === formData.alt_kategori_id)?.ad_dari || altKategoriler.find(a => a.id.toString() === formData.alt_kategori_id)?.ad
+                          : 'زیردسته بندی انتخاب کنید'}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${subCatOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {subCatOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div 
+                          className="px-4 py-3 hover:bg-white/20 cursor-pointer text-white/90 text-sm transition-colors rounded-t-2xl"
+                          onClick={() => { setFormData({ ...formData, alt_kategori_id: '' }); setSubCatOpen(false); }}
+                        >
+                          زیردسته بندی انتخاب کنید
+                        </div>
                         {altKategoriler.map(alt => (
-                          <option key={alt.id} value={alt.id} className="text-gray-900">{alt.ad_dari || alt.ad}</option>
+                          <div 
+                            key={alt.id}
+                            className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.alt_kategori_id === alt.id.toString() ? 'bg-white/20 text-white' : 'text-white/80'}`}
+                            onClick={() => { setFormData({ ...formData, alt_kategori_id: alt.id.toString() }); setSubCatOpen(false); }}
+                          >
+                            {alt.ad_dari || alt.ad}
+                          </div>
                         ))}
-                      </select>
-                      <ChevronDown className="w-4 h-4 text-white/50" />
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -440,36 +496,61 @@ export default function IlanVer() {
                 <div>
                   <h3 className="text-white font-semibold text-sm mb-4">موقعیت</h3>
                   <div className="space-y-2.5">
-                    {/* Şehir */}
+                    {/* Şehir - Glassmorphism */}
                     <div className="relative">
-                      <select
-                        value={formData.il_id}
-                        onChange={(e) => handleCityChange(e.target.value)}
-                        className="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl text-white/80 text-sm focus:outline-none appearance-none cursor-pointer"
-                        required
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setCityOpen(!cityOpen); setAllCatOpen(false); setSubCatOpen(false); setDistrictOpen(false); setDurumOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl hover:bg-white/15 transition-all"
                       >
-                        <option value="" className="text-gray-900">انتخاب شهر</option>
-                        {cities.map(city => (
-                          <option key={city.id} value={city.id} className="text-gray-900">{city.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+                        <span className="flex-1 text-right text-white/80 text-sm">
+                          {formData.il_id 
+                            ? cities.find(c => c.id === formData.il_id)?.name
+                            : 'انتخاب شهر'}
+                        </span>
+                        <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${cityOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {cityOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                          {cities.map(city => (
+                            <div 
+                              key={city.id}
+                              className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.il_id === city.id ? 'bg-white/20 text-white' : 'text-white/80'}`}
+                              onClick={() => { handleCityChange(city.id); setCityOpen(false); }}
+                            >
+                              {city.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    {/* İlçe */}
+                    {/* İlçe - Glassmorphism */}
                     <div className="relative">
-                      <select
-                        value={formData.ilce}
-                        onChange={(e) => setFormData({ ...formData, ilce: e.target.value })}
-                        className="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl text-white/80 text-sm focus:outline-none appearance-none cursor-pointer disabled:opacity-40"
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); if(formData.il_id) { setDistrictOpen(!districtOpen); setAllCatOpen(false); setSubCatOpen(false); setCityOpen(false); setDurumOpen(false); } }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl transition-all ${formData.il_id ? 'hover:bg-white/15 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
                         disabled={!formData.il_id}
                       >
-                        <option value="" className="text-gray-900">انتخاب ناحیه</option>
-                        {districts.map((district, index) => (
-                          <option key={`${district}-${index}`} value={district} className="text-gray-900">{district}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+                        <span className="flex-1 text-right text-white/80 text-sm">
+                          {formData.ilce || 'انتخاب ناحیه'}
+                        </span>
+                        <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${districtOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {districtOpen && districts.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                          {districts.map((district, index) => (
+                            <div 
+                              key={`${district}-${index}`}
+                              className={`px-4 py-3 hover:bg-white/20 cursor-pointer text-sm transition-colors ${formData.ilce === district ? 'bg-white/20 text-white' : 'text-white/80'}`}
+                              onClick={() => { setFormData({ ...formData, ilce: district }); setDistrictOpen(false); }}
+                            >
+                              {district}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -561,20 +642,40 @@ export default function IlanVer() {
                     </div>
                   </div>
 
-                  {/* Durum - Seçilebilir */}
-                  <div className="flex items-center gap-2 px-4 py-3 bg-white/90 rounded-xl">
-                    <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                    <select
-                      value={formData.durum}
-                      onChange={(e) => setFormData({ ...formData, durum: e.target.value })}
-                      className="flex-1 bg-transparent text-gray-700 text-sm focus:outline-none cursor-pointer appearance-none"
+                  {/* Durum - Glassmorphism */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setDurumOpen(!durumOpen); setAllCatOpen(false); setSubCatOpen(false); setCityOpen(false); setDistrictOpen(false); }}
+                      className="w-full flex items-center gap-2 px-4 py-3 bg-white/90 rounded-xl hover:bg-white transition-all"
                     >
-                      <option value="yeni">نو (جدید)</option>
-                      <option value="az_kullanilmis">کم کارکرده</option>
-                      <option value="kullanilmis">کارکرده</option>
-                      <option value="hasarli">معیوب</option>
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                      <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                      <span className="flex-1 text-right text-gray-700 text-sm">
+                        {formData.durum === 'yeni' && 'نو (جدید)'}
+                        {formData.durum === 'az_kullanilmis' && 'کم کارکرده'}
+                        {formData.durum === 'kullanilmis' && 'کارکرده'}
+                        {formData.durum === 'hasarli' && 'معیوب'}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${durumOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {durumOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white/80 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl z-50 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                        {[
+                          { value: 'yeni', label: 'نو (جدید)' },
+                          { value: 'az_kullanilmis', label: 'کم کارکرده' },
+                          { value: 'kullanilmis', label: 'کارکرده' },
+                          { value: 'hasarli', label: 'معیوب' },
+                        ].map(item => (
+                          <div 
+                            key={item.value}
+                            className={`px-4 py-3 hover:bg-white/50 cursor-pointer text-sm transition-colors ${formData.durum === item.value ? 'bg-white/50 text-gray-900 font-medium' : 'text-gray-700'}`}
+                            onClick={() => { setFormData({ ...formData, durum: item.value }); setDurumOpen(false); }}
+                          >
+                            {item.label}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
