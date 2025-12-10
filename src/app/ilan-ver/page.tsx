@@ -362,56 +362,86 @@ export default function IlanVer() {
                   <p className="text-white/60 text-sm mt-2">Yeni ilan oluşturun</p>
                 </div>
 
-                {/* Category */}
+                {/* Category - İlk 6 kategori butonları */}
                 <div>
                   <h3 className="text-white font-semibold text-sm mb-4">Category</h3>
                   <div className="grid grid-cols-3 gap-2.5">
-                    {fixedCategories.map((cat) => {
-                      const IconComp = cat.icon;
-                      const isSelected = formData.kategori_id === cat.id.toString();
-                      const realKategori = kategoriler.find((k, i) => i === cat.id - 1);
+                    {kategoriler.slice(0, 6).map((kat, index) => {
+                      const gradients = [
+                        'from-green-400 via-emerald-400 to-cyan-400',
+                        'from-cyan-400 to-blue-500',
+                        'from-orange-400 via-red-400 to-pink-400',
+                        'from-purple-500 to-indigo-600',
+                        'from-amber-400 to-orange-500',
+                        'from-yellow-400 to-amber-500',
+                      ];
+                      const icons = [Shirt, Smartphone, HomeIcon, Car, BookOpen, Wrench];
+                      const IconComp = icons[index] || Tag;
+                      const isSelected = formData.kategori_id === kat.id.toString();
                       
                       return (
                         <button
-                          key={cat.id}
+                          key={kat.id}
                           type="button"
-                          onClick={() => realKategori && handleKategoriChange(realKategori.id.toString())}
+                          onClick={() => handleKategoriChange(kat.id.toString())}
                           className={`p-3 rounded-2xl backdrop-blur-md border transition-all flex flex-col items-center gap-2 ${
                             isSelected
                               ? 'bg-white/20 border-white/40'
                               : 'bg-white/5 border-white/10 hover:bg-white/10'
                           }`}
                         >
-                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center shadow-lg`}>
+                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradients[index] || 'from-gray-400 to-gray-500'} flex items-center justify-center shadow-lg`}>
                             <IconComp className="w-6 h-6 text-white" />
                           </div>
-                          <span className="text-white text-[11px] font-medium">{cat.name}</span>
+                          <span className="text-white text-[11px] font-medium">{kat.ad_dari || kat.ad}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Subcategories Dropdown */}
-                <div className="relative">
-                  <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl">
-                    <div className="flex gap-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
-                      <div className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
+                {/* Tüm Kategoriler Dropdown */}
+                {kategoriler.length > 6 && (
+                  <div className="relative">
+                    <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl">
+                      <Tag className="w-4 h-4 text-blue-400" />
+                      <select
+                        value={formData.kategori_id}
+                        onChange={(e) => handleKategoriChange(e.target.value)}
+                        className="flex-1 bg-transparent text-white/80 text-sm focus:outline-none cursor-pointer"
+                      >
+                        <option value="" className="text-gray-900">همه دسته بندی ها</option>
+                        {kategoriler.map(kat => (
+                          <option key={kat.id} value={kat.id} className="text-gray-900">{kat.ad_dari || kat.ad}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-white/50" />
                     </div>
-                    <select
-                      value={formData.alt_kategori_id}
-                      onChange={(e) => setFormData({ ...formData, alt_kategori_id: e.target.value })}
-                      className="flex-1 bg-transparent text-white/80 text-sm focus:outline-none cursor-pointer"
-                    >
-                      <option value="" className="text-gray-900">Subcategories smı mini icons</option>
-                      {altKategoriler.map(alt => (
-                        <option key={alt.id} value={alt.id} className="text-gray-900">{alt.ad_dari || alt.ad}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-white/50" />
                   </div>
-                </div>
+                )}
+
+                {/* Alt Kategoriler Dropdown - Sadece alt kategori varsa göster */}
+                {altKategoriler.length > 0 && (
+                  <div className="relative">
+                    <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl">
+                      <div className="flex gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
+                      </div>
+                      <select
+                        value={formData.alt_kategori_id}
+                        onChange={(e) => setFormData({ ...formData, alt_kategori_id: e.target.value })}
+                        className="flex-1 bg-transparent text-white/80 text-sm focus:outline-none cursor-pointer"
+                      >
+                        <option value="" className="text-gray-900">زیردسته بندی انتخاب کنید</option>
+                        {altKategoriler.map(alt => (
+                          <option key={alt.id} value={alt.id} className="text-gray-900">{alt.ad_dari || alt.ad}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-white/50" />
+                    </div>
+                  </div>
+                )}
 
                 {/* Location */}
                 <div>
