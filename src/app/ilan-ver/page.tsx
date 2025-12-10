@@ -571,12 +571,12 @@ export default function IlanVer() {
               </div>
 
               {/* RIGHT COLUMN - Photos */}
-              <div className="lg:col-span-4 space-y-4">
+              <div className="lg:col-span-4 flex flex-col">
                 <h3 className="text-white font-semibold text-base mb-3">Photos</h3>
                 
-                {/* Upload Area */}
+                {/* Upload Area - Tüm alanı kapla */}
                 <div
-                  className={`relative border-2 border-dashed rounded-2xl p-8 transition-all min-h-[380px] flex flex-col items-center justify-center ${
+                  className={`relative border-2 border-dashed rounded-2xl p-8 transition-all flex-1 min-h-[450px] flex flex-col items-center justify-center ${
                     isDragging
                       ? 'border-white/60 bg-white/10'
                       : 'border-white/30 bg-transparent hover:border-white/50'
@@ -609,7 +609,7 @@ export default function IlanVer() {
 
                 {/* Thumbnails */}
                 {images.length > 0 && (
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-5 gap-2 mt-4">
                     {images.map((image, index) => (
                       <div key={index} className="relative group aspect-square">
                         <img
@@ -630,7 +630,7 @@ export default function IlanVer() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 justify-end pt-4">
+                <div className="flex gap-3 justify-end mt-4">
                   <button
                     type="submit"
                     disabled={loading}
