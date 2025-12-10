@@ -34,6 +34,8 @@ export default function IlanVer() {
   const [checking, setChecking] = useState(true);
   const [districts, setDistricts] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [storeLevel, setStoreLevel] = useState<string>(''); // normal, pro, elite
+  const [isAdmin, setIsAdmin] = useState(false);
   
   // Dropdown states
   const [allCatOpen, setAllCatOpen] = useState(false);
@@ -49,6 +51,8 @@ export default function IlanVer() {
     fiyat_tipi: "negotiable",
     para_birimi: "AFN",
     fiyat_usd: "",
+    indirimli_fiyat: "", // Pro/Elite için indirimli fiyat
+    indirimli_fiyat_usd: "",
     kategori_id: "",
     alt_kategori_id: "",
     il_id: "",
@@ -59,6 +63,12 @@ export default function IlanVer() {
   });
 
   const cities = getCitiesList();
+  
+  // Resim limiti: Pro/Elite/Admin = 10, diğerleri = 5
+  const imageLimit = (storeLevel === 'pro' || storeLevel === 'elite' || isAdmin) ? 10 : 5;
+  
+  // İndirimli fiyat özelliği: Sadece Pro/Elite/Admin
+  const canAddDiscount = storeLevel === 'pro' || storeLevel === 'elite' || isAdmin;
 
   // Dışarı tıklanınca dropdown'ları kapat
   useEffect(() => {
@@ -73,9 +83,9 @@ export default function IlanVer() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
-  // Auth check
+  // Auth check ve mağaza bilgilerini al
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       try {
         const user = localStorage.getItem('user');
         if (!user) {
@@ -87,6 +97,24 @@ export default function IlanVer() {
           router.replace('/giris?redirect=/ilan-ver');
           return;
         }
+        
+        // Admin kontrolü
+        if (userData.rol === 'admin') {
+          setIsAdmin(true);
+          setStoreLevel('elite'); // Admin'e elite yetkileri ver
+        }
+        
+        // Mağaza bilgilerini çek
+        try {
+          const storeRes = await fetch(`/api/magazalar/kullanici/${userData.id}`);
+          const storeData = await storeRes.json();
+          if (storeData.success && storeData.data) {
+            setStoreLevel(storeData.data.store_level || '');
+          }
+        } catch (e) {
+          console.log('Mağaza bilgisi alınamadı');
+        }
+        
         setIsAuthenticated(true);
         setChecking(false);
       } catch (error) {
@@ -179,10 +207,10 @@ export default function IlanVer() {
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      const remainingSlots = 10 - images.length;
+      const remainingSlots = imageLimit - images.length;
       
       if (remainingSlots === 0) {
-        alert('حداکثر ۱۰ عکس می‌توانید آپلود کنید');
+        alert(`حداکثر ${imageLimit} عکس می‌توانید آپلود کنید`);
         return;
       }
 
@@ -210,7 +238,7 @@ export default function IlanVer() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (images.length < 10) setIsDragging(true);
+    if (images.length < imageLimit) setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -224,7 +252,7 @@ export default function IlanVer() {
     e.stopPropagation();
     setIsDragging(false);
 
-    if (images.length >= 10) return;
+    if (images.length >= imageLimit) return;
 
     const files = Array.from(e.dataTransfer.files).filter(file => 
       file.type.startsWith('image/')
@@ -232,7 +260,7 @@ export default function IlanVer() {
 
     if (files.length === 0) return;
 
-    const remainingSlots = 10 - images.length;
+    const remainingSlots = imageLimit - images.length;
     const compressedFiles: File[] = [];
     
     for (const file of files.slice(0, remainingSlots)) {
@@ -301,6 +329,8 @@ export default function IlanVer() {
         fiyat_tipi: formData.fiyat_tipi,
         para_birimi: formData.para_birimi,
         fiyat_usd: formData.fiyat_usd ? parseFloat(formData.fiyat_usd) : null,
+        indirimli_fiyat: formData.indirimli_fiyat ? parseFloat(formData.indirimli_fiyat) : null,
+        indirimli_fiyat_usd: formData.indirimli_fiyat_usd ? parseFloat(formData.indirimli_fiyat_usd) : null,
         kategori_id: parseInt(formData.kategori_id),
         alt_kategori_id: formData.alt_kategori_id ? parseInt(formData.alt_kategori_id) : null,
         il_id: formData.il_id,
@@ -719,6 +749,40 @@ export default function IlanVer() {
                     />
                   </div>
                 </div>
+
+                {/* İndirimli Fiyat - Sadece Pro/Elite/Admin için */}
+                {canAddDiscount && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-2xl border border-amber-400/30">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">%</span>
+                      </div>
+                      <span className="text-white font-semibold text-sm">قیمت با تخفیف (اختیاری)</span>
+                      <span className="text-amber-300 text-xs">(ویژه Pro/Premium)</span>
+                    </div>
+                    <div className="flex items-center bg-white/90 rounded-xl overflow-hidden">
+                      <div className="flex items-center gap-2 px-4 py-3 flex-1">
+                        <span className="text-green-600 font-bold text-sm">💰</span>
+                        <input
+                          type="number"
+                          value={formData.para_birimi === 'AFN' ? formData.indirimli_fiyat : formData.indirimli_fiyat_usd}
+                          onChange={(e) => {
+                            if (formData.para_birimi === 'AFN') {
+                              setFormData({ ...formData, indirimli_fiyat: e.target.value, indirimli_fiyat_usd: '' });
+                            } else {
+                              const usdValue = e.target.value;
+                              const afnValue = usdValue ? (parseFloat(usdValue) * 70).toString() : '';
+                              setFormData({ ...formData, indirimli_fiyat_usd: usdValue, indirimli_fiyat: afnValue });
+                            }
+                          }}
+                          className="flex-1 bg-transparent text-gray-700 placeholder:text-gray-400 focus:outline-none text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          placeholder="قیمت تخفیف خورده"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-amber-200/70 text-xs mt-2">اگر تخفیف دارید، قیمت جدید را وارد کنید. قیمت قبلی خط خورده نمایش داده می‌شود.</p>
+                  </div>
+                )}
               </div>
 
               {/* RIGHT COLUMN - Photos */}
@@ -743,17 +807,21 @@ export default function IlanVer() {
                     accept="image/*"
                     onChange={handleImageChange}
                     className="hidden"
-                    disabled={images.length >= 10}
+                    disabled={images.length >= imageLimit}
                   />
                   <label 
                     htmlFor="photos" 
-                    className={`cursor-pointer flex flex-col items-center ${images.length >= 10 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`cursor-pointer flex flex-col items-center ${images.length >= imageLimit ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="w-14 h-14 rounded-full border-2 border-white/30 flex items-center justify-center mb-4">
                       <Upload className="w-7 h-7 text-white/60" />
                     </div>
                     <p className="text-white/70 text-sm text-center">
                       عکس آپلود کنید یا اینجا رها کنید
+                    </p>
+                    <p className="text-white/50 text-xs mt-2">
+                      {images.length}/{imageLimit} عکس
+                      {imageLimit === 5 && <span className="text-amber-400 mr-2">(Pro/Premium: ۱۰ عکس)</span>}
                     </p>
                   </label>
                 </div>
