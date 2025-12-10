@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense, useRef } from "react";
+import { useState, Suspense, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
@@ -17,6 +17,23 @@ function GirisContent() {
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const [headerLogo, setHeaderLogo] = useState<string>("");
+
+  // Logo yükle
+  useEffect(() => {
+    const loadLogo = async () => {
+      try {
+        const response = await fetch('/api/admin/logo');
+        const data = await response.json();
+        if (data.success && data.data.header_logo) {
+          setHeaderLogo(data.data.header_logo);
+        }
+      } catch (error) {
+        console.error('Logo yüklenemedi:', error);
+      }
+    };
+    loadLogo();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,54 +129,64 @@ function GirisContent() {
       <div className="relative w-full max-w-md">
         <div className="bg-white/20 backdrop-blur-2xl rounded-3xl border-2 border-white/30 p-8 md:p-10 shadow-2xl">
           
+          {/* Logo */}
+          <div className="flex justify-center mb-4">
+            {headerLogo ? (
+              <img src={headerLogo} alt="Logo" className="h-16 w-auto object-contain" />
+            ) : (
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                <span className="text-2xl font-bold text-white">BV</span>
+              </div>
+            )}
+          </div>
+
+          {/* Site Name */}
+          <h2 className="text-2xl font-bold text-white text-center mb-2">
+            بازار وطن
+          </h2>
+
           {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
-            خوش آمدید
+          <h1 className="text-lg text-white/90 text-center mb-8 leading-relaxed">
+            خوش آمدید به بزرگترین پلتفرم خرید و فروش آنلاین در افغانستان
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Input */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pr-12 pl-4 py-3.5 bg-white/90 backdrop-blur-sm border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:bg-white transition-all placeholder:text-gray-400"
-                  placeholder="Email Address"
-                  required
-                />
-              </div>
+            {/* Email Input - %50 şeffaf */}
+            <div className="relative">
+              <Mail className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 z-10" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pr-12 pl-4 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
+                placeholder="ایمیل یا شماره تلفن"
+                required
+              />
             </div>
 
-            {/* Password Input */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 z-10" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pr-12 pl-12 py-3.5 bg-white/90 backdrop-blur-sm border-2 border-white/50 rounded-2xl focus:outline-none focus:border-white focus:bg-white transition-all placeholder:text-gray-400"
-                  placeholder="Password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
+            {/* Password Input - %50 şeffaf */}
+            <div className="relative">
+              <Lock className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 z-10" />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pr-12 pl-12 py-3.5 bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl focus:outline-none focus:border-white focus:bg-white/70 transition-all placeholder:text-gray-500 text-gray-800"
+                placeholder="رمز عبور"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors z-10"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
 
             {/* Forgot Password */}
             <div className="text-right">
-              <Link href="/sifremi-unuttum" className="text-sm text-gray-800 hover:text-white transition-colors font-medium">
+              <Link href="/sifremi-unuttum" className="text-sm text-white/90 hover:text-white transition-colors font-medium">
                 رمز عبور را فراموش کرده اید؟
               </Link>
             </div>
