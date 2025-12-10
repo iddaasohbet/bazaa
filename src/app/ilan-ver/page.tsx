@@ -666,9 +666,9 @@ export default function IlanVer() {
                       <div className="w-3 h-3 rounded-full bg-purple-500"></div>
                       <span className="flex-1 text-right text-gray-700 text-sm">
                         {formData.durum === 'yeni' && 'نو (جدید)'}
-                        {formData.durum === 'az_kullanilmis' && 'کم کارکرده'}
-                        {formData.durum === 'kullanilmis' && 'کارکرده'}
-                        {formData.durum === 'hasarli' && 'معیوب'}
+                        {formData.durum === 'az_kullanilmis' && 'کم استفاده شده'}
+                        {formData.durum === 'kullanilmis' && 'استفاده شده'}
+                        {formData.durum === 'hasarli' && 'فرسوده'}
                       </span>
                       <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${durumOpen ? 'rotate-180' : ''}`} />
                     </button>
@@ -676,9 +676,9 @@ export default function IlanVer() {
                       <div className="absolute top-full left-0 right-0 mt-2 bg-white/80 backdrop-blur-xl border border-white/50 rounded-2xl shadow-2xl z-50 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         {[
                           { value: 'yeni', label: 'نو (جدید)' },
-                          { value: 'az_kullanilmis', label: 'کم کارکرده' },
-                          { value: 'kullanilmis', label: 'کارکرده' },
-                          { value: 'hasarli', label: 'معیوب' },
+                          { value: 'az_kullanilmis', label: 'کم استفاده شده' },
+                          { value: 'kullanilmis', label: 'استفاده شده' },
+                          { value: 'hasarli', label: 'فرسوده' },
                         ].map(item => (
                           <div 
                             key={item.value}
