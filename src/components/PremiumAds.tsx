@@ -263,7 +263,7 @@ export default function PremiumAds() {
             
             <Link 
               href="/premium-ilanlar"
-              className="hidden sm:flex items-center gap-1.5 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition-colors text-xs font-medium"
+              className="hidden sm:flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-xs font-medium"
             >
               <span>همه</span>
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -294,7 +294,7 @@ export default function PremiumAds() {
             
             <Link 
               href="/pro-ilanlar"
-              className="hidden sm:flex items-center gap-1.5 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition-colors text-xs font-medium"
+              className="hidden sm:flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-xs font-medium"
             >
               <span>همه</span>
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -315,7 +315,7 @@ export default function PremiumAds() {
         {eliteIlanlar.length > 0 && (
           <Link 
             href="/premium-ilanlar"
-            className="flex items-center justify-center gap-2 w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-xl font-medium text-sm transition-colors"
+            className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium text-sm transition-colors"
           >
             <Crown className="w-4 h-4" />
             <span>همه آگهی‌های پریمیوم</span>
@@ -325,7 +325,7 @@ export default function PremiumAds() {
         {proIlanlar.length > 0 && (
           <Link 
             href="/pro-ilanlar"
-            className="flex items-center justify-center gap-2 w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-xl font-medium text-sm transition-colors"
+            className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium text-sm transition-colors"
           >
             <Zap className="w-4 h-4" />
             <span>همه آگهی‌های پرو</span>

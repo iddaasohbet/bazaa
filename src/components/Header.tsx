@@ -293,15 +293,15 @@ export default function Header() {
                   <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {langDropdownOpen && (
-                  <div className="absolute top-11 right-0 bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-[140px] z-50">
-                    <button onClick={() => { setCurrentLang('dari'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'dari' ? 'bg-gray-50 font-medium' : ''}`}>
-                      <span>🇦🇫</span><span>دری</span>
+                  <div className="absolute top-11 right-0 bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/50 py-2 min-w-[120px] z-50">
+                    <button onClick={() => { setCurrentLang('dari'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'dari' ? 'bg-white/50' : ''}`}>
+                      دری
                     </button>
-                    <button onClick={() => { setCurrentLang('pashto'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'pashto' ? 'bg-gray-50 font-medium' : ''}`}>
-                      <span>🇦🇫</span><span>پښتو</span>
+                    <button onClick={() => { setCurrentLang('pashto'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'pashto' ? 'bg-white/50' : ''}`}>
+                      پښتو
                     </button>
-                    <button onClick={() => { setCurrentLang('en'); setLangDropdownOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 ${currentLang === 'en' ? 'bg-gray-50 font-medium' : ''}`}>
-                      <span>🇬🇧</span><span>English</span>
+                    <button onClick={() => { setCurrentLang('en'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'en' ? 'bg-white/50' : ''}`}>
+                      English
                     </button>
                   </div>
                 )}
@@ -466,7 +466,7 @@ export default function Header() {
               ) : (
                 <Link
                   href="/magaza-ac"
-                  className="hidden lg:flex items-center gap-2 h-10 px-4 rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                  className="hidden lg:flex items-center gap-2 h-10 px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md shadow-blue-500/20"
                 >
                   <Store className="h-5 w-5" />
                   <span className="text-sm font-medium">افتتاح مغازه</span>
@@ -582,11 +582,11 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/magaza-ac"
-                    className="flex items-center gap-3 w-full bg-gray-100 hover:bg-gray-200 text-gray-800 h-12 px-4 rounded-xl font-medium text-sm transition-all"
+                    className="flex items-center gap-3 w-full bg-blue-600 hover:bg-blue-700 text-white h-12 px-4 rounded-xl font-medium text-sm transition-all shadow-md shadow-blue-500/20"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center">
-                      <Store className="h-5 w-5 text-gray-600" />
+                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                      <Store className="h-5 w-5 text-white" />
                     </div>
                     <span>افتتاح مغازه</span>
                   </Link>

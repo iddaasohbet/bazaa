@@ -326,8 +326,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+            <h4 className="text-sm font-semibold text-gray-900 mb-4">
               لینک های سریع
             </h4>
             <ul className="space-y-1">
@@ -346,8 +345,7 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+            <h4 className="text-sm font-semibold text-gray-900 mb-4">
               دسته بندی‌ها
             </h4>
             <ul className="space-y-1">
@@ -366,8 +364,7 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+            <h4 className="text-sm font-semibold text-gray-900 mb-4">
               تماس با ما
             </h4>
             <ul className="space-y-2">

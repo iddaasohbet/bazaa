@@ -258,25 +258,25 @@ export default function Sidebar() {
         <div className={`rounded-2xl border p-5 text-center group hover:shadow-lg transition-all duration-300 ${
           hasMagaza 
             ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:border-amber-300' 
-            : 'bg-white border-gray-100 hover:border-gray-200'
+            : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-300'
         }`}>
           <Store className={`w-10 h-10 mx-auto mb-2 stroke-[1.5] ${
-            hasMagaza ? 'text-amber-600' : 'text-gray-800'
+            hasMagaza ? 'text-amber-600' : 'text-blue-600'
           }`} />
           <h3 className={`font-bold text-sm mb-1 ${
-            hasMagaza ? 'text-amber-800' : 'text-gray-900'
+            hasMagaza ? 'text-amber-800' : 'text-blue-800'
           }`}>
             {hasMagaza ? 'مغازه من' : 'مغازه باز کنید!'}
           </h3>
           <p className={`text-[11px] mb-3 ${
-            hasMagaza ? 'text-amber-600' : 'text-gray-400'
+            hasMagaza ? 'text-amber-600' : 'text-blue-600'
           }`}>
             {hasMagaza ? 'مدیریت مغازه و آگهی‌ها' : 'رایگان شروع کنید و بفروشید'}
           </p>
           <div className={`font-semibold text-[11px] px-4 py-2 rounded-lg inline-flex items-center gap-1.5 transition-colors ${
             hasMagaza 
               ? 'bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600 text-white group-hover:from-amber-700 group-hover:to-orange-700' 
-              : 'bg-gray-900 text-white group-hover:bg-gray-800'
+              : 'bg-blue-600 text-white group-hover:bg-blue-700'
           }`}>
             {hasMagaza ? 'مغازه من' : 'شروع کنید'}
             <ChevronRight className="w-3.5 h-3.5 rotate-180" />

@@ -306,7 +306,7 @@ export default function AdList() {
           <button
             onClick={() => fetchIlanlar(true)}
             disabled={loadingMore}
-            className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-xl font-medium text-sm transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-medium text-sm transition-colors"
           >
             {loadingMore ? (
               <span className="flex items-center gap-2">
