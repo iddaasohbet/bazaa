@@ -30,6 +30,7 @@ export default function FeaturedAds() {
       loop: true,
       align: "start",
       slidesToScroll: 1,
+      direction: "rtl",
     },
     [Autoplay({ delay: 5000, stopOnInteraction: false })]
   );
@@ -45,7 +46,9 @@ export default function FeaturedAds() {
       });
       const data = await response.json();
       if (data.success) {
-        setSliders(data.data);
+        // Resmi olan slider'ları filtrele
+        const validSliders = data.data.filter((s: Slider) => s.resim && s.resim.trim() !== '');
+        setSliders(validSliders);
       }
     } catch (error) {
       console.error('خطا در بارگذاری اسلایدر:', error);

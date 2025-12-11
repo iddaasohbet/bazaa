@@ -78,7 +78,7 @@ export default function PremiumAds() {
   const fetchPremiumIlanlar = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/ilanlar/premium?limit=16');
+      const response = await fetch('/api/ilanlar/premium?limit=20');
       const data = await response.json();
 
       if (data.success) {
@@ -303,7 +303,7 @@ export default function PremiumAds() {
 
           {/* Pro Products Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-2">
-            {proIlanlar.slice(0, 8).map((ilan, index) => (
+            {proIlanlar.slice(0, 10).map((ilan, index) => (
               <IlanCard key={ilan.id} ilan={ilan} isElite={false} index={index} />
             ))}
           </div>

@@ -34,11 +34,12 @@ export async function GET() {
     );
 
     // İlan varsa ilan bilgilerini kullan, yoksa manuel bilgileri kullan
+    // Boş değerler için fallback ekle
     const processedSliders = (sliders as any[]).map((slider: any) => ({
       id: slider.id,
-      baslik: slider.ilan_id ? slider.ilan_baslik : slider.baslik,
-      aciklama: slider.ilan_id ? slider.ilan_aciklama : slider.aciklama,
-      resim: slider.ilan_id ? slider.ilan_resim : slider.resim,
+      baslik: slider.ilan_id && slider.ilan_baslik ? slider.ilan_baslik : slider.baslik,
+      aciklama: slider.ilan_id && slider.ilan_aciklama ? slider.ilan_aciklama : slider.aciklama,
+      resim: slider.ilan_id && slider.ilan_resim ? slider.ilan_resim : slider.resim,
       link: slider.ilan_id ? `/ilan/${slider.ilan_id}` : slider.link,
       sira: slider.sira,
       ilan_id: slider.ilan_id,
@@ -46,6 +47,11 @@ export async function GET() {
       kategori_ad: slider.kategori_ad,
       il_ad: slider.il_ad
     }));
+
+    console.log(`🎯 SLIDER API - Ham slider sayısı: ${sliders.length}, İşlenmiş slider sayısı: ${processedSliders.length}`);
+    processedSliders.forEach((s: any, idx: number) => {
+      console.log(`📸 Slider ${idx + 1}: ID=${s.id}, Başlık="${s.baslik?.substring(0, 30)}", Resim=${s.resim ? (s.resim.startsWith('data:') ? 'BASE64' : s.resim.substring(0, 50)) : 'YOK'}`);
+    });
 
     return NextResponse.json({
       success: true,

@@ -87,7 +87,7 @@ export default function AdList() {
       }
 
       const currentOffset = loadMore ? offset : 0;
-      const response = await fetch(`/api/ilanlar?limit=12&offset=${currentOffset}`, {
+      const response = await fetch(`/api/ilanlar?limit=15&offset=${currentOffset}`, {
         next: { revalidate: 60 }
       });
       const data = await response.json();
@@ -99,8 +99,8 @@ export default function AdList() {
           setIlanlar(data.data);
         }
         
-        setOffset(currentOffset + 12);
-        setHasMore(data.data.length === 12);
+        setOffset(currentOffset + 15);
+        setHasMore(data.data.length === 15);
         
         // Toplam ilan sayısını al
         if (data.total) {

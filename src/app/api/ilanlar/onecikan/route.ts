@@ -34,7 +34,7 @@ export async function GET() {
        LEFT JOIN magazalar m ON i.magaza_id = m.id AND m.aktif = TRUE
        WHERE i.aktif = TRUE AND i.onecikan = TRUE
        ORDER BY i.onecikan_sira ASC, i.created_at DESC
-       LIMIT 6`,
+       LIMIT 10`,
       []
     );
 
