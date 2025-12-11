@@ -75,7 +75,7 @@ export default function ProIlanlar() {
     try {
       // ⚡ OPTIMIZE: Sadece 6 Pro ilan çek
       const response = await fetch('/api/ilanlar?store_level=pro&limit=6', {
-        next: { revalidate: 60 } // 60 saniye cache
+        cache: 'force-cache',
       });
       const data = await response.json();
       if (data.success) {
@@ -135,19 +135,20 @@ export default function ProIlanlar() {
 
                 {/* Image */}
                 <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={getImageUrl(
-                      (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0]) 
-                        ? ilan.resimler[0] 
+                      (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0])
+                        ? ilan.resimler[0]
                         : ilan.ana_resim
                     )}
                     alt={ilan.baslik}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1280px) 20vw, 220px"
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src !== '/images/placeholder.jpg' && target.src !== '/placeholder.svg') {
-                        target.src = '/images/placeholder.jpg';
+                      const img = e.currentTarget as HTMLImageElement;
+                      if (img.src && !img.src.includes("/images/placeholder.jpg")) {
+                        img.src = "/images/placeholder.jpg";
                       }
                     }}
                   />

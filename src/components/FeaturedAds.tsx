@@ -41,9 +41,7 @@ export default function FeaturedAds() {
 
   const fetchSliders = async () => {
     try {
-      const response = await fetch('/api/slider', {
-        next: { revalidate: 60 }
-      });
+      const response = await fetch('/api/slider', { cache: 'force-cache' });
       const data = await response.json();
       if (data.success) {
         // Resmi olan slider'ları filtrele

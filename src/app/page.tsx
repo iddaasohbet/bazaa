@@ -7,7 +7,6 @@ import OnecikanIlanlar from "@/components/OnecikanIlanlar";
 import PremiumAds from "@/components/PremiumAds";
 import AdList from "@/components/AdList";
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 60;
 
 function SliderSkeleton() {

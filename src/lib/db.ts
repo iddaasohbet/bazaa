@@ -14,7 +14,6 @@ const dbConfig = {
   keepAliveInitialDelay: 0,
   // ssl: undefined - CPanel MySQL SSL desteklemiyor, property kaldırıldı
   connectTimeout: 10000, // ⚡ Daha hızlı timeout (10 saniye)
-  acquireTimeout: 10000, // ⚡ Connection alma timeout'u
   multipleStatements: false,
 };
 

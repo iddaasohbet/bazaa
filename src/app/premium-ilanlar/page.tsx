@@ -1,108 +1,16 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Crown, Eye, Heart, ArrowRight } from "lucide-react";
+import FavoriteButton from "@/components/FavoriteButton";
+import { Crown, Eye, ArrowRight } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
+import { getPremiumIlanlar } from "@/lib/ilan";
 
-interface Ilan {
-  id: number;
-  baslik: string;
-  fiyat: number;
-  para_birimi?: string;
-  fiyat_usd?: number;
-  ana_resim: string;
-  resimler?: string[];
-  goruntulenme: number;
-  store_level?: string;
-}
-
-export default function PremiumIlanlarPage() {
-  const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [favoriler, setFavoriler] = useState<number[]>([]);
-
-  useEffect(() => {
-    fetchPremiumIlanlar();
-    loadFavoriler();
-  }, []);
-
-  const loadFavoriler = async () => {
-    try {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) return;
-      const user = JSON.parse(userStr);
-      if (!user?.id) return;
-      
-      const response = await fetch('/api/favoriler', {
-        headers: { 'x-user-id': user.id.toString() }
-      });
-      const data = await response.json();
-      if (data.success) {
-        setFavoriler((data.data || []).map((f: any) => f.ilan_id));
-      }
-    } catch (error) {
-      console.error('Favoriler yüklenirken hata:', error);
-    }
-  };
-
-  const fetchPremiumIlanlar = async () => {
-    try {
-      const response = await fetch('/api/ilanlar/premium?limit=50');
-      const data = await response.json();
-      if (data.success) {
-        // Sadece elite (premium) ilanları filtrele
-        const premiumOnly = data.data.filter((ilan: Ilan) => ilan.store_level === 'elite');
-        setIlanlar(premiumOnly);
-      }
-    } catch (error) {
-      console.error('Premium ilanlar yüklenirken hata:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleFavori = async (e: React.MouseEvent, ilanId: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      alert('لطفاً ابتدا وارد شوید');
-      return;
-    }
-
-    const user = JSON.parse(userStr);
-    if (!user?.id) return;
-    
-    const isFavorite = favoriler.includes(ilanId);
-    
-    try {
-      if (isFavorite) {
-        await fetch(`/api/favoriler?ilanId=${ilanId}`, {
-          method: 'DELETE',
-          headers: { 'x-user-id': user.id.toString() }
-        });
-        setFavoriler(prev => prev.filter(id => id !== ilanId));
-      } else {
-        await fetch('/api/favoriler', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-user-id': user.id.toString()
-          },
-          body: JSON.stringify({ ilanId })
-        });
-        setFavoriler(prev => [...prev, ilanId]);
-      }
-      window.dispatchEvent(new Event('favoriGuncelle'));
-    } catch (error) {
-      console.error('Favori işlemi hatası:', error);
-    }
-  };
+export default async function PremiumIlanlarPage() {
+  const all = await getPremiumIlanlar(50);
+  const ilanlar = all.filter((ilan) => ilan.store_level === "elite");
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50" dir="rtl">
@@ -121,19 +29,7 @@ export default function PremiumIlanlarPage() {
             </div>
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {[...Array(10)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-square rounded-2xl bg-gray-200"></div>
-                  <div className="p-3">
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : ilanlar.length === 0 ? (
+          {ilanlar.length === 0 ? (
             <div className="text-center py-16">
               <Crown className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-bold text-gray-900 mb-2">هنوز آگهی پریمیوم وجود ندارد</h3>
@@ -152,21 +48,17 @@ export default function PremiumIlanlarPage() {
                       
                       {/* Image Area */}
                       <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-t-2xl">
-                        <img
+                        <Image
                           src={getImageUrl(
-                            (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0]) 
-                              ? ilan.resimler[0] 
+                            (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0])
+                              ? ilan.resimler[0]
                               : ilan.ana_resim
                           )}
                           alt={ilan.baslik}
-                          loading={index < 10 ? "eager" : "lazy"}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            if (target.src !== '/images/placeholder.jpg') {
-                              target.src = '/images/placeholder.jpg';
-                            }
-                          }}
+                          fill
+                          priority={index < 10}
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 20vw, 200px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
 
                         {/* VIP Badge */}
@@ -178,16 +70,10 @@ export default function PremiumIlanlarPage() {
                         </div>
 
                         {/* Favorite Button */}
-                        <button 
-                          onClick={(e) => toggleFavori(e, ilan.id)}
-                          className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center transition-all hover:bg-white ${
-                            favoriler.includes(ilan.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                          }`}
-                        >
-                          <Heart className={`h-4 w-4 transition-colors ${
-                            favoriler.includes(ilan.id) ? 'text-red-500 fill-red-500' : 'text-gray-500'
-                          }`} />
-                        </button>
+                        <FavoriteButton
+                          ilanId={ilan.id}
+                          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center transition-all hover:bg-white opacity-0 group-hover:opacity-100"
+                        />
 
                         {/* Premium Badge */}
                         <div className="absolute bottom-2 right-2 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white shadow-lg bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600">

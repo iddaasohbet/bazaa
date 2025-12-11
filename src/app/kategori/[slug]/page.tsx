@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { use } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -123,7 +124,9 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
       setLoading(true);
       
       // Kategori bilgisi ve ilanları getir
-      const response = await fetch(`/api/ilanlar?kategori=${resolvedParams.slug}`);
+      const response = await fetch(`/api/ilanlar?kategori=${resolvedParams.slug}`, {
+        cache: 'force-cache',
+      });
       const data = await response.json();
       
       if (data.success && data.data.length > 0) {
@@ -137,7 +140,9 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
         
         // Alt kategorileri getir
         if (kategoriInfo.id) {
-          const altKatResponse = await fetch(`/api/alt-kategoriler?kategori_id=${kategoriInfo.id}`);
+          const altKatResponse = await fetch(`/api/alt-kategoriler?kategori_id=${kategoriInfo.id}`, {
+            cache: 'force-cache',
+          });
           const altKatData = await altKatResponse.json();
           if (altKatData.success) {
             setAltKategoriler(altKatData.data);
@@ -286,19 +291,20 @@ export default function KategoriSayfasi({ params }: { params: Promise<{ slug: st
                           <div className="overflow-hidden rounded-xl bg-white border border-gray-200 transition-all hover:shadow-xl hover:border-blue-300 h-full flex flex-col">
                             {/* Image */}
                             <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
+                              <Image
                                 src={getImageUrl(
-                                  (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0]) 
-                                    ? ilan.resimler[0] 
+                                  (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0])
+                                    ? ilan.resimler[0]
                                     : ilan.ana_resim
                                 )}
                                 alt={ilan.baslik}
-                                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                                fill
+                                sizes="(max-width: 640px) 50vw, (max-width: 1280px) 20vw, 220px"
+                                className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
                                 onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  if (target.src !== '/images/placeholder.jpg' && target.src !== '/placeholder.svg') {
-                                    target.src = '/images/placeholder.jpg';
+                                  const img = e.currentTarget as HTMLImageElement;
+                                  if (img.src && !img.src.includes("/images/placeholder.jpg")) {
+                                    img.src = "/images/placeholder.jpg";
                                   }
                                 }}
                               />

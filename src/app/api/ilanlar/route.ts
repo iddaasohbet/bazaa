@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getIlanlar } from '@/lib/ilan';
 import { query } from '@/lib/db';
 
 // Mock data - veritabanı olmadan çalışması için
@@ -143,93 +144,18 @@ export async function GET(request: Request) {
     const aramaSorgusu = searchParams.get('q');
     const storeLevel = searchParams.get('store_level');
 
-    // İlanları çek
-    let sql = `
-      SELECT 
-        i.id,
-        i.baslik,
-        i.fiyat,
-        i.eski_fiyat,
-        i.indirim_yuzdesi,
-        i.fiyat_tipi,
-        i.para_birimi,
-        i.fiyat_usd,
-        i.ana_resim,
-        i.alt_kategori_id,
-        i.magaza_id,
-        i.durum,
-        i.goruntulenme,
-        i.created_at,
-        k.ad as kategori_ad,
-        k.slug as kategori_slug,
-        COALESCE(il.ad_dari, il.ad) as il_ad,
-        m.store_level,
-        m.slug as magaza_slug,
-        m.ad as magaza_ad
-      FROM ilanlar i
-      LEFT JOIN kategoriler k ON i.kategori_id = k.id
-      LEFT JOIN iller il ON i.il_id = il.id
-      LEFT JOIN magazalar m ON i.magaza_id = m.id AND m.aktif = TRUE
-      WHERE i.aktif = TRUE
-    `;
-
-    const params: any[] = [];
-
-    if (kategori) {
-      sql += ' AND k.slug = ?';
-      params.push(kategori);
-    }
-
-    if (storeLevel) {
-      sql += ' AND m.store_level = ?';
-      params.push(storeLevel);
-    }
-
-    if (aramaSorgusu) {
-      sql += ' AND (i.baslik LIKE ? OR i.aciklama LIKE ?)';
-      params.push(`%${aramaSorgusu}%`, `%${aramaSorgusu}%`);
-    }
-
-    sql += ' ORDER BY i.created_at DESC LIMIT ? OFFSET ?';
-    params.push(limit, offset);
-
-    const ilanlar = await query(sql, params);
-    
-    console.log('📊 İlan API - Çekilen ilan sayısı:', (ilanlar as any[]).length);
-
-    // Kart görünümü için sadece ana_resim yeterli (hızlı yükleme)
-    const ilanlarWithImages = (ilanlar as any[]).map((ilan: any) => ({
-      ...ilan,
-      resimler: ilan.ana_resim ? [ilan.ana_resim] : [],
-      resim_sayisi: ilan.ana_resim ? 1 : 0
-    }));
-
-    // Toplam ilan sayısını al
-    let countSql = 'SELECT COUNT(*) as total FROM ilanlar i WHERE i.aktif = TRUE';
-    const countParams: any[] = [];
-    
-    if (kategori) {
-      countSql += ' AND EXISTS (SELECT 1 FROM kategoriler k WHERE k.id = i.kategori_id AND k.slug = ?)';
-      countParams.push(kategori);
-    }
-    
-    if (storeLevel) {
-      countSql += ' AND EXISTS (SELECT 1 FROM magazalar m WHERE m.id = i.magaza_id AND m.store_level = ?)';
-      countParams.push(storeLevel);
-    }
-    
-    if (aramaSorgusu) {
-      countSql += ' AND (i.baslik LIKE ? OR i.aciklama LIKE ?)';
-      countParams.push(`%${aramaSorgusu}%`, `%${aramaSorgusu}%`);
-    }
-    
-    const countResult = await query(countSql, countParams);
-    const total = (countResult as any[])[0]?.total || 0;
+    const { data, total } = await getIlanlar({
+      limit,
+      offset,
+      kategori,
+      q: aramaSorgusu,
+      store_level: storeLevel,
+    });
 
     return NextResponse.json({
       success: true,
-      data: ilanlarWithImages,
-      total: total,
+      data,
+      total,
     }, { headers });
   } catch (error: any) {
     console.error('❌ İlanlar database hatası, fallback kullanılıyor:', error);

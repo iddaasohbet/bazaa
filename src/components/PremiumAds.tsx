@@ -1,209 +1,51 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Crown, Sparkles, Star, Heart, ArrowLeft, Verified, Shield, Eye, Zap } from "lucide-react";
-import { getImageUrl } from "@/lib/utils";
+import { Crown, ArrowLeft, Eye, Zap } from "lucide-react";
+import FavoriteButton from "@/components/FavoriteButton";
+import { getPremiumIlanlar, type PremiumIlan } from "@/lib/ilan";
+import { cn, getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
+export default async function PremiumAds() {
+  const ilanlar = await getPremiumIlanlar(20);
 
-interface PremiumIlan {
-  id: number;
-  baslik: string;
-  fiyat: number;
-  eski_fiyat?: number;
-  indirim_yuzdesi?: number;
-  fiyat_tipi: string;
-  para_birimi?: string;
-  fiyat_usd?: number;
-  ana_resim: string;
-  kategori_ad: string;
-  kategori_slug: string;
-  il_ad: string;
-  durum: string;
-  goruntulenme: number;
-  created_at: string;
-  resimler?: string[];
-  resim_sayisi: number;
-  store_level: string;
-  magaza_id: number;
-  magaza_ad: string;
-  magaza_ad_dari?: string;
-  magaza_slug: string;
-  magaza_logo?: string;
-}
+  if (ilanlar.length === 0) return null;
 
-export default function PremiumAds() {
-  const [ilanlar, setIlanlar] = useState<PremiumIlan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [favoriler, setFavoriler] = useState<number[]>([]);
+  const eliteIlanlar = ilanlar.filter((ilan) => ilan.store_level === "elite");
+  const proIlanlar = ilanlar.filter((ilan) => ilan.store_level === "pro");
 
-  // Elite ve Pro ilanları ayır
-  const eliteIlanlar = ilanlar.filter(ilan => ilan.store_level === 'elite');
-  const proIlanlar = ilanlar.filter(ilan => ilan.store_level === 'pro');
-
-  useEffect(() => {
-    fetchPremiumIlanlar();
-    loadFavoriler();
-
-    const handleFavoriUpdate = () => {
-      loadFavoriler();
-    };
-
-    window.addEventListener('favoriGuncelle', handleFavoriUpdate);
-    return () => window.removeEventListener('favoriGuncelle', handleFavoriUpdate);
-  }, []);
-
-  const loadFavoriler = async () => {
-    try {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) return;
-
-      const user = JSON.parse(userStr);
-      if (!user?.id) return;
-
-      const response = await fetch('/api/favoriler', {
-        headers: { 'x-user-id': user.id.toString() }
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        const favoriIds = (data.data || []).map((f: any) => f.ilan_id);
-        setFavoriler(favoriIds);
-      }
-    } catch (error) {
-      console.error('Favoriler yüklenirken hata:', error);
-    }
-  };
-
-  const fetchPremiumIlanlar = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/ilanlar/premium?limit=20');
-      const data = await response.json();
-
-      if (data.success) {
-        setIlanlar(data.data);
-      }
-    } catch (error) {
-      console.error('Premium ilanlar yüklenemedi:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleFavori = async (e: React.MouseEvent, ilanId: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      alert('لطفاً ابتدا وارد شوید');
-      return;
-    }
-
-    const user = JSON.parse(userStr);
-    if (!user?.id) return;
-
-    const isFavorite = favoriler.includes(ilanId);
-
-    try {
-      if (isFavorite) {
-        await fetch(`/api/favoriler?ilanId=${ilanId}`, {
-          method: 'DELETE',
-          headers: { 'x-user-id': user.id.toString() }
-        });
-        setFavoriler(prev => prev.filter(id => id !== ilanId));
-      } else {
-        await fetch('/api/favoriler', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-user-id': user.id.toString()
-          },
-          body: JSON.stringify({ ilanId })
-        });
-        setFavoriler(prev => [...prev, ilanId]);
-      }
-      window.dispatchEvent(new Event('favoriGuncelle'));
-    } catch (error) {
-      console.error('Favori işlemi hatası:', error);
-    }
-  };
-
-  // Eğer hiç ilan yoksa gösterme
-  if (!loading && ilanlar.length === 0) {
-    return null;
-  }
-
-  if (loading) {
-    return (
-      <div className="space-y-8 mb-8">
-        <div>
-          <div className="h-12 w-48 rounded-lg bg-gray-100 animate-pulse mb-4"></div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-2">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-square rounded-2xl bg-gray-100 border border-gray-50"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Kart componenti - Kurumsal & Sade
-  const IlanCard = ({ ilan, isElite, index }: { ilan: PremiumIlan; isElite: boolean; index?: number }) => (
+  const IlanCard = ({
+    ilan,
+    isElite,
+    index = 99,
+  }: {
+    ilan: PremiumIlan;
+    isElite: boolean;
+    index?: number;
+  }) => (
     <div>
       <Link href={`/ilan/${ilan.id}`} className="group block">
-        <div 
-          className="relative rounded-2xl bg-white transition-all duration-300 group-hover:-translate-y-2"
-          style={isElite ? {
-            border: '3px solid #d4a537',
-            boxShadow: '0 0 20px rgba(212, 165, 55, 0.2), 0 4px 15px rgba(0,0,0,0.15)'
-          } : {
-            border: '3px solid #6b7280',
-            boxShadow: '0 0 20px rgba(107, 114, 128, 0.2), 0 4px 15px rgba(0,0,0,0.15)'
-          }}
-          onMouseEnter={(e) => {
-            if (isElite) {
-              e.currentTarget.style.boxShadow = '0 0 30px rgba(212, 165, 55, 0.4), 0 10px 30px rgba(0,0,0,0.2)';
-            } else {
-              e.currentTarget.style.boxShadow = '0 0 30px rgba(107, 114, 128, 0.4), 0 10px 30px rgba(0,0,0,0.2)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (isElite) {
-              e.currentTarget.style.boxShadow = '0 0 20px rgba(212, 165, 55, 0.2), 0 4px 15px rgba(0,0,0,0.15)';
-            } else {
-              e.currentTarget.style.boxShadow = '0 0 20px rgba(107, 114, 128, 0.2), 0 4px 15px rgba(0,0,0,0.15)';
-            }
-          }}
+        <div
+          className={cn(
+            "relative rounded-2xl bg-white transition-all duration-300 group-hover:-translate-y-2 border-[3px]",
+            isElite
+              ? "border-[#d4a537] shadow-[0_0_20px_rgba(212,165,55,0.2),0_4px_15px_rgba(0,0,0,0.15)] group-hover:shadow-[0_0_30px_rgba(212,165,55,0.4),0_10px_30px_rgba(0,0,0,0.2)]"
+              : "border-[#6b7280] shadow-[0_0_20px_rgba(107,114,128,0.2),0_4px_15px_rgba(0,0,0,0.15)] group-hover:shadow-[0_0_30px_rgba(107,114,128,0.4),0_10px_30px_rgba(0,0,0,0.2)]"
+          )}
         >
           
           {/* Image Area */}
           <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-t-2xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={(() => {
-                if (ilan.resimler && Array.isArray(ilan.resimler) && ilan.resimler.length > 0 && ilan.resimler[0]) {
-                  return getImageUrl(ilan.resimler[0]);
-                }
-                if (ilan.ana_resim) {
-                  return getImageUrl(ilan.ana_resim);
-                }
-                return '/images/placeholder.jpg';
-              })()}
+            <Image
+              src={getImageUrl(
+                (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0])
+                  ? ilan.resimler[0]
+                  : ilan.ana_resim
+              )}
               alt={ilan.baslik}
-              loading={(index !== undefined && index < 4) ? "eager" : "lazy"}
-              decoding="async"
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (!target.src.includes('placeholder')) {
-                  target.src = '/images/placeholder.jpg';
-                }
-              }}
+              fill
+              priority={index < 4}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 20vw, 200px"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
 
             {/* VIP Badge - Top Left (RTL'de sağ üst) - Dikkat Çekici */}
@@ -219,18 +61,10 @@ export default function PremiumAds() {
             </div>
 
             {/* Favorite Button - Top Right (RTL'de sol üst) */}
-            <button
-              onClick={(e) => toggleFavori(e, ilan.id)}
-              className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center transition-all hover:bg-white ${
-                favoriler.includes(ilan.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-              }`}
-            >
-              <Heart className={`h-4 w-4 transition-colors ${
-                favoriler.includes(ilan.id)
-                  ? 'text-red-500 fill-red-500'
-                  : 'text-gray-500'
-              }`} />
-            </button>
+            <FavoriteButton
+              ilanId={ilan.id}
+              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center transition-all hover:bg-white opacity-0 group-hover:opacity-100"
+            />
 
             {/* Package Badge - Bottom Right (RTL'de sol alt) - Renkli */}
             <div className={`absolute bottom-2 right-2 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white shadow-lg ${

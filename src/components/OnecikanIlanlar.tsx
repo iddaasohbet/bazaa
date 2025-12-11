@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Star, Eye, Heart } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
@@ -69,9 +70,7 @@ export default function OnecikanIlanlar() {
 
   const fetchOnecikanIlanlar = async () => {
     try {
-      const response = await fetch('/api/ilanlar/onecikan', {
-        next: { revalidate: 60 } // 60 saniye cache
-      });
+      const response = await fetch('/api/ilanlar/onecikan', { cache: 'force-cache' });
       const data = await response.json();
       if (data.success) {
         setIlanlar(data.data);
@@ -110,21 +109,21 @@ export default function OnecikanIlanlar() {
                 
                 {/* Image Area - Top */}
                 <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-t-2xl">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={getImageUrl(
-                      (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0]) 
-                        ? ilan.resimler[0] 
+                      (ilan.resimler && ilan.resimler.length > 0 && ilan.resimler[0])
+                        ? ilan.resimler[0]
                         : ilan.ana_resim
                     )}
                     alt={ilan.baslik}
-                    loading={index < 8 ? "eager" : "lazy"}
-                    decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    fill
+                    priority={index < 8}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 20vw, 200px"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src !== '/images/placeholder.jpg') {
-                        target.src = '/images/placeholder.jpg';
+                      const img = e.currentTarget as HTMLImageElement;
+                      if (img.src && !img.src.includes("/images/placeholder.jpg")) {
+                        img.src = "/images/placeholder.jpg";
                       }
                     }}
                   />

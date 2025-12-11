@@ -73,13 +73,15 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
 
   const fetchIlan = async () => {
     try {
-      const response = await fetch(`/api/ilanlar/${resolvedParams.id}`);
+      // HTTP cache'i kullan (API artık cache'lenebilir; view artışı ayrı endpoint)
+      const response = await fetch(`/api/ilanlar/${resolvedParams.id}`, {
+        cache: 'force-cache',
+      });
       const data = await response.json();
       if (data.success) {
-        console.log('🔍 İlan Detay - İlan verisi:', data.data);
-        console.log('🏪 İlan Detay - Mağaza ID:', data.data.magaza_id);
-        console.log('⭐ İlan Detay - Store Level:', data.data.store_level);
         setIlan(data.data);
+        // Görüntülenmeyi bloklamadan artır (fire-and-forget)
+        fetch(`/api/ilanlar/${resolvedParams.id}/view`, { method: 'POST', keepalive: true }).catch(() => {});
         // Benzer ilanları yükle
         fetchBenzerIlanlar(data.data.kategori_slug);
       }
@@ -93,7 +95,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
   const fetchBenzerIlanlar = async (kategoriSlug: string) => {
     try {
       // Tüm ilanlardan rastgele 6 tane getir
-      const response = await fetch(`/api/ilanlar?limit=12`);
+      const response = await fetch(`/api/ilanlar?limit=12`, { cache: 'force-cache' });
       const data = await response.json();
       if (data.success) {
         // Mevcut ilanı hariç tut ve karıştır
