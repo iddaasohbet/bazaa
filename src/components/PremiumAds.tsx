@@ -156,7 +156,30 @@ export default function PremiumAds() {
   const IlanCard = ({ ilan, isElite, index }: { ilan: PremiumIlan; isElite: boolean; index?: number }) => (
     <div>
       <Link href={`/ilan/${ilan.id}`} className="group block">
-        <div className="relative rounded-2xl bg-white shadow-[0_4px_15px_rgba(0,0,0,0.15),0_1px_3px_rgba(0,0,0,0.1)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 transition-all duration-300">
+        <div 
+          className="relative rounded-2xl bg-white transition-all duration-300 group-hover:-translate-y-2"
+          style={isElite ? {
+            border: '3px solid #d4a537',
+            boxShadow: '0 0 20px rgba(212, 165, 55, 0.2), 0 4px 15px rgba(0,0,0,0.15)'
+          } : {
+            border: '3px solid #6b7280',
+            boxShadow: '0 0 20px rgba(107, 114, 128, 0.2), 0 4px 15px rgba(0,0,0,0.15)'
+          }}
+          onMouseEnter={(e) => {
+            if (isElite) {
+              e.currentTarget.style.boxShadow = '0 0 30px rgba(212, 165, 55, 0.4), 0 10px 30px rgba(0,0,0,0.2)';
+            } else {
+              e.currentTarget.style.boxShadow = '0 0 30px rgba(107, 114, 128, 0.4), 0 10px 30px rgba(0,0,0,0.2)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (isElite) {
+              e.currentTarget.style.boxShadow = '0 0 20px rgba(212, 165, 55, 0.2), 0 4px 15px rgba(0,0,0,0.15)';
+            } else {
+              e.currentTarget.style.boxShadow = '0 0 20px rgba(107, 114, 128, 0.2), 0 4px 15px rgba(0,0,0,0.15)';
+            }
+          }}
+        >
           
           {/* Image Area */}
           <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-t-2xl">

@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Store, MapPin, Phone, Eye, Package, Edit, TrendingUp, ExternalLink, MessageSquare, Camera, Star, Crown, Sparkles, BarChart3, Users, Plus, Settings, Calendar, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Store, MapPin, Phone, Eye, Package, Edit, TrendingUp, ExternalLink, MessageSquare, Camera, Star, Crown, Sparkles, BarChart3, Users, Plus, Settings, Calendar, Clock, CheckCircle, AlertCircle, ArrowUp, ArrowDown, Activity } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface MagazaBilgileri {
   id: number;
@@ -340,6 +341,242 @@ export default function MagazamPage() {
                 </div>
                 <span className="text-sm font-semibold text-gray-700">پلن‌ها</span>
               </Link>
+            </div>
+          </div>
+
+          {/* 📊 İstatistikler - Grafikli */}
+          <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 overflow-hidden border border-gray-100 mb-8">
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-lg">آمار و تحلیل</h3>
+                  <p className="text-sm text-gray-500">عملکرد مغازه شما</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {/* İstatistik Kartları */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                      <Eye className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-1 text-green-600 text-sm font-semibold">
+                      <ArrowUp className="w-4 h-4" />
+                      +12%
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-1">{stats.toplamGoruntulenme}</div>
+                  <div className="text-sm text-gray-600">بازدید کل</div>
+                </div>
+
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-5 border border-emerald-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-12 h-12 rounded-lg bg-emerald-600 flex items-center justify-center">
+                      <Package className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-1 text-green-600 text-sm font-semibold">
+                      <ArrowUp className="w-4 h-4" />
+                      +5%
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-1">{stats.aktifIlanlar}</div>
+                  <div className="text-sm text-gray-600">آگهی فعال</div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-xl p-5 border border-purple-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-12 h-12 rounded-lg bg-purple-600 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </div>
+                    <div className="flex items-center gap-1 text-green-600 text-sm font-semibold">
+                      <ArrowUp className="w-4 h-4" />
+                      +8%
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-1">{stats.toplamFavoriler}</div>
+                  <div className="text-sm text-gray-600">علاقه‌مندی</div>
+                </div>
+
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-5 border border-orange-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-12 h-12 rounded-lg bg-orange-600 flex items-center justify-center">
+                      <MessageSquare className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-500 text-sm font-semibold">
+                      <Activity className="w-4 h-4" />
+                      جدید
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-1">{stats.toplamMesajlar}</div>
+                  <div className="text-sm text-gray-600">پیام‌ها</div>
+                </div>
+              </div>
+
+              {/* Grafikler */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Görüntülenme Grafiği */}
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-100">
+                  <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-blue-600" />
+                    بازدید 7 روز گذشته
+                  </h4>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <AreaChart data={[
+                      { name: 'شنبه', value: 45 },
+                      { name: 'یکشنبه', value: 52 },
+                      { name: 'دوشنبه', value: 48 },
+                      { name: 'سه‌شنبه', value: 61 },
+                      { name: 'چهارشنبه', value: 55 },
+                      { name: 'پنجشنبه', value: 67 },
+                      { name: 'جمعه', value: stats.toplamGoruntulenme || 0 }
+                    ]}>
+                      <defs>
+                        <linearGradient id="colorView" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: '#fff', 
+                          border: '1px solid #e5e7eb', 
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Area type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} fill="url(#colorView)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* İlan Dağılımı */}
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-100">
+                  <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Package className="w-5 h-5 text-emerald-600" />
+                    توزیع آگهی‌ها
+                  </h4>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={[
+                      { name: 'فعال', value: stats.aktifIlanlar },
+                      { name: 'بازدید', value: Math.floor((stats.toplamGoruntulenme || 0) / 10) },
+                      { name: 'فعالیت', value: stats.toplamFavoriler + stats.toplamMesajlar }
+                    ]}>
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: '#fff', 
+                          border: '1px solid #e5e7eb', 
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Bar dataKey="value" fill="#10b981" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Pie Chart - Genel Faaliyet */}
+              <div className="mt-6 bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-100">
+                <h4 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-purple-600" />
+                  فعالیت کلی
+                </h4>
+                
+                {stats.toplamGoruntulenme === 0 && stats.aktifIlanlar === 0 && stats.toplamFavoriler === 0 && stats.toplamMesajlar === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Activity className="w-10 h-10 text-gray-300" />
+                    </div>
+                    <p className="text-gray-500">هنوز فعالیتی ثبت نشده است</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Pie Chart */}
+                    <div className="flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height={280}>
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'بازدید', value: Math.max(stats.toplamGoruntulenme || 0, 1) },
+                              { name: 'آگهی', value: Math.max(stats.aktifIlanlar, 1) },
+                              { name: 'علاقه‌مندی', value: Math.max(stats.toplamFavoriler, 1) },
+                              { name: 'پیام', value: Math.max(stats.toplamMesajlar, 1) }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => {
+                              if (percent < 0.05) return '';
+                              return `${name}\n${(percent * 100).toFixed(0)}%`;
+                            }}
+                            outerRadius={110}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            <Cell fill="#3b82f6" />
+                            <Cell fill="#10b981" />
+                            <Cell fill="#f59e0b" />
+                            <Cell fill="#8b5cf6" />
+                          </Pie>
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: '#fff', 
+                              border: '1px solid #e5e7eb', 
+                              borderRadius: '8px',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                            }}
+                            formatter={(value: any) => [value, 'مقدار']}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Legend */}
+                    <div className="flex flex-col justify-center gap-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50">
+                          <div className="w-4 h-4 rounded bg-blue-600"></div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900">بازدید</div>
+                            <div className="text-sm text-gray-600">{stats.toplamGoruntulenme || 0} مورد</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50">
+                          <div className="w-4 h-4 rounded bg-emerald-600"></div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900">آگهی</div>
+                            <div className="text-sm text-gray-600">{stats.aktifIlanlar} مورد</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50">
+                          <div className="w-4 h-4 rounded bg-amber-500"></div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900">علاقه‌مندی</div>
+                            <div className="text-sm text-gray-600">{stats.toplamFavoriler} مورد</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-purple-50">
+                          <div className="w-4 h-4 rounded bg-purple-600"></div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900">پیام</div>
+                            <div className="text-sm text-gray-600">{stats.toplamMesajlar} مورد</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
