@@ -7,7 +7,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Store, MapPin, Eye, Phone, Star, Package, Crown, ShoppingBag, Sparkles, Zap, MessageCircle, Send, ThumbsUp, BadgeCheck, ShieldCheck, Settings, Edit, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
+import { Store, MapPin, Eye, Phone, Star, Package, Crown, ShoppingBag, Sparkles, Zap, MessageCircle, Send, ThumbsUp, BadgeCheck, ShieldCheck, Settings, Edit, TrendingUp, ChevronLeft, ChevronRight, Clock, Truck, Award, Users, Calendar, CheckCircle, Heart } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
 
@@ -27,6 +27,9 @@ interface Magaza {
   guvenilir_satici: boolean;
   goruntulenme: number;
   ilan_sayisi: number;
+  created_at?: string;
+  onaylandi?: boolean;
+  tema_renk?: string;
 }
 
 interface Ilan {
@@ -52,17 +55,15 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
   const [yeniYorum, setYeniYorum] = useState({ yorum: '', puan: 5 });
   const [yorumGonderiliyor, setYorumGonderiliyor] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [sliderIndex, setSliderIndex] = useState(0);
   const [heroSlideIndex, setHeroSlideIndex] = useState(0);
-  const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Hero slider otomatik geçiş - Sadece ilk 5 ürünle
+  // Hero slider otomatik geçiş
   useEffect(() => {
     if (ilanlar.length > 1) {
       const maxSlides = Math.min(5, ilanlar.length);
       const interval = setInterval(() => {
         setHeroSlideIndex((prev) => (prev + 1) % maxSlides);
-      }, 5000); // 5 saniyede bir değişir
+      }, 5000);
       return () => clearInterval(interval);
     }
   }, [ilanlar.length]);
@@ -169,73 +170,97 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
     }
   };
 
-  const scrollSlider = (direction: 'left' | 'right') => {
-    if (sliderRef.current) {
-      const scrollAmount = 300;
-      sliderRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
+  // scrollSlider fonksiyonu kaldırıldı
 
   const isPremium = magaza?.paket_turu === "premium";
   const isPro = magaza?.paket_turu === "pro";
   const isElite = magaza?.store_level === "elite" || isPremium;
 
+  // Üyelik süresini hesapla
+  const getMembershipDuration = (createdAt: string | undefined) => {
+    if (!createdAt) return null;
+    const created = new Date(createdAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - created.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffMonths = Math.floor(diffDays / 30);
+    const diffYears = Math.floor(diffDays / 365);
+    
+    if (diffYears >= 1) return `${diffYears} سال`;
+    if (diffMonths >= 1) return `${diffMonths} ماه`;
+    return `${diffDays} روز`;
+  };
+
   // Premium/Elite mağaza için VIP Dark Theme
   if (isElite && magaza) {
-    return (
-      <div className="min-h-screen flex flex-col bg-[#0a0a0a]">
-        <Header />
+    const membershipDuration = getMembershipDuration(magaza.created_at);
+    
+    // Tema rengi - sadece arka plan için
+    // Varsayılan: Koyu lacivert/mor tonlu premium arka plan
+    const bgColor = magaza.tema_renk || '#0f0f1a';
+
+  return (
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: bgColor }}>
+      <Header />
         
-        <main className="flex-1 pb-16">
+        {/* ✨ Animated Gold Border Effect - Top */}
+        <div className="h-1 w-full" style={{ 
+          background: 'linear-gradient(90deg, #0a0a0a 0%, #d4a537 20%, #f5d78e 50%, #d4a537 80%, #0a0a0a 100%)',
+          animation: 'shimmer 3s ease-in-out infinite'
+        }} />
+        
+        <style jsx>{`
+          @keyframes shimmer {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+          }
+          @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(212, 165, 55, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(212, 165, 55, 0.6); }
+          }
+          @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+          }
+        `}</style>
+      
+      <main className="flex-1 pb-16">
           <div className="mx-auto max-w-7xl px-4">
             
-            {/* VIP Hero Banner - PRO Slider */}
-            <div className="relative mt-6 mb-8 rounded-3xl overflow-hidden h-[450px] sm:h-[500px] bg-black">
-              {/* Background - Ürün Slider (Sadece ilk 5 ürün) */}
-              <div className="absolute inset-0 bg-black">
-                {ilanlar.length > 0 ? (
-                  <>
-                    {/* Ürün resimleri - Sadece ilk 5 */}
-                    {ilanlar.slice(0, 5).map((ilan, idx) => (
-                      <div 
-                        key={ilan.id}
-                        className="absolute inset-0 transition-opacity duration-700 ease-in-out"
-                        style={{ 
-                          opacity: idx === heroSlideIndex ? 1 : 0,
-                          zIndex: idx === heroSlideIndex ? 1 : 0
-                        }}
-                      >
-                        <Image
-                          src={getImageUrl(ilan.ana_resim)}
-                          alt={ilan.baslik}
-                          fill
-                          className="object-cover"
-                          priority={idx === 0}
-                          quality={85}
-                        />
-                      </div>
-                    ))}
-                    {/* Dark overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70 z-10" />
-                  </>
-                ) : magaza.kapak_resmi ? (
-                  <>
-                    <img
-                      src={getImageUrl(magaza.kapak_resmi)}
-                      alt={magaza.ad}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
-                  </>
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-zinc-900 via-black to-zinc-900" />
-                )}
+            {/* VIP Hero Banner with Slider - Altın Çerçeve */}
+            <div 
+              className="relative mt-6 mb-8 h-[420px] sm:h-[480px] rounded-3xl overflow-hidden"
+              style={{ 
+                border: '3px solid transparent',
+                background: 'linear-gradient(#0a0a0a, #0a0a0a) padding-box, linear-gradient(135deg, #d4a537 0%, #f5d78e 25%, #d4a537 50%, #8b6914 75%, #d4a537 100%) border-box'
+              }}
+            >
+              {/* Background - Product Slider */}
+              {ilanlar.length > 0 ? (
+                <div className="absolute inset-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={getImageUrl(ilanlar[Math.min(heroSlideIndex, ilanlar.length - 1)].ana_resim)}
+                    alt={ilanlar[Math.min(heroSlideIndex, ilanlar.length - 1)].baslik}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.7) 100%)' }} />
               </div>
+              ) : magaza.kapak_resmi ? (
+                <div className="absolute inset-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={getImageUrl(magaza.kapak_resmi)}
+                        alt={magaza.ad}
+                        className="w-full h-full object-cover"
+                      />
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.7) 100%)' }} />
+                </div>
+              ) : (
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #1a1a1a 100%)' }} />
+              )}
 
-              {/* Slide Indicators - Sadece 5 ürün için */}
+              {/* Slide Indicators */}
               {ilanlar.length > 1 && (
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
                   {ilanlar.slice(0, 5).map((_, idx) => (
@@ -244,330 +269,662 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       onClick={() => setHeroSlideIndex(idx)}
                       className={`rounded-full transition-all duration-300 ${
                         idx === heroSlideIndex
-                          ? 'w-10 h-2.5 bg-amber-400'
-                          : 'w-2.5 h-2.5 bg-white/40 hover:bg-white/60'
+                          ? 'w-10 h-2.5'
+                          : 'w-2.5 h-2.5'
                       }`}
-                      aria-label={`Slide ${idx + 1}`}
+                      style={{
+                        background: idx === heroSlideIndex 
+                          ? 'linear-gradient(90deg, #d4a537, #f5d78e, #d4a537)' 
+                          : 'rgba(255,255,255,0.4)'
+                      }}
                     />
                   ))}
-                </div>
-              )}
+                      </div>
+                    )}
 
               {/* Content */}
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center z-10">
                 <div 
-                  className="relative z-10 px-8 sm:px-16 py-10 sm:py-14 text-center rounded-3xl mx-4 bg-black/50"
+                  className="px-8 sm:px-16 py-10 sm:py-14 text-center mx-4 rounded-3xl"
+                  style={{ 
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    border: '2px solid rgba(212, 165, 55, 0.3)'
+                  }}
                   dir="rtl"
                 >
                   
-                  {/* Logo - Mağazanın kendi logosu */}
+                  {/* ✨ Parlayan VIP Logo */}
                   <div className="flex justify-center mb-6">
-                    <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border-4 border-amber-500 shadow-2xl bg-black">
-                      {magaza.logo ? (
-                        <img
-                          src={getImageUrl(magaza.logo)}
-                          alt={magaza.ad}
-                          className="w-full h-full object-contain p-2"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-500 to-amber-700">
-                          <Crown className="w-14 h-14 text-black" />
-                        </div>
-                      )}
-                      {/* Premium Badge */}
-                      <div className="absolute -top-1 -right-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-500 text-black">
-                        VIP
+                    <div 
+                      className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden"
+                      style={{ 
+                        background: 'linear-gradient(135deg, #d4a537 0%, #f5d78e 50%, #d4a537 100%)',
+                        padding: '4px',
+                        animation: 'pulse-glow 2s ease-in-out infinite'
+                      }}
+                    >
+                      <div className="w-full h-full bg-black rounded-xl overflow-hidden">
+                    {magaza.logo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={getImageUrl(magaza.logo)}
+                        alt={magaza.ad}
+                            className="w-full h-full object-contain p-3"
+                      />
+                    ) : (
+                          <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4a537, #8b6914)' }}>
+                            <Crown className="w-16 h-16 text-black" />
                       </div>
-                    </div>
+                    )}
+                      </div>
+                      
+                      {/* 👑 VIP Badge - İçeride, tam görünür */}
+                      <div 
+                        className="absolute top-2 right-2 z-20"
+                        style={{ 
+                          background: 'linear-gradient(135deg, #d4a537 0%, #f5d78e 30%, #d4a537 60%, #8b6914 100%)',
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 15px rgba(212, 165, 55, 0.6)',
+                          border: '2px solid rgba(255,255,255,0.4)'
+                        }}
+                      >
+                        <div className="flex items-center gap-1">
+                          <Crown className="w-4 h-4 text-black" />
+                          <span className="text-black font-black text-xs tracking-wide">VIP</span>
+                        </div>
+                      </div>
                   </div>
+                </div>
 
-                  {/* Store Name */}
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 mb-4">
-                    {magaza.ad_dari || magaza.ad}
-                  </h1>
+                  {/* Store Name with Gradient */}
+                  <h1 
+                    className="text-3xl sm:text-4xl md:text-5xl font-black mb-3"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #f5d78e 0%, #d4a537 50%, #f5d78e 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}
+                  >
+                              {magaza.ad_dari || magaza.ad}
+                            </h1>
 
-                  {/* Description */}
-                  {magaza.aciklama && (
-                    <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto mb-6 leading-relaxed">
-                      {magaza.aciklama}
-                    </p>
-                  )}
+                  {/* ⭐ Rozetler - Doğrulanmış & Premium Üye */}
+                  <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
+                    {/* Doğrulanmış Mağaza */}
+                    <div 
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                      style={{ 
+                        background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                        color: '#fff'
+                      }}
+                    >
+                      <BadgeCheck className="w-4 h-4" />
+                      <span>مغازه تایید شده</span>
+                    </div>
+                    
+                    {/* Premium Üye Süresi */}
+                    {membershipDuration && (
+                      <div 
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                        style={{ 
+                          background: 'linear-gradient(135deg, #d4a537 0%, #8b6914 100%)',
+                          color: '#000'
+                        }}
+                      >
+                        <Crown className="w-4 h-4" />
+                        <span>عضو پریمیوم از {membershipDuration}</span>
+                            </div>
+                          )}
+                          
+                    {/* Güvenilir Satıcı */}
+                    {magaza.guvenilir_satici === true && (
+                      <div 
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                        style={{ 
+                          background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                          color: '#fff'
+                        }}
+                      >
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>فروشنده قابل اعتماد</span>
+                                </div>
+                              )}
+                      </div>
 
                   {/* Stats */}
-                  <div className="flex items-center justify-center gap-6 sm:gap-10 mb-8 flex-wrap">
-                    <div className="flex items-center gap-2 text-amber-400/80">
+                  <div className="flex items-center justify-center gap-6 sm:gap-10 mb-6 flex-wrap">
+                    <div className="flex items-center gap-2" style={{ color: '#f5d78e' }}>
                       <Package className="w-5 h-5" />
                       <span className="text-sm font-semibold">{magaza.ilan_sayisi} محصول</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-amber-400/80">
+                                </div>
+                    <div className="flex items-center gap-2" style={{ color: '#f5d78e' }}>
                       <Eye className="w-5 h-5" />
                       <span className="text-sm font-semibold">{magaza.goruntulenme} بازدید</span>
-                    </div>
-                    {magaza.il_ad && (
-                      <div className="flex items-center gap-2 text-amber-400/80">
+                        </div>
+                        {magaza.il_ad && (
+                      <div className="flex items-center gap-2" style={{ color: '#f5d78e' }}>
                         <MapPin className="w-5 h-5" />
                         <span className="text-sm font-semibold">{magaza.il_ad}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                  {/* 📱 İletişim Butonları */}
+                  <div className="flex items-center justify-center gap-3 flex-wrap">
+                    {/* WhatsApp */}
+                    {magaza.telefon && (
+                      <a
+                        href={`https://wa.me/${magaza.telefon.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
+                        style={{
+                          background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                          color: '#fff',
+                          boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)'
+                        }}
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        <span>واتساپ</span>
+                      </a>
+                    )}
+
+                    {/* Telefon */}
+                    {magaza.telefon && (
+                      <a
+                        href={`tel:${magaza.telefon}`}
+                        className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
+                        style={{
+                          background: 'linear-gradient(135deg, #d4a537 0%, #f5d78e 50%, #d4a537 100%)',
+                          color: '#000',
+                          boxShadow: '0 4px 15px rgba(212, 165, 55, 0.4)'
+                        }}
+                      >
+                        <Phone className="w-5 h-5" />
+                        <span>تماس</span>
+                      </a>
+                    )}
+
+                    {/* Mesaj Gönder */}
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          alert('برای ارسال پیام باید وارد شوید');
+                          return;
+                        }
+                        // Mesaj gönderme modalı açılabilir
+                        alert('قابلیت پیام به زودی فعال می‌شود');
+                      }}
+                      className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
+                      style={{
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                        color: '#fff',
+                        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)'
+                      }}
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      <span>پیام</span>
+                    </button>
+                          </div>
+                  </div>
+                </div>
                       </div>
+
+            {/* 📊 İstatistikler & 🏅 Güven Rozetleri */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" dir="rtl">
+              
+              {/* Mağaza İstatistikleri */}
+              <div 
+                className="rounded-2xl p-6"
+                style={{ 
+                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
+                  border: '2px solid rgba(212, 165, 55, 0.3)'
+                }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="w-5 h-5 text-amber-400" />
+                  <h3 className="text-lg font-bold text-amber-400">آمار مغازه</h3>
+                        </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Package className="w-4 h-4" />
+                      <span>تعداد محصولات</span>
+                        </div>
+                    <span className="text-white font-bold">{magaza.ilan_sayisi}</span>
+                          </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Eye className="w-4 h-4" />
+                      <span>بازدید کل</span>
+                          </div>
+                    <span className="text-white font-bold">{magaza.goruntulenme?.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Star className="w-4 h-4" />
+                      <span>امتیاز</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {yorumStats ? (
+                        <>
+                          <span className="text-amber-400 font-bold">{yorumStats.ortalama_puan}</span>
+                          <span className="text-gray-500 text-sm">/ 5</span>
+                        </>
+                      ) : (
+                        <span className="text-gray-500">-</span>
+                    )}
+                  </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Users className="w-4 h-4" />
+                      <span>تعداد نظرات</span>
+                    </div>
+                    <span className="text-white font-bold">{yorumStats?.toplam_yorum || 0}</span>
+                  </div>
+                </div>
+                      </div>
+
+              {/* Güven Rozetleri */}
+              <div 
+                className="rounded-2xl p-6"
+                style={{ 
+                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
+                  border: '2px solid rgba(212, 165, 55, 0.3)'
+                }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Award className="w-5 h-5 text-amber-400" />
+                  <h3 className="text-lg font-bold text-amber-400">نشان‌های اعتماد</h3>
+                  </div>
+                <div className="space-y-3">
+                  {/* VIP Premium */}
+                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(212,165,55,0.1)' }}>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4a537, #f5d78e)' }}>
+                      <Crown className="w-5 h-5 text-black" />
+                </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">عضو پریمیوم</p>
+                      <p className="text-gray-500 text-xs">فروشنده VIP</p>
+                            </div>
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-auto" />
+              </div>
+
+                  {/* Doğrulanmış */}
+                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(34,197,94,0.1)' }}>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-500">
+                      <BadgeCheck className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                      <p className="text-white font-semibold text-sm">مغازه تایید شده</p>
+                      <p className="text-gray-500 text-xs">هویت تایید شده</p>
+                        </div>
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-auto" />
+                  </div>
+
+                  {/* Güvenilir Satıcı */}
+                  {magaza.guvenilir_satici === true && (
+                    <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(59,130,246,0.1)' }}>
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-500">
+                        <ShieldCheck className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold text-sm">فروشنده قابل اعتماد</p>
+                        <p className="text-gray-500 text-xs">معامله امن</p>
+                      </div>
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-auto" />
+                    </div>
+                  )}
+
+                  {/* Hızlı Teslimat */}
+                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(168,85,247,0.1)' }}>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-500">
+                      <Truck className="w-5 h-5 text-white" />
+                  </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">ارسال سریع</p>
+                      <p className="text-gray-500 text-xs">تحویل به موقع</p>
+                    </div>
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-auto" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Çalışma Saatleri & Konum */}
+              <div 
+                className="rounded-2xl p-6"
+                style={{ 
+                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
+                  border: '2px solid rgba(212, 165, 55, 0.3)'
+                }}
+              >
+                {/* Çalışma Saatleri */}
+                      <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="w-5 h-5 text-amber-400" />
+                    <h3 className="text-lg font-bold text-amber-400">ساعات کاری</h3>
+                                </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">شنبه - چهارشنبه</span>
+                      <span className="text-white">۰۸:۰۰ - ۲۰:۰۰</span>
+                              </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">پنجشنبه</span>
+                      <span className="text-white">۰۸:۰۰ - ۱۸:۰۰</span>
+                            </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">جمعه</span>
+                      <span className="text-red-400">تعطیل</span>
+                            </div>
+                          </div>
+                  <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(34,197,94,0.1)' }}>
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-green-400 text-sm font-medium">الان باز است</span>
+                  </div>
+                </div>
+
+                {/* Konum & İletişim Bilgileri */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <MapPin className="w-5 h-5 text-amber-400" />
+                    <h3 className="text-lg font-bold text-amber-400">آدرس و تماس</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {/* Şehir */}
+                    {magaza.il_ad && (
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/20 flex-shrink-0 mt-0.5">
+                          <MapPin className="w-4 h-4 text-amber-400" />
+                        </div>
+                        <div>
+                          <p className="text-gray-500 text-xs">شهر</p>
+                          <p className="text-white text-sm">{magaza.il_ad}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Adres */}
+                    {magaza.adres && (
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/20 flex-shrink-0 mt-0.5">
+                          <Store className="w-4 h-4 text-amber-400" />
+                      </div>
+                        <div>
+                          <p className="text-gray-500 text-xs">آدرس کامل</p>
+                          <p className="text-white text-sm">{magaza.adres}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Telefon */}
+                    {magaza.telefon && (
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-green-500/20 flex-shrink-0 mt-0.5">
+                          <Phone className="w-4 h-4 text-green-400" />
+                </div>
+                        <div>
+                          <p className="text-gray-500 text-xs">شماره تماس</p>
+                          <a href={`tel:${magaza.telefon}`} className="text-white text-sm hover:text-amber-400 transition-colors">
+                            {magaza.telefon}
+                          </a>
+                      </div>
+                    </div>
                     )}
                   </div>
 
-                  {/* Shop Now Button */}
-                  {magaza.telefon && (
-                    <a
-                      href={`tel:${magaza.telefon}`}
-                      className="inline-flex items-center gap-3 px-10 py-4 rounded-full font-bold text-lg transition-all duration-300 hover:scale-105"
-                      style={{
-                        background: 'linear-gradient(135deg, #d4a537 0%, #b8860b 50%, #8b6914 100%)',
-                        boxShadow: '0 4px 20px rgba(212, 165, 55, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-                        color: '#1a1a1a'
-                      }}
-                    >
-                      <Phone className="w-5 h-5" />
-                      <span>تماس بگیرید</span>
-                    </a>
-                  )}
+                  {/* Haritada Göster Butonu - Her zaman göster */}
+                  <a
+                    href={`https://maps.google.com/?q=${encodeURIComponent(magaza.adres || magaza.il_ad || 'Kabul, Afghanistan')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 mt-4 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #d4a537, #8b6914)',
+                      color: '#000'
+                    }}
+                  >
+                    <MapPin className="w-4 h-4" />
+                    مشاهده در نقشه
+                  </a>
                 </div>
               </div>
-
-              {/* Navigation Arrows */}
-              {ilanlar.length > 1 && (
-                <>
-                  <button 
-                    onClick={() => {
-                      const maxSlides = Math.min(5, ilanlar.length);
-                      setHeroSlideIndex((prev) => (prev - 1 + maxSlides) % maxSlides);
-                    }}
-                    className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-white bg-black/60 hover:bg-black/80 border-2 border-amber-400/50 hover:border-amber-400 transition-all z-20 shadow-xl"
-                    aria-label="Previous slide"
-                  >
-                    <ChevronLeft className="w-5 h-5 sm:w-7 sm:h-7" />
-                  </button>
-                  <button 
-                    onClick={() => {
-                      const maxSlides = Math.min(5, ilanlar.length);
-                      setHeroSlideIndex((prev) => (prev + 1) % maxSlides);
-                    }}
-                    className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-white bg-black/60 hover:bg-black/80 border-2 border-amber-400/50 hover:border-amber-400 transition-all z-20 shadow-xl"
-                    aria-label="Next slide"
-                  >
-                    <ChevronRight className="w-5 h-5 sm:w-7 sm:h-7" />
-                  </button>
-                </>
-              )}
             </div>
 
-            {/* Products Slider */}
+            {/* Products Grid - Premium Altın Çerçeve */}
             {ilanlar.length > 0 && (
-              <div className="mb-12" dir="rtl">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500">
-                      <ShoppingBag className="w-5 h-5 text-black" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-amber-400">محصولات</h2>
-                  </div>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => scrollSlider('right')}
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-amber-400 bg-zinc-800 border border-amber-500/30 hover:bg-zinc-700 transition-all"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                    <button 
-                      onClick={() => scrollSlider('left')}
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-amber-400 bg-zinc-800 border border-amber-500/30 hover:bg-zinc-700 transition-all"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
+              <div 
+                className="mb-12 p-6 rounded-3xl" 
+                style={{ 
+                  background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(10,10,10,0.95) 100%)',
+                  border: '2px solid rgba(212, 165, 55, 0.3)'
+                }}
+                dir="rtl"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div 
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ background: 'linear-gradient(135deg, #d4a537, #f5d78e)' }}
+                  >
+                    <ShoppingBag className="w-6 h-6 text-black" />
+                        </div>
+                  <h2 
+                    className="text-2xl font-bold"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #f5d78e, #d4a537)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}
+                  >
+                    محصولات
+                          </h2>
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                        </div>
 
-                {/* Horizontal Scroll Container */}
-                <div 
-                  ref={sliderRef}
-                  className="flex gap-4 overflow-x-auto pb-4"
-                  style={{ scrollbarWidth: 'none' }}
-                >
-                  {ilanlar.map((ilan, index) => (
-                    <motion.div
-                      key={ilan.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="flex-shrink-0 w-48 sm:w-56"
-                    >
-                      <Link href={`/ilan/${ilan.id}`} className="group block">
-                        <div className="rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 bg-zinc-900 border border-amber-500/20">
-                          {/* Image */}
-                          <div className="relative aspect-square overflow-hidden">
-                            <Image
+                {/* Grid Container */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {ilanlar.map((ilan) => (
+                    <Link key={ilan.id} href={`/ilan/${ilan.id}`} className="group block">
+                      <div 
+                        className="overflow-hidden rounded-2xl transition-all duration-300 group-hover:scale-[1.02]"
+                        style={{ 
+                          background: '#1a1a1a',
+                          border: '1px solid rgba(212, 165, 55, 0.2)'
+                        }}
+                      >
+                        {/* Image */}
+                        <div className="relative aspect-square overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
                               src={getImageUrl(ilan.ana_resim)}
                               alt={ilan.baslik}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
+                          {/* Premium Shine Effect on Hover */}
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, rgba(212,165,55,0.1) 0%, transparent 50%, rgba(212,165,55,0.1) 100%)' }} />
                           </div>
 
-                          {/* Content */}
-                          <div className="p-4 bg-zinc-900">
-                            <h3 className="text-white font-semibold text-sm mb-2 line-clamp-2 min-h-[40px]">
+                        {/* Content */}
+                        <div className="p-4">
+                          <h3 className="text-white font-semibold text-sm mb-2 line-clamp-2 min-h-[40px]">
                               {ilan.baslik}
                             </h3>
-                            <div className="flex items-center justify-between">
-                              <span className="text-amber-400 font-bold text-lg">
-                                ${ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd.toLocaleString() : ilan.fiyat.toLocaleString()}
-                              </span>
-                              <div className="flex items-center gap-1 text-gray-400 text-xs">
-                                <Eye className="w-3 h-3" />
-                                <span>{ilan.goruntulenme}</span>
-                              </div>
+                          <div className="flex items-center justify-between">
+                            <span 
+                              className="font-bold text-lg"
+                              style={{ color: '#f5d78e' }}
+                            >
+                              ${ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd.toLocaleString() : ilan.fiyat.toLocaleString()}
+                            </span>
+                            <div className="flex items-center gap-1 text-gray-500 text-xs">
+                              <Eye className="w-3 h-3" />
+                              <span>{ilan.goruntulenme}</span>
                             </div>
+                          </div>
                           </div>
                         </div>
                       </Link>
-                    </motion.div>
-                  ))}
+                    ))}
                 </div>
-              </div>
-            )}
+                  </div>
+                )}
 
 
-            {/* Comments Section - %50 Şeffaf */}
+            {/* Comments Section - Premium */}
             <div 
-              className="rounded-3xl p-6 sm:p-8 mb-8 backdrop-blur-sm" 
-              style={{ backgroundColor: 'rgba(20, 20, 20, 0.5)', border: '1px solid rgba(212, 165, 55, 0.2)' }} 
+              className="rounded-3xl p-6 sm:p-8 mb-8" 
+              style={{ 
+                background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(10,10,10,0.95) 100%)',
+                border: '2px solid rgba(212, 165, 55, 0.3)' 
+              }} 
               dir="rtl"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #d4a537 0%, #b8860b 100%)' }}
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, #d4a537, #f5d78e)' }}
                 >
-                  <MessageCircle className="w-5 h-5 text-black" />
-                </div>
+                  <MessageCircle className="w-6 h-6 text-black" />
+                  </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-amber-400">نظرات مشتریان</h2>
-                  {yorumStats && (
-                    <div className="flex items-center gap-2 mt-1">
+                  <h2 
+                    className="text-2xl font-bold"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #f5d78e, #d4a537)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}
+                  >
+                      نظرات مشتریان
+                    </h2>
+                    {yorumStats && (
+                      <div className="flex items-center gap-2 mt-1">
                       <div className="flex gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
                             className={`w-4 h-4 ${i < Math.round(parseFloat(yorumStats.ortalama_puan)) ? 'fill-amber-400 text-amber-400' : 'text-zinc-600'}`}
-                          />
-                        ))}
-                      </div>
+                            />
+                          ))}
+                        </div>
                       <span className="text-gray-400 text-sm">{yorumStats.ortalama_puan} از {yorumStats.toplam_yorum} نظر</span>
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
               {/* Comment Form - %50 Şeffaf */}
-              {user ? (
+                {user ? (
                 <form 
                   onSubmit={handleYorumGonder} 
-                  className="mb-8 p-6 rounded-2xl backdrop-blur-sm" 
+                  className="mb-8 p-6 rounded-2xl" 
                   style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: '1px solid rgba(212,165,55,0.2)' }}
                 >
-                  <div className="mb-4">
+                    <div className="mb-4">
                     <label className="block text-amber-400 text-sm font-bold mb-2">امتیاز شما</label>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((puan) => (
-                        <button
-                          key={puan}
-                          type="button"
-                          onClick={() => setYeniYorum({ ...yeniYorum, puan })}
-                          className="transition-transform hover:scale-110"
-                        >
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((puan) => (
+                          <button
+                            key={puan}
+                            type="button"
+                            onClick={() => setYeniYorum({ ...yeniYorum, puan })}
+                            className="transition-transform hover:scale-110"
+                          >
                           <Star className={`w-8 h-8 ${puan <= yeniYorum.puan ? 'fill-amber-400 text-amber-400' : 'text-zinc-600'}`} />
-                        </button>
-                      ))}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mb-4">
+                    <div className="mb-4">
                     <label className="block text-amber-400 text-sm font-bold mb-2">نظر شما</label>
-                    <textarea
-                      value={yeniYorum.yorum}
-                      onChange={(e) => setYeniYorum({ ...yeniYorum, yorum: e.target.value })}
-                      rows={4}
+                      <textarea
+                        value={yeniYorum.yorum}
+                        onChange={(e) => setYeniYorum({ ...yeniYorum, yorum: e.target.value })}
+                        rows={4}
                       className="w-full px-4 py-3 rounded-xl border border-amber-500/30 text-white placeholder-gray-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
                       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
                       placeholder="تجربه خود از خرید از این مغازه را بنویسید..."
-                      required
-                    />
-                  </div>
+                        required
+                      />
+                    </div>
 
-                  <button
-                    type="submit"
-                    disabled={yorumGonderiliyor}
+                    <button
+                      type="submit"
+                      disabled={yorumGonderiliyor}
                     className="flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-bold transition-all hover:scale-105 disabled:opacity-50"
                     style={{
                       background: 'linear-gradient(135deg, #d4a537 0%, #b8860b 100%)',
                       color: '#1a1a1a'
                     }}
-                  >
-                    {yorumGonderiliyor ? (
-                      <>
+                    >
+                      {yorumGonderiliyor ? (
+                        <>
                         <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                        در حال ارسال...
-                      </>
-                    ) : (
-                      <>
+                          در حال ارسال...
+                        </>
+                      ) : (
+                        <>
                         <Send className="w-5 h-5" />
-                        ثبت نظر
-                      </>
-                    )}
-                  </button>
-                </form>
-              ) : (
+                          ثبت نظر
+                        </>
+                      )}
+                    </button>
+                  </form>
+                ) : (
                 <div 
-                  className="mb-8 p-6 rounded-2xl text-center backdrop-blur-sm" 
+                  className="mb-8 p-6 rounded-2xl text-center" 
                   style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: '1px solid rgba(212,165,55,0.2)' }}
                 >
                   <MessageCircle className="w-12 h-12 text-amber-400/50 mx-auto mb-3" />
                   <p className="text-gray-400 mb-4">برای ثبت نظر باید وارد حساب کاربری خود شوید</p>
-                  <Link
-                    href="/giris"
+                    <Link
+                      href="/giris"
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all hover:scale-105"
                     style={{
                       background: 'linear-gradient(135deg, #d4a537 0%, #b8860b 100%)',
                       color: '#1a1a1a'
                     }}
-                  >
-                    ورود / ثبت نام
-                  </Link>
-                </div>
-              )}
+                    >
+                      ورود / ثبت نام
+                    </Link>
+                  </div>
+                )}
 
               {/* Comments List - %50 Şeffaf */}
-              <div className="space-y-4">
-                {yorumlar.length === 0 ? (
-                  <div className="text-center py-12">
+                <div className="space-y-4">
+                  {yorumlar.length === 0 ? (
+                    <div className="text-center py-12">
                     <MessageCircle className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-                    <p className="text-gray-500">هنوز نظری ثبت نشده است</p>
-                  </div>
-                ) : (
-                  yorumlar.map((yorum) => (
-                    <div
-                      key={yorum.id}
-                      className="p-6 rounded-2xl transition-all backdrop-blur-sm"
+                      <p className="text-gray-500">هنوز نظری ثبت نشده است</p>
+                    </div>
+                  ) : (
+                    yorumlar.map((yorum) => (
+                      <div
+                        key={yorum.id}
+                      className="p-6 rounded-2xl"
                       style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: '1px solid rgba(212,165,55,0.1)' }}
-                    >
-                      <div className="flex items-start gap-4">
+                      >
+                        <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
                           style={{ background: 'linear-gradient(135deg, #d4a537 0%, #b8860b 100%)' }}
                         >
                           <span className="text-black font-bold text-lg">{yorum.kullanici_ad?.charAt(0) || 'K'}</span>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
                               <div className="font-bold text-white">{yorum.kullanici_ad}</div>
                               <div className="text-xs text-gray-500">{new Date(yorum.created_at).toLocaleDateString('fa-AF')}</div>
-                            </div>
+                                </div>
                             <div className="flex gap-0.5">
-                              {[...Array(5)].map((_, i) => (
+                                {[...Array(5)].map((_, i) => (
                                 <Star key={i} className={`w-4 h-4 ${i < yorum.puan ? 'fill-amber-400 text-amber-400' : 'text-zinc-600'}`} />
                               ))}
                             </div>
@@ -583,6 +940,53 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
           </div>
         </main>
+
+        {/* 📱 Sabit İletişim Çubuğu - Mobil için */}
+        {magaza.telefon && (
+          <div 
+            className="fixed bottom-0 left-0 right-0 z-50 p-4 lg:hidden"
+            style={{ 
+              background: 'linear-gradient(to top, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0.9) 100%)',
+              borderTop: '1px solid rgba(212, 165, 55, 0.3)'
+            }}
+          >
+            <div className="flex items-center justify-center gap-3 max-w-lg mx-auto">
+              {/* WhatsApp */}
+              <a
+                href={`https://wa.me/${magaza.telefon.replace(/[^0-9]/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
+                style={{ background: '#25D366', color: '#fff' }}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                واتساپ
+              </a>
+              
+              {/* Arama */}
+              <a
+                href={`tel:${magaza.telefon}`}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
+                style={{ background: 'linear-gradient(135deg, #d4a537, #8b6914)', color: '#000' }}
+              >
+                <Phone className="w-5 h-5" />
+                تماس
+              </a>
+              
+              {/* Mesaj */}
+              <button
+                onClick={() => alert('قابلیت پیام به زودی فعال می‌شود')}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
+                style={{ background: '#3b82f6', color: '#fff' }}
+              >
+                <MessageCircle className="w-5 h-5" />
+                پیام
+              </button>
+            </div>
+          </div>
+        )}
 
         <Footer />
       </div>
@@ -737,8 +1141,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           </div>
                         </div>
                       </Link>
-                    ))}
-                  </div>
+                                ))}
+                              </div>
                 </section>
               )}
 
@@ -747,7 +1151,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 <div className="flex items-center gap-3 mb-6">
                   <MessageCircle className="h-8 w-8 text-blue-600" />
                   <h2 className="text-3xl font-bold text-gray-900">نظرات مشتریان</h2>
-                </div>
+                            </div>
 
                 {user ? (
                   <form onSubmit={handleYorumGonder} className="mb-8 bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
