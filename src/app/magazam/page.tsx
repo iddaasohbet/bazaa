@@ -516,7 +516,7 @@ export default function MagazamPage() {
                             cy="50%"
                             labelLine={false}
                             label={({ name, percent }) => {
-                              if (percent < 0.05) return '';
+                              if (!percent || percent < 0.05) return '';
                               return `${name}\n${(percent * 100).toFixed(0)}%`;
                             }}
                             outerRadius={110}
