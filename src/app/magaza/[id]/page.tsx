@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { use } from "react";
+import { useState, useEffect, useRef, use } from "react";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { Store, MapPin, Eye, Phone, Star, Package, Crown, ShoppingBag, Sparkles, Zap, MessageCircle, Send, ThumbsUp, BadgeCheck, ShieldCheck, Settings, Edit, TrendingUp, ChevronLeft, ChevronRight, Clock, Truck, Award, Users, Calendar, CheckCircle, Heart } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
+import MagazaStatsPanel from "@/components/MagazaStatsPanel";
 
 interface Magaza {
   id: number;
@@ -176,6 +177,20 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
   const isPro = magaza?.paket_turu === "pro";
   const isElite = magaza?.store_level === "elite" || isPremium;
 
+  // "Glass / şeffaf" görünüm helper'ı (tüm rozet ve butonlarda aynı efekt)
+  const glass = (
+    background: string,
+    color: string = "#fff",
+    shadow: string = "rgba(0,0,0,0.25)"
+  ): CSSProperties => ({
+    background,
+    color,
+    border: "1px solid rgba(255,255,255,0.20)",
+    backdropFilter: "blur(14px)",
+    WebkitBackdropFilter: "blur(14px)",
+    boxShadow: `0 10px 25px ${shadow}`,
+  });
+
   // Üyelik süresini hesapla
   const getMembershipDuration = (createdAt: string | undefined) => {
     if (!createdAt) return null;
@@ -332,7 +347,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
                     <div 
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                      style={{ background: '#10b981', color: '#fff' }}
+                      style={glass(
+                        'linear-gradient(135deg, rgba(16,185,129,0.40) 0%, rgba(16,185,129,0.22) 100%)',
+                        '#fff',
+                        'rgba(16,185,129,0.20)'
+                      )}
                     >
                       <BadgeCheck className="w-4 h-4" />
                       <span>مغازه تایید شده</span>
@@ -341,7 +360,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     {membershipDuration && (
                       <div 
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                        style={{ background: '#6b7280', color: '#fff' }}
+                        style={glass(
+                          'linear-gradient(135deg, rgba(156,163,175,0.35) 0%, rgba(75,85,99,0.25) 100%)',
+                          '#fff',
+                          'rgba(156,163,175,0.15)'
+                        )}
                       >
                         <Star className="w-4 h-4" />
                         <span>عضو پرو از {membershipDuration}</span>
@@ -351,7 +374,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     {magaza.guvenilir_satici === true && (
                       <div 
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                        style={{ background: '#3b82f6', color: '#fff' }}
+                        style={glass(
+                          'linear-gradient(135deg, rgba(59,130,246,0.40) 0%, rgba(29,78,216,0.28) 100%)',
+                          '#fff',
+                          'rgba(59,130,246,0.18)'
+                        )}
                       >
                         <ShieldCheck className="w-4 h-4" />
                         <span>فروشنده قابل اعتماد</span>
@@ -386,11 +413,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
-                          style={{
-                            background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                            color: '#fff',
-                            boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)'
-                          }}
+                          style={glass(
+                            'linear-gradient(135deg, rgba(37,211,102,0.40) 0%, rgba(18,140,126,0.30) 100%)',
+                            '#fff',
+                            'rgba(37,211,102,0.20)'
+                          )}
                         >
                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -400,11 +427,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         <a
                           href={`tel:${magaza.telefon}`}
                           className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
-                          style={{
-                            background: 'linear-gradient(135deg, #6b7280 0%, #9ca3af 50%, #6b7280 100%)',
-                            color: '#fff',
-                            boxShadow: '0 4px 15px rgba(107, 114, 128, 0.4)'
-                          }}
+                          style={glass(
+                            'linear-gradient(135deg, rgba(156,163,175,0.38) 0%, rgba(75,85,99,0.28) 100%)',
+                            '#fff',
+                            'rgba(156,163,175,0.18)'
+                          )}
                         >
                           <Phone className="w-5 h-5" />
                           <span>تماس</span>
@@ -412,11 +439,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         <button
                           onClick={() => alert('قابلیت پیام به زودی فعال می‌شود')}
                           className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
-                          style={{
-                            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                            color: '#fff',
-                            boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)'
-                          }}
+                          style={glass(
+                            'linear-gradient(135deg, rgba(59,130,246,0.40) 0%, rgba(29,78,216,0.30) 100%)',
+                            '#fff',
+                            'rgba(59,130,246,0.20)'
+                          )}
                         >
                           <MessageCircle className="w-5 h-5" />
                           <span>پیام</span>
@@ -434,64 +461,38 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               {/* Mağaza İstatistikleri */}
               <div 
                 className="rounded-2xl p-6"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '3px solid #6b7280',
-                  boxShadow: '0 0 20px rgba(107, 114, 128, 0.2)'
+                style={{
+                  ...glass(
+                    "linear-gradient(135deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 100%)",
+                    "#fff",
+                    "rgba(0,0,0,0.35)"
+                  ),
+                  border: "3px solid #6b7280",
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp className="w-5 h-5" style={{ color: '#9ca3af' }} />
                   <h3 className="text-lg font-bold" style={{ color: '#9ca3af' }}>آمار مغازه</h3>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Package className="w-4 h-4" />
-                      <span>تعداد محصولات</span>
-                    </div>
-                    <span className="text-white font-bold">{magaza.ilan_sayisi}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Eye className="w-4 h-4" />
-                      <span>بازدید کل</span>
-                    </div>
-                    <span className="text-white font-bold">{magaza.goruntulenme?.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Star className="w-4 h-4" />
-                      <span>امتیاز</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {yorumStats ? (
-                        <>
-                          <span className="text-gray-300 font-bold">{yorumStats.ortalama_puan}</span>
-                          <span className="text-gray-500 text-sm">/ 5</span>
-                        </>
-                      ) : (
-                        <span className="text-gray-500">-</span>
-                        )}
-                      </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Users className="w-4 h-4" />
-                      <span>تعداد نظرات</span>
-                    </div>
-                    <span className="text-white font-bold">{yorumStats?.toplam_yorum || 0}</span>
-                  </div>
-                </div>
+                <MagazaStatsPanel
+                  variant="pro"
+                  products={magaza.ilan_sayisi || 0}
+                  views={magaza.goruntulenme || 0}
+                  rating={yorumStats ? parseFloat(yorumStats.ortalama_puan) : 0}
+                  reviews={yorumStats?.toplam_yorum || 0}
+                />
               </div>
 
               {/* Güven Rozetleri */}
               <div 
                 className="rounded-2xl p-6"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '3px solid #6b7280',
-                  boxShadow: '0 0 20px rgba(107, 114, 128, 0.2)'
+                style={{
+                  ...glass(
+                    "linear-gradient(135deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 100%)",
+                    "#fff",
+                    "rgba(0,0,0,0.35)"
+                  ),
+                  border: "3px solid #6b7280",
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
@@ -500,7 +501,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 </div>
                 <div className="space-y-3">
                   {/* PRO Premium */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(107,114,128,0.1)' }}>
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-xl"
+                    style={glass(
+                      "linear-gradient(135deg, rgba(107,114,128,0.22) 0%, rgba(107,114,128,0.10) 100%)",
+                      "#fff",
+                      "rgba(107,114,128,0.12)"
+                    )}
+                  >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6b7280, #9ca3af)' }}>
                       <Star className="w-5 h-5 text-white" />
                     </div>
@@ -512,7 +520,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   </div>
                   
                   {/* Doğrulanmış */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(34,197,94,0.1)' }}>
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-xl"
+                    style={glass(
+                      "linear-gradient(135deg, rgba(34,197,94,0.22) 0%, rgba(34,197,94,0.10) 100%)",
+                      "#fff",
+                      "rgba(34,197,94,0.12)"
+                    )}
+                  >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-500">
                       <BadgeCheck className="w-5 h-5 text-white" />
                     </div>
@@ -525,7 +540,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
                   {/* Güvenilir Satıcı */}
                   {magaza.guvenilir_satici === true && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(59,130,246,0.1)' }}>
+                    <div
+                      className="flex items-center gap-3 p-3 rounded-xl"
+                      style={glass(
+                        "linear-gradient(135deg, rgba(59,130,246,0.22) 0%, rgba(59,130,246,0.10) 100%)",
+                        "#fff",
+                        "rgba(59,130,246,0.12)"
+                      )}
+                    >
                       <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-500">
                         <ShieldCheck className="w-5 h-5 text-white" />
                       </div>
@@ -538,7 +560,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   )}
 
                   {/* Hızlı Teslimat */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(168,85,247,0.1)' }}>
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-xl"
+                    style={glass(
+                      "linear-gradient(135deg, rgba(168,85,247,0.22) 0%, rgba(168,85,247,0.10) 100%)",
+                      "#fff",
+                      "rgba(168,85,247,0.12)"
+                    )}
+                  >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-500">
                       <Truck className="w-5 h-5 text-white" />
                     </div>
@@ -554,10 +583,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               {/* Çalışma Saatleri & Konum */}
               <div 
                 className="rounded-2xl p-6"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '3px solid #6b7280',
-                  boxShadow: '0 0 20px rgba(107, 114, 128, 0.2)'
+                style={{
+                  ...glass(
+                    "linear-gradient(135deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 100%)",
+                    "#fff",
+                    "rgba(0,0,0,0.35)"
+                  ),
+                  border: "3px solid #6b7280",
                 }}
               >
                 <div className="mb-6">
@@ -653,10 +685,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
             {ilanlar.length > 0 && (
               <div 
                 className="mb-12 p-6 rounded-3xl" 
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(10,10,10,0.95) 100%)',
-                  border: '3px solid #6b7280',
-                  boxShadow: '0 0 20px rgba(107, 114, 128, 0.2)'
+                style={{
+                  ...glass(
+                    "linear-gradient(135deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.16) 100%)",
+                    "#fff",
+                    "rgba(0,0,0,0.30)"
+                  ),
+                  border: "3px solid #6b7280",
                 }}
                 dir="rtl"
               >
@@ -685,9 +720,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     <Link key={ilan.id} href={`/ilan/${ilan.id}`} className="group block">
                       <div 
                         className="overflow-hidden rounded-2xl transition-all duration-300 group-hover:scale-[1.02]"
-                        style={{ 
-                          background: '#1a1a1a',
-                          border: '2px solid #6b7280'
+                        style={{
+                          ...glass(
+                            "linear-gradient(135deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.14) 100%)",
+                            "#fff",
+                            "rgba(0,0,0,0.22)"
+                          ),
+                          border: "2px solid #6b7280",
                         }}
                       >
                         <div className="relative aspect-square overflow-hidden">
@@ -726,10 +765,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
             {/* Comments Section - Gri */}
             <div 
               className="rounded-3xl p-6 sm:p-8 mb-8" 
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(10,10,10,0.95) 100%)',
-                border: '3px solid #6b7280',
-                boxShadow: '0 0 20px rgba(107, 114, 128, 0.2)'
+              style={{
+                ...glass(
+                  "linear-gradient(135deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.16) 100%)",
+                  "#fff",
+                  "rgba(0,0,0,0.30)"
+                ),
+                border: "3px solid #6b7280",
               }}
               dir="rtl"
             >
@@ -771,7 +813,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 <form 
                   onSubmit={handleYorumGonder} 
                   className="mb-8 p-6 rounded-2xl" 
-                  style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: '1px solid rgba(107,114,128,0.2)' }}
+                  style={{
+                    ...glass(
+                      "linear-gradient(135deg, rgba(0,0,0,0.26) 0%, rgba(0,0,0,0.14) 100%)",
+                      "#fff",
+                      "rgba(0,0,0,0.22)"
+                    ),
+                    border: "1px solid rgba(107,114,128,0.25)",
+                  }}
                 >
                   <div className="mb-4">
                     <label className="block text-sm font-bold mb-2" style={{ color: '#9ca3af' }}>امتیاز شما</label>
@@ -796,7 +845,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       onChange={(e) => setYeniYorum({ ...yeniYorum, yorum: e.target.value })}
                       rows={4}
                       className="w-full px-4 py-3 rounded-xl border text-white placeholder-gray-500 focus:border-gray-400 focus:ring-1 focus:ring-gray-400 transition-all"
-                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', borderColor: 'rgba(107,114,128,0.3)' }}
+                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', borderColor: 'rgba(107,114,128,0.28)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
                       placeholder="تجربه خود از خرید از این مغازه را بنویسید..."
                       required
                     />
@@ -827,7 +876,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               ) : (
                 <div 
                   className="mb-8 p-6 rounded-2xl text-center" 
-                  style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: '1px solid rgba(107,114,128,0.2)' }}
+                  style={{
+                    ...glass(
+                      "linear-gradient(135deg, rgba(0,0,0,0.26) 0%, rgba(0,0,0,0.14) 100%)",
+                      "#fff",
+                      "rgba(0,0,0,0.22)"
+                    ),
+                    border: "1px solid rgba(107,114,128,0.25)",
+                  }}
                 >
                   <MessageCircle className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(156,163,175,0.5)' }} />
                   <p className="text-gray-400 mb-4">برای ثبت نظر باید وارد حساب کاربری خود شوید</p>
@@ -897,7 +953,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-                style={{ background: '#25D366', color: '#fff' }}
+                style={glass(
+                  'linear-gradient(135deg, rgba(37,211,102,0.40) 0%, rgba(18,140,126,0.30) 100%)',
+                  '#fff',
+                  'rgba(37,211,102,0.20)'
+                )}
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -908,7 +968,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               <a
                 href={`tel:${magaza.telefon}`}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-                style={{ background: 'linear-gradient(135deg, #6b7280, #4b5563)', color: '#fff' }}
+                style={glass(
+                  'linear-gradient(135deg, rgba(156,163,175,0.38) 0%, rgba(75,85,99,0.28) 100%)',
+                  '#fff',
+                  'rgba(156,163,175,0.18)'
+                )}
               >
                 <Phone className="w-5 h-5" />
                 تماس
@@ -917,7 +981,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               <button
                 onClick={() => alert('قابلیت پیام به زودی فعال می‌شود')}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-                style={{ background: '#3b82f6', color: '#fff' }}
+                style={glass(
+                  'linear-gradient(135deg, rgba(59,130,246,0.40) 0%, rgba(29,78,216,0.30) 100%)',
+                  '#fff',
+                  'rgba(59,130,246,0.20)'
+                )}
               >
                 <MessageCircle className="w-5 h-5" />
                 پیام
@@ -1100,10 +1168,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     {/* Doğrulanmış Mağaza */}
                     <div 
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                      style={{ 
-                        background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                        color: '#fff'
-                      }}
+                      style={glass(
+                        'linear-gradient(135deg, rgba(34,197,94,0.40) 0%, rgba(22,163,74,0.28) 100%)',
+                        '#fff',
+                        'rgba(34,197,94,0.18)'
+                      )}
                     >
                       <BadgeCheck className="w-4 h-4" />
                       <span>مغازه تایید شده</span>
@@ -1113,10 +1182,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     {membershipDuration && (
                       <div 
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                        style={{ 
-                          background: 'linear-gradient(135deg, #d4a537 0%, #8b6914 100%)',
-                          color: '#000'
-                        }}
+                        style={glass(
+                          'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)',
+                          '#111827',
+                          'rgba(212,165,55,0.22)'
+                        )}
                       >
                         <Crown className="w-4 h-4" />
                         <span>عضو پریمیوم از {membershipDuration}</span>
@@ -1127,10 +1197,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     {magaza.guvenilir_satici === true && (
                       <div 
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                        style={{ 
-                          background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                          color: '#fff'
-                        }}
+                        style={glass(
+                          'linear-gradient(135deg, rgba(59,130,246,0.40) 0%, rgba(29,78,216,0.30) 100%)',
+                          '#fff',
+                          'rgba(59,130,246,0.18)'
+                        )}
                       >
                         <ShieldCheck className="w-4 h-4" />
                         <span>فروشنده قابل اعتماد</span>
@@ -1165,11 +1236,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
-                        style={{
-                          background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                          color: '#fff',
-                          boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)'
-                        }}
+                        style={glass(
+                          'linear-gradient(135deg, rgba(37,211,102,0.40) 0%, rgba(18,140,126,0.30) 100%)',
+                          '#fff',
+                          'rgba(37,211,102,0.20)'
+                        )}
                       >
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -1183,11 +1254,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         <a
                           href={`tel:${magaza.telefon}`}
                         className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
-                        style={{
-                          background: 'linear-gradient(135deg, #d4a537 0%, #f5d78e 50%, #d4a537 100%)',
-                          color: '#000',
-                          boxShadow: '0 4px 15px rgba(212, 165, 55, 0.4)'
-                        }}
+                        style={glass(
+                          'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)',
+                          '#111827',
+                          'rgba(212,165,55,0.22)'
+                        )}
                       >
                         <Phone className="w-5 h-5" />
                         <span>تماس</span>
@@ -1205,11 +1276,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         alert('قابلیت پیام به زودی فعال می‌شود');
                       }}
                       className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
-                      style={{
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                        color: '#fff',
-                        boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)'
-                      }}
+                      style={glass(
+                        'linear-gradient(135deg, rgba(59,130,246,0.40) 0%, rgba(29,78,216,0.30) 100%)',
+                        '#fff',
+                        'rgba(59,130,246,0.20)'
+                      )}
                     >
                       <MessageCircle className="w-5 h-5" />
                       <span>پیام</span>
@@ -1225,64 +1296,38 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               {/* Mağaza İstatistikleri */}
               <div 
                 className="rounded-2xl p-6"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '3px solid #d4a537',
-                  boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
+                style={{
+                  ...glass(
+                    "linear-gradient(135deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 100%)",
+                    "#fff",
+                    "rgba(0,0,0,0.35)"
+                  ),
+                  border: "3px solid #d4a537",
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp className="w-5 h-5 text-amber-400" />
                   <h3 className="text-lg font-bold text-amber-400">آمار مغازه</h3>
                         </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Package className="w-4 h-4" />
-                      <span>تعداد محصولات</span>
-                        </div>
-                    <span className="text-white font-bold">{magaza.ilan_sayisi}</span>
-                          </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Eye className="w-4 h-4" />
-                      <span>بازدید کل</span>
-                          </div>
-                    <span className="text-white font-bold">{magaza.goruntulenme?.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Star className="w-4 h-4" />
-                      <span>امتیاز</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {yorumStats ? (
-                        <>
-                          <span className="text-amber-400 font-bold">{yorumStats.ortalama_puan}</span>
-                          <span className="text-gray-500 text-sm">/ 5</span>
-                        </>
-                      ) : (
-                        <span className="text-gray-500">-</span>
-                    )}
-                  </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Users className="w-4 h-4" />
-                      <span>تعداد نظرات</span>
-                    </div>
-                    <span className="text-white font-bold">{yorumStats?.toplam_yorum || 0}</span>
-                  </div>
-                </div>
+                <MagazaStatsPanel
+                  variant="elite"
+                  products={magaza.ilan_sayisi || 0}
+                  views={magaza.goruntulenme || 0}
+                  rating={yorumStats ? parseFloat(yorumStats.ortalama_puan) : 0}
+                  reviews={yorumStats?.toplam_yorum || 0}
+                />
                       </div>
 
               {/* Güven Rozetleri */}
               <div 
                 className="rounded-2xl p-6"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '3px solid #d4a537',
-                  boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
+                style={{
+                  ...glass(
+                    "linear-gradient(135deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 100%)",
+                    "#fff",
+                    "rgba(0,0,0,0.35)"
+                  ),
+                  border: "3px solid #d4a537",
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
@@ -1291,7 +1336,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                                 </div>
                 <div className="space-y-3">
                   {/* VIP Premium */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(212,165,55,0.1)' }}>
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-xl"
+                    style={glass(
+                      "linear-gradient(135deg, rgba(212,165,55,0.22) 0%, rgba(212,165,55,0.10) 100%)",
+                      "#fff",
+                      "rgba(212,165,55,0.14)"
+                    )}
+                  >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4a537, #f5d78e)' }}>
                       <Crown className="w-5 h-5 text-black" />
                               </div>
@@ -1303,7 +1355,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             </div>
 
                   {/* Doğrulanmış */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(34,197,94,0.1)' }}>
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-xl"
+                    style={glass(
+                      "linear-gradient(135deg, rgba(34,197,94,0.22) 0%, rgba(34,197,94,0.10) 100%)",
+                      "#fff",
+                      "rgba(34,197,94,0.12)"
+                    )}
+                  >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-500">
                       <BadgeCheck className="w-5 h-5 text-white" />
                           </div>
@@ -1316,7 +1375,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
                   {/* Güvenilir Satıcı */}
                   {magaza.guvenilir_satici === true && (
-                    <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(59,130,246,0.1)' }}>
+                    <div
+                      className="flex items-center gap-3 p-3 rounded-xl"
+                      style={glass(
+                        "linear-gradient(135deg, rgba(59,130,246,0.22) 0%, rgba(59,130,246,0.10) 100%)",
+                        "#fff",
+                        "rgba(59,130,246,0.12)"
+                      )}
+                    >
                       <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-500">
                         <ShieldCheck className="w-5 h-5 text-white" />
                       </div>
@@ -1329,7 +1395,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   )}
 
                   {/* Hızlı Teslimat */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(168,85,247,0.1)' }}>
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-xl"
+                    style={glass(
+                      "linear-gradient(135deg, rgba(168,85,247,0.22) 0%, rgba(168,85,247,0.10) 100%)",
+                      "#fff",
+                      "rgba(168,85,247,0.12)"
+                    )}
+                  >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-500">
                       <Truck className="w-5 h-5 text-white" />
                 </div>
@@ -1345,10 +1418,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               {/* Çalışma Saatleri & Konum */}
               <div 
                 className="rounded-2xl p-6"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '3px solid #d4a537',
-                  boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
+                style={{
+                  ...glass(
+                    "linear-gradient(135deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 100%)",
+                    "#fff",
+                    "rgba(0,0,0,0.35)"
+                  ),
+                  border: "3px solid #d4a537",
                 }}
               >
                 {/* Çalışma Saatleri */}
@@ -1449,10 +1525,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
             {ilanlar.length > 0 && (
               <div 
                 className="mb-12 p-6 rounded-3xl" 
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(10,10,10,0.95) 100%)',
-                  border: '3px solid #d4a537',
-                  boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
+                style={{
+                  ...glass(
+                    "linear-gradient(135deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.16) 100%)",
+                    "#fff",
+                    "rgba(0,0,0,0.30)"
+                  ),
+                  border: "3px solid #d4a537",
                 }}
                 dir="rtl"
               >
@@ -1482,9 +1561,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     <Link key={ilan.id} href={`/ilan/${ilan.id}`} className="group block">
                       <div 
                         className="overflow-hidden rounded-2xl transition-all duration-300 group-hover:scale-[1.02]"
-                        style={{ 
-                          background: '#1a1a1a',
-                          border: '2px solid #d4a537'
+                        style={{
+                          ...glass(
+                            "linear-gradient(135deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.14) 100%)",
+                            "#fff",
+                            "rgba(0,0,0,0.22)"
+                          ),
+                          border: "2px solid #d4a537",
                         }}
                       >
                         {/* Image */}
@@ -1528,10 +1611,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
             {/* Comments Section - Premium */}
             <div 
               className="rounded-3xl p-6 sm:p-8 mb-8" 
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(10,10,10,0.95) 100%)',
-                border: '3px solid #d4a537',
-                boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
+              style={{
+                ...glass(
+                  "linear-gradient(135deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.16) 100%)",
+                  "#fff",
+                  "rgba(0,0,0,0.30)"
+                ),
+                border: "3px solid #d4a537",
               }}
               dir="rtl"
             >
@@ -1574,7 +1660,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 <form 
                   onSubmit={handleYorumGonder} 
                   className="mb-8 p-6 rounded-2xl" 
-                  style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: '1px solid rgba(212,165,55,0.2)' }}
+                  style={{
+                    ...glass(
+                      "linear-gradient(135deg, rgba(0,0,0,0.26) 0%, rgba(0,0,0,0.14) 100%)",
+                      "#fff",
+                      "rgba(0,0,0,0.22)"
+                    ),
+                    border: "1px solid rgba(212,165,55,0.28)",
+                  }}
                 >
                     <div className="mb-4">
                     <label className="block text-amber-400 text-sm font-bold mb-2">امتیاز شما</label>
@@ -1599,7 +1692,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         onChange={(e) => setYeniYorum({ ...yeniYorum, yorum: e.target.value })}
                         rows={4}
                       className="w-full px-4 py-3 rounded-xl border border-amber-500/30 text-white placeholder-gray-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
-                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                      style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
                       placeholder="تجربه خود از خرید از این مغازه را بنویسید..."
                         required
                       />
@@ -1707,7 +1800,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-                style={{ background: '#25D366', color: '#fff' }}
+                style={glass(
+                  'linear-gradient(135deg, rgba(37,211,102,0.40) 0%, rgba(18,140,126,0.30) 100%)',
+                  '#fff',
+                  'rgba(37,211,102,0.20)'
+                )}
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -1719,7 +1816,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               <a
                 href={`tel:${magaza.telefon}`}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-                style={{ background: 'linear-gradient(135deg, #d4a537, #8b6914)', color: '#000' }}
+                style={glass(
+                  'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)',
+                  '#111827',
+                  'rgba(212,165,55,0.22)'
+                )}
               >
                 <Phone className="w-5 h-5" />
                 تماس
@@ -1729,7 +1830,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               <button
                 onClick={() => alert('قابلیت پیام به زودی فعال می‌شود')}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
-                style={{ background: '#3b82f6', color: '#fff' }}
+                style={glass(
+                  'linear-gradient(135deg, rgba(59,130,246,0.40) 0%, rgba(29,78,216,0.30) 100%)',
+                  '#fff',
+                  'rgba(59,130,246,0.20)'
+                )}
               >
                 <MessageCircle className="w-5 h-5" />
                 پیام
