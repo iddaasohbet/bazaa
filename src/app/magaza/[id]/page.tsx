@@ -238,11 +238,15 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               {/* Background - Product Slider */}
               {ilanlar.length > 0 ? (
                 <div className="absolute inset-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={getImageUrl(ilanlar[Math.min(heroSlideIndex, ilanlar.length - 1)].ana_resim)}
                     alt={ilanlar[Math.min(heroSlideIndex, ilanlar.length - 1)].baslik}
-                    className="w-full h-full object-cover"
+                    fill
+                    priority
+                    quality={100}
+                    sizes="100vw"
+                    className="object-cover"
+                    style={{ objectFit: 'cover' }}
                   />
                   <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.7) 100%)' }} />
               </div>
@@ -288,7 +292,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   className="px-8 sm:px-16 py-10 sm:py-14 text-center mx-4 rounded-3xl"
                   style={{ 
                     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                    border: '2px solid rgba(212, 165, 55, 0.3)'
+                    border: '3px solid #d4a537',
+                    boxShadow: '0 0 30px rgba(212, 165, 55, 0.3)'
                   }}
                   dir="rtl"
                 >
@@ -482,7 +487,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 className="rounded-2xl p-6"
                 style={{ 
                   background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '2px solid rgba(212, 165, 55, 0.3)'
+                  border: '3px solid #d4a537',
+                  boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
@@ -535,7 +541,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 className="rounded-2xl p-6"
                 style={{ 
                   background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '2px solid rgba(212, 165, 55, 0.3)'
+                  border: '3px solid #d4a537',
+                  boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
@@ -600,7 +607,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 className="rounded-2xl p-6"
                 style={{ 
                   background: 'linear-gradient(135deg, rgba(26,26,26,0.95) 0%, rgba(15,15,15,0.98) 100%)',
-                  border: '2px solid rgba(212, 165, 55, 0.3)'
+                  border: '3px solid #d4a537',
+                  boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
                 }}
               >
                 {/* Çalışma Saatleri */}
@@ -703,7 +711,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 className="mb-12 p-6 rounded-3xl" 
                 style={{ 
                   background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(10,10,10,0.95) 100%)',
-                  border: '2px solid rgba(212, 165, 55, 0.3)'
+                  border: '3px solid #d4a537',
+                  boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
                 }}
                 dir="rtl"
               >
@@ -735,7 +744,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                         className="overflow-hidden rounded-2xl transition-all duration-300 group-hover:scale-[1.02]"
                         style={{ 
                           background: '#1a1a1a',
-                          border: '1px solid rgba(212, 165, 55, 0.2)'
+                          border: '2px solid #d4a537'
                         }}
                       >
                         {/* Image */}
@@ -781,8 +790,9 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               className="rounded-3xl p-6 sm:p-8 mb-8" 
               style={{ 
                 background: 'linear-gradient(135deg, rgba(26,26,26,0.9) 0%, rgba(10,10,10,0.95) 100%)',
-                border: '2px solid rgba(212, 165, 55, 0.3)' 
-              }} 
+                border: '3px solid #d4a537',
+                boxShadow: '0 0 20px rgba(212, 165, 55, 0.2)'
+              }}
               dir="rtl"
             >
               <div className="flex items-center gap-3 mb-6">
@@ -947,7 +957,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
             className="fixed bottom-0 left-0 right-0 z-50 p-4 lg:hidden"
             style={{ 
               background: 'linear-gradient(to top, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0.9) 100%)',
-              borderTop: '1px solid rgba(212, 165, 55, 0.3)'
+              borderTop: '3px solid #d4a537'
             }}
           >
             <div className="flex items-center justify-center gap-3 max-w-lg mx-auto">
