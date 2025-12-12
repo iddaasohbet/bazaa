@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-// Cache logoları 1 saat (Vercel function duration'ı azaltmak için)
+// Cache: 1 saat (logo sık değişmez)
 export const revalidate = 3600;
 export const maxDuration = 30;
 
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         cached: false
       });
       
-      // Allow CDN caching for 1 hour
+      // Vercel CDN cache - 1 saat cache, 24 saat stale
       response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
       
       return response;

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+function isNoSuchTable(err: any) {
+  return err?.code === 'ER_NO_SUCH_TABLE' || String(err?.message || '').includes("doesn't exist");
+}
+
 // Mesajları getir
 export async function GET(request: NextRequest) {
   try {
@@ -32,6 +36,14 @@ export async function GET(request: NextRequest) {
       data: mesajlar
     });
   } catch (error: any) {
+    if (isNoSuchTable(error)) {
+      // Some DB installs don't have the private messaging table yet.
+      return NextResponse.json({
+        success: true,
+        data: [],
+        message: 'سیستم پیام‌ها هنوز فعال نشده است'
+      });
+    }
     console.error('❌ Mesajlar getirme hatası:', error);
     return NextResponse.json(
       { success: false, message: 'خطا در دریافت پیام‌ها' },
@@ -73,6 +85,12 @@ export async function POST(request: NextRequest) {
       data: { id: (result as any).insertId }
     });
   } catch (error: any) {
+    if (isNoSuchTable(error)) {
+      return NextResponse.json(
+        { success: false, message: 'سیستم پیام‌ها هنوز فعال نشده است' },
+        { status: 503 }
+      );
+    }
     console.error('❌ Mesaj gönderme hatası:', error);
     return NextResponse.json(
       { success: false, message: 'خطا در ارسال پیام' },
@@ -112,6 +130,12 @@ export async function PATCH(request: NextRequest) {
       message: 'پیام به عنوان خوانده شده علامت‌گذاری شد'
     });
   } catch (error: any) {
+    if (isNoSuchTable(error)) {
+      return NextResponse.json(
+        { success: false, message: 'سیستم پیام‌ها هنوز فعال نشده است' },
+        { status: 503 }
+      );
+    }
     console.error('❌ Mesaj güncelleme hatası:', error);
     return NextResponse.json(
       { success: false, message: 'خطا در به‌روزرسانی پیام' },
@@ -152,6 +176,12 @@ export async function DELETE(request: NextRequest) {
       message: 'پیام حذف شد'
     });
   } catch (error: any) {
+    if (isNoSuchTable(error)) {
+      return NextResponse.json(
+        { success: false, message: 'سیستم پیام‌ها هنوز فعال نشده است' },
+        { status: 503 }
+      );
+    }
     console.error('❌ Mesaj silme hatası:', error);
     return NextResponse.json(
       { success: false, message: 'خطا در حذف پیام' },

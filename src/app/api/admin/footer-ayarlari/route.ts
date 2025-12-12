@@ -116,6 +116,8 @@ export async function GET() {
         data: settings
       });
       response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+      // Vercel CDN cache - 1 saat cache, 24 saat stale
+      response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
       return response;
     } catch (error) {
       connection.release();
