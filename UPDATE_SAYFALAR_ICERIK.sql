@@ -1,0 +1,194 @@
+-- Sayfa içeriklerini mevcut içeriklerle güncelle
+
+-- SSS Sayfası
+UPDATE sayfalar SET icerik = '
+<div class="space-y-4">
+  <div class="border-b border-gray-200 pb-4">
+    <h3 class="text-lg font-bold mb-2">چگونه می‌توانم ثبت نام کنم؟</h3>
+    <p class="text-gray-700">برای ثبت نام، روی دکمه "ورود/ثبت نام" در بالای صفحه کلیک کنید. نام، ایمیل و شماره تلفن خود را وارد کنید. یک کد تایید به شماره شما ارسال می‌شود که باید وارد کنید. پس از تایید، حساب شما ایجاد می‌شود.</p>
+  </div>
+  
+  <div class="border-b border-gray-200 pb-4">
+    <h3 class="text-lg font-bold mb-2">آیا ثبت نام و استفاده از سایت رایگان است؟</h3>
+    <p class="text-gray-700">بله، ثبت نام و استفاده اساسی از پلتفرم کاملاً رایگان است. شما می‌توانید آگهی‌های رایگان ثبت کنید. برای ویژگی‌های پیشرفته مانند آگهی‌های ویژه یا افتتاح مغازه، پکت‌های پولی در دسترس هستند.</p>
+  </div>
+  
+  <div class="border-b border-gray-200 pb-4">
+    <h3 class="text-lg font-bold mb-2">چگونه می‌توانم آگهی ثبت کنم؟</h3>
+    <p class="text-gray-700">پس از ورود به حساب خود، روی "آگهی دادن" کلیک کنید. دسته بندی مناسب را انتخاب کنید، اطلاعات محصول یا خدمات خود را وارد کنید، عکس‌ها را آپلود کنید و قیمت را مشخص کنید. پس از بررسی، روی "ثبت آگهی" کلیک کنید.</p>
+  </div>
+  
+  <div class="border-b border-gray-200 pb-4">
+    <h3 class="text-lg font-bold mb-2">چند عکس می‌توانم در آگهی خود آپلود کنم؟</h3>
+    <p class="text-gray-700">شما می‌توانید تا ۸ عکس برای هر آگهی آپلود کنید. توصیه می‌کنیم از تصاویر واضح و با کیفیت بالا استفاده کنید تا شانس فروش شما بیشتر شود.</p>
+  </div>
+  
+  <div class="border-b border-gray-200 pb-4">
+    <h3 class="text-lg font-bold mb-2">روش‌های پرداخت چیست؟</h3>
+    <p class="text-gray-700">ما روش‌های مختلف پرداخت را قبول می‌کنیم از جمله کارت‌های بانکی افغانستان، پرداخت آنلاین و در برخی موارد پرداخت نقدی. تمام تراکنش‌ها ایمن و رمزگذاری شده هستند.</p>
+  </div>
+</div>
+' WHERE slug = 'sss';
+
+-- Hakkımızda Sayfası  
+UPDATE sayfalar SET icerik = '
+<div class="space-y-8">
+  <div class="text-center">
+    <h2 class="text-2xl font-bold mb-4">بزرگترین پلتفرم آگهی در افغانستان</h2>
+    <p class="text-gray-600">از سال ۲۰۲۵، ما یک بازار آنلاین قابل اعتماد هستیم که خریداران و فروشندگان را در سراسر افغانستان به هم متصل می‌کنیم.</p>
+  </div>
+  
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="border-b border-gray-200 pb-4">
+      <h3 class="text-xl font-bold mb-3">🎯 مأموریت ما</h3>
+      <p class="text-gray-700">ایجاد یک بازار آنلاین امن، آسان و سریع در افغانستان که خریداران و فروشندگان را به هم متصل کند.</p>
+    </div>
+    
+    <div class="border-b border-gray-200 pb-4">
+      <h3 class="text-xl font-bold mb-3">👥 چشم‌انداز ما</h3>
+      <p class="text-gray-700">تبدیل شدن به معتبرترین و محبوب‌ترین پلتفرم آگهی در منطقه با ارائه بهترین تجربه کاربری.</p>
+    </div>
+    
+    <div class="border-b border-gray-200 pb-4">
+      <h3 class="text-xl font-bold mb-3">🛡️ امنیت</h3>
+      <p class="text-gray-700">امنیت کاربران ما اولویت اصلی ماست. هر آگهی به دقت بررسی می‌شود و حریم خصوصی محافظت می‌شود.</p>
+    </div>
+    
+    <div class="border-b border-gray-200 pb-4">
+      <h3 class="text-xl font-bold mb-3">📈 رشد پایدار</h3>
+      <p class="text-gray-700">هر روز هزاران آگهی و کاربر جدید به ما می‌پیوندند. ما در حال رشد مستمر هستیم.</p>
+    </div>
+  </div>
+  
+  <div class="mt-8">
+    <h3 class="text-2xl font-bold mb-4 text-center">چرا ما را انتخاب کنید؟</h3>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-green-500">✓</span>
+        <span>ثبت آگهی رایگان</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-green-500">✓</span>
+        <span>دسته‌بندی‌های متنوع و کامل</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-green-500">✓</span>
+        <span>فرآیند آسان و سریع ثبت آگهی</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-green-500">✓</span>
+        <span>پشتیبانی ۲۴ ساعته</span>
+      </div>
+    </div>
+  </div>
+</div>
+' WHERE slug = 'hakkimizda';
+
+-- Güvenli Alışveriş Sayfası
+UPDATE sayfalar SET icerik = '
+<div class="space-y-8">
+  <div class="text-center mb-8">
+    <h2 class="text-2xl font-bold mb-3">نکات امنیتی مهم</h2>
+    <p class="text-gray-600">این دستورالعمل‌ها را دنبال کنید تا خرید امن و اطمینان‌بخشی داشته باشید</p>
+  </div>
+  
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="border-b border-gray-200 pb-4">
+      <h3 class="text-lg font-bold mb-2">👁️ محصول را قبل از خرید ببینید</h3>
+      <p class="text-gray-700">همیشه قبل از پرداخت، محصول را شخصاً بررسی کنید. از خرید محصولاتی که ندیده‌اید خودداری کنید.</p>
+    </div>
+    
+    <div class="border-b border-gray-200 pb-4">
+      <h3 class="text-lg font-bold mb-2">📍 در مکان‌های عمومی ملاقات کنید</h3>
+      <p class="text-gray-700">برای ملاقات با فروشنده، همیشه مکان‌های عمومی و شلوغ را انتخاب کنید.</p>
+    </div>
+    
+    <div class="border-b border-gray-200 pb-4">
+      <h3 class="text-lg font-bold mb-2">💳 از روش‌های پرداخت امن استفاده کنید</h3>
+      <p class="text-gray-700">ترجیحاً پرداخت را پس از دریافت محصول انجام دهید. از پرداخت‌های قابل ردیابی استفاده کنید.</p>
+    </div>
+    
+    <div class="border-b border-gray-200 pb-4">
+      <h3 class="text-lg font-bold mb-2">⚠️ به قیمت‌های غیرواقعی مشکوک باشید</h3>
+      <p class="text-gray-700">اگر قیمتی خیلی پایین‌تر از بازار است، احتمالاً کلاهبرداری است.</p>
+    </div>
+  </div>
+  
+  <div class="mt-8 bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
+    <h3 class="text-xl font-bold mb-3">قوانین طلایی خرید امن</h3>
+    <ul class="space-y-2">
+      <li>• اگر خیلی خوب به نظر می‌رسد که واقعی باشد، احتمالاً واقعی نیست</li>
+      <li>• هرگز تحت فشار تصمیم نگیرید</li>
+      <li>• به غریزه خود اعتماد کنید</li>
+      <li>• همیشه مدارک و رسیدها را نگه دارید</li>
+    </ul>
+  </div>
+</div>
+' WHERE slug = 'guvenli-alisveris';
+
+-- Nasıl Çalışır Sayfası
+UPDATE sayfalar SET icerik = '
+<div class="space-y-10">
+  <div class="text-center">
+    <h2 class="text-2xl font-bold mb-3">خرید و فروش در BazaareWatan بسیار آسان است</h2>
+    <p class="text-gray-600">این مراحل ساده را دنبال کنید</p>
+  </div>
+  
+  <div>
+    <h3 class="text-2xl font-bold mb-6 text-center">چگونه خرید کنم؟</h3>
+    <div class="space-y-4">
+      <div class="border-b border-gray-200 pb-4">
+        <h4 class="text-lg font-bold mb-2">۱. ثبت نام کنید</h4>
+        <p class="text-gray-700">با ایمیل یا شماره تلفن خود به راحتی یک حساب کاربری رایگان ایجاد کنید.</p>
+      </div>
+      
+      <div class="border-b border-gray-200 pb-4">
+        <h4 class="text-lg font-bold mb-2">۲. آگهی مورد نظر را پیدا کنید</h4>
+        <p class="text-gray-700">در میان هزاران آگهی، محصول یا خدمات مورد نظر خود را با فیلترهای پیشرفته جستجو کنید.</p>
+      </div>
+      
+      <div class="border-b border-gray-200 pb-4">
+        <h4 class="text-lg font-bold mb-2">۳. با فروشنده تماس بگیرید</h4>
+        <p class="text-gray-700">از طریق سیستم پیام‌رسانی امن ما، با فروشنده ارتباط برقرار کنید.</p>
+      </div>
+      
+      <div class="border-b border-gray-200 pb-4">
+        <h4 class="text-lg font-bold mb-2">۴. ملاقات و خرید</h4>
+        <p class="text-gray-700">در یک مکان عمومی با فروشنده ملاقات کنید، محصول را بررسی کنید و معامله را انجام دهید.</p>
+      </div>
+    </div>
+  </div>
+  
+  <div>
+    <h3 class="text-2xl font-bold mb-6 text-center">چگونه بفروشم؟</h3>
+    <div class="space-y-4">
+      <div class="border-b border-gray-200 pb-4">
+        <h4 class="text-lg font-bold mb-2">۱. آگهی خود را ثبت کنید</h4>
+        <p class="text-gray-700">با چند کلیک ساده، آگهی خود را با عکس‌های واضح و توضیحات کامل ثبت کنید.</p>
+      </div>
+      
+      <div class="border-b border-gray-200 pb-4">
+        <h4 class="text-lg font-bold mb-2">۲. به پیام‌ها پاسخ دهید</h4>
+        <p class="text-gray-700">به سوالات خریداران به سرعت پاسخ دهید و اعتماد آنها را جلب کنید.</p>
+      </div>
+      
+      <div class="border-b border-gray-200 pb-4">
+        <h4 class="text-lg font-bold mb-2">۳. معامله را انجام دهید</h4>
+        <p class="text-gray-700">با خریدار ملاقات کنید و معامله را با امنیت کامل نهایی کنید.</p>
+      </div>
+    </div>
+  </div>
+</div>
+' WHERE slug = 'nasil-calisir';
+
+SELECT 'Sayfa içerikleri başarıyla güncellendi!' as sonuc;
+
+
+
+
+
+
+
+
+
+

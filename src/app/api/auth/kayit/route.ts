@@ -1,0 +1,75 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { query, testConnection } from '@/lib/db';
+import bcrypt from 'bcryptjs';
+
+export async function POST(request: NextRequest) {
+  console.log('📝 Kayıt isteği alındı...');
+  
+  try {
+    // Database bağlantısını test et
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      console.error('❌ Database bağlantı hatası!');
+      return NextResponse.json(
+        { success: false, message: 'خطا در اتصال به پایگاه داده' },
+        { status: 500 }
+      );
+    }
+
+    const body = await request.json();
+    const { ad, email, telefon, sifre, il, ilce } = body;
+    console.log('👤 Kayıt bilgileri:', { ad, email, telefon, il, ilce });
+
+    // Validasyon
+    if (!ad || !email || !sifre || !il) {
+      return NextResponse.json(
+        { success: false, message: 'نام، ایمیل، رمز عبور و ولایت الزامی است' },
+        { status: 400 }
+      );
+    }
+
+    // Email kontrolü
+    console.log('🔍 Email kontrol ediliyor...');
+    const existingUser = await query(
+      'SELECT id FROM kullanicilar WHERE email = ?',
+      [email]
+    );
+
+    if (Array.isArray(existingUser) && existingUser.length > 0) {
+      console.log('⚠️ Email zaten kayıtlı');
+      return NextResponse.json(
+        { success: false, message: 'این ایمیل قبلاً ثبت شده است' },
+        { status: 400 }
+      );
+    }
+
+    // Şifreyi hashle
+    const hashedPassword = await bcrypt.hash(sifre, 10);
+
+    // Kullanıcıyı doğrudan kaydet
+    const result = await query(
+      `INSERT INTO kullanicilar (ad, email, telefon, sifre, il, ilce, rol, aktif, email_verified, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, 'user', TRUE, TRUE, NOW())`,
+      [ad, email, telefon || null, hashedPassword, il, ilce || null]
+    );
+
+    const userId = (result as any).insertId;
+    console.log('✅ Kullanıcı kaydedildi, ID:', userId);
+
+    return NextResponse.json({
+      success: true,
+      message: 'ثبت نام با موفقیت انجام شد',
+      data: {
+        id: userId,
+        ad,
+        email
+      }
+    });
+  } catch (error: any) {
+    console.error('❌ Kayıt işlemi hatası:', error);
+    return NextResponse.json(
+      { success: false, message: 'خطا در ثبت نام: ' + error.message },
+      { status: 500 }
+    );
+  }
+}
