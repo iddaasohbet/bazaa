@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Store, MapPin, Phone, Eye, Package, ExternalLink, MessageSquare, Star, Crown, Sparkles, BarChart3, Users, Plus, Settings, CheckCircle, ArrowUp, Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -96,7 +98,12 @@ export default function MagazamPage() {
       if (data.success && data.data && data.data.length > 0) {
         const magaza = data.data[0];
         setMagazaBilgileri(magaza);
-        await fetchDashboard(userData.id, magaza.id);
+        // Basic mağazalarda istatistikler gizli (dashboard API çağırma)
+        if (magaza.store_level !== "basic") {
+          await fetchDashboard(userData.id, magaza.id);
+        } else {
+          setDashboard(null);
+        }
       } else {
         router.push('/magaza-ac');
       }
@@ -173,6 +180,154 @@ export default function MagazamPage() {
 
   const levelInfo = getStoreLevelInfo(magazaBilgileri.store_level);
   const isElite = magazaBilgileri.store_level === "elite";
+  const isBasic = magazaBilgileri.store_level === "basic";
+
+  // ✅ Basic mağaza görünümü: Beyaz arka plan + istatistikler kilitli
+  if (isBasic) {
+    return (
+      <div className="min-h-screen flex flex-col bg-white">
+        <Header />
+        <main className="flex-1">
+          <div className="mx-auto max-w-6xl px-4 py-8" dir="rtl">
+            {/* Store header */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="h-28 sm:h-36 bg-gradient-to-br from-gray-900 to-gray-700 relative">
+                {magazaBilgileri.kapak_resmi && (
+                  <Image src={magazaBilgileri.kapak_resmi} alt="Kapak" fill className="object-cover opacity-40" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+              </div>
+              <div className="p-6 sm:p-8">
+                <div className="flex items-start gap-4 -mt-14">
+                  <div className="w-24 h-24 rounded-2xl bg-white border border-gray-200 overflow-hidden shadow-md">
+                    {magazaBilgileri.logo ? (
+                      <img src={magazaBilgileri.logo} alt="Logo" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-50">
+                        <Store className="w-10 h-10 text-gray-300" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 pt-10">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{magazaBilgileri.ad_dari || magazaBilgileri.ad}</h1>
+                      <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700">
+                        {levelInfo.text}
+                      </span>
+                      {magazaBilgileri.onay_durumu === "onaylandi" && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-700">
+                          <CheckCircle className="w-3 h-3" />
+                          تأیید شده
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-500">
+                      {magazaBilgileri.telefon && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-emerald-600" />
+                          <span dir="ltr">{magazaBilgileri.telefon}</span>
+                        </div>
+                      )}
+                      {magazaBilgileri.il_ad && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-blue-600" />
+                          {magazaBilgileri.il_ad}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Eye className="w-4 h-4 text-purple-600" />
+                        {Number(magazaBilgileri.goruntulenme || 0).toLocaleString("fa-AF")} بازدید
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <Link
+                        href={`/magaza/${magazaBilgileri.id}`}
+                        target="_blank"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        مشاهده مغازه
+                      </Link>
+                      <Link
+                        href="/magazam/duzenle"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+                      >
+                        <Settings className="w-4 h-4" />
+                        تنظیمات
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Upgrade gate */}
+            <div className="mt-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-3xl p-6 sm:p-8">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">آمار مغازه قفل است</h2>
+                  <p className="mt-1 text-sm text-gray-700">
+                    برای دیدن آمار (گراف‌ها، تحلیل‌ها و گزارش‌ها) باید مغازه را ارتقا دهید.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Link
+                      href="/magaza-paket"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-black"
+                      style={{ background: "linear-gradient(135deg, #d4a537 0%, #f5d78e 60%, #d4a537 100%)" }}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      ارتقا مغازه
+                    </Link>
+                    <Link
+                      href="/ilan-ver"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold bg-white border border-amber-200 text-gray-900 hover:bg-amber-50"
+                    >
+                      <Plus className="w-4 h-4" />
+                      آگهی جدید
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick links (still available) */}
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <Link href="/ilanlarim" className="rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center mb-3">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+                <div className="font-bold text-gray-900 text-sm">آگهی‌های من</div>
+              </Link>
+              <Link href="/mesajlar" className="rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center mb-3">
+                  <MessageSquare className="w-6 h-6 text-white" />
+                </div>
+                <div className="font-bold text-gray-900 text-sm">پیام‌ها</div>
+              </Link>
+              <Link href="/favoriler" className="rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-rose-600 flex items-center justify-center mb-3">
+                  <Heart className="w-6 h-6 text-white" />
+                </div>
+                <div className="font-bold text-gray-900 text-sm">علاقه‌مندی‌ها</div>
+              </Link>
+              <Link href="/magaza-paket" className="rounded-2xl border border-amber-200 bg-amber-50 p-5 hover:shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-3">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div className="font-bold text-gray-900 text-sm">پلن‌ها</div>
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   const GOLD = "#d4a537";
   const GOLD2 = "#f5d78e";

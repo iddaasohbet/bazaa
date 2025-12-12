@@ -175,7 +175,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
   const isPremium = magaza?.paket_turu === "premium";
   const isPro = magaza?.paket_turu === "pro";
-  const isElite = magaza?.store_level === "elite" || isPremium;
+  // Pro ve Premium mağaza sayfası aynı VIP temayı kullanır
+  const isElite = magaza?.store_level === "elite" || isPremium || isPro || magaza?.store_level === "pro";
 
   // "Glass / şeffaf" görünüm helper'ı (tüm rozet ve butonlarda aynı efekt)
   const glass = (
@@ -206,8 +207,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
     return `${diffDays} روز`;
   };
 
-  // Pro mağaza için Gri Premium Theme
-  if (isPro && !isElite && magaza) {
+  // Pro mağaza için ayrı tema kaldırıldı (Pro, VIP temayı kullanır)
+  if (false) {
+    // Not: Bu blok artık kullanılmıyor. Pro mağazalar VIP temaya yönlendirildi.
+    // TS'nin "magaza null olabilir" hatasını önlemek için local shadow.
+    const magaza = {} as Magaza;
     const membershipDuration = getMembershipDuration(magaza.created_at);
     const bgColor = magaza.tema_renk || '#1a1a1a';
 
@@ -1002,13 +1006,15 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
   // Premium/Elite mağaza için VIP Dark Theme
   if (isElite && magaza) {
     const membershipDuration = getMembershipDuration(magaza.created_at);
-    
-    // Tema rengi - sadece arka plan için
-    // Varsayılan: Koyu lacivert/mor tonlu premium arka plan
-    const bgColor = magaza.tema_renk || '#0f0f1a';
+
+    // Premium mağaza arka planı: Magazam dashboard ile aynı dark + gold radial
+    const premiumBg: CSSProperties = {
+      background:
+        "radial-gradient(1200px 600px at 20% 10%, rgba(212,165,55,0.10) 0%, rgba(11,15,20,0) 55%), #0B0F14",
+    };
 
   return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: bgColor }}>
+      <div className="min-h-screen flex flex-col" style={premiumBg}>
       <Header />
         
         {/* ✨ Animated Gold Border Effect - Top */}
