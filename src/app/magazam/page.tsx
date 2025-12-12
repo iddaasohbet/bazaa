@@ -98,12 +98,8 @@ export default function MagazamPage() {
       if (data.success && data.data && data.data.length > 0) {
         const magaza = data.data[0];
         setMagazaBilgileri(magaza);
-        // Basic mağazalarda istatistikler gizli (dashboard API çağırma)
-        if (magaza.store_level !== "basic") {
-          await fetchDashboard(userData.id, magaza.id);
-        } else {
-          setDashboard(null);
-        }
+        // Dashboard verilerini çek (istatistik görünümü UI'da paket seviyesine göre kilitlenir)
+        await fetchDashboard(userData.id, magaza.id);
       } else {
         router.push('/magaza-ac');
       }
@@ -181,153 +177,7 @@ export default function MagazamPage() {
   const levelInfo = getStoreLevelInfo(magazaBilgileri.store_level);
   const isElite = magazaBilgileri.store_level === "elite";
   const isBasic = magazaBilgileri.store_level === "basic";
-
-  // ✅ Basic mağaza görünümü: Beyaz arka plan + istatistikler kilitli
-  if (isBasic) {
-    return (
-      <div className="min-h-screen flex flex-col bg-white">
-        <Header />
-        <main className="flex-1">
-          <div className="mx-auto max-w-6xl px-4 py-8" dir="rtl">
-            {/* Store header */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="h-28 sm:h-36 bg-gradient-to-br from-gray-900 to-gray-700 relative">
-                {magazaBilgileri.kapak_resmi && (
-                  <Image src={magazaBilgileri.kapak_resmi} alt="Kapak" fill className="object-cover opacity-40" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              </div>
-              <div className="p-6 sm:p-8">
-                <div className="flex items-start gap-4 -mt-14">
-                  <div className="w-24 h-24 rounded-2xl bg-white border border-gray-200 overflow-hidden shadow-md">
-                    {magazaBilgileri.logo ? (
-                      <img src={magazaBilgileri.logo} alt="Logo" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-50">
-                        <Store className="w-10 h-10 text-gray-300" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 pt-10">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{magazaBilgileri.ad_dari || magazaBilgileri.ad}</h1>
-                      <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-700">
-                        {levelInfo.text}
-                      </span>
-                      {magazaBilgileri.onay_durumu === "onaylandi" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-700">
-                          <CheckCircle className="w-3 h-3" />
-                          تأیید شده
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-500">
-                      {magazaBilgileri.telefon && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-4 h-4 text-emerald-600" />
-                          <span dir="ltr">{magazaBilgileri.telefon}</span>
-                        </div>
-                      )}
-                      {magazaBilgileri.il_ad && (
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-blue-600" />
-                          {magazaBilgileri.il_ad}
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <Eye className="w-4 h-4 text-purple-600" />
-                        {Number(magazaBilgileri.goruntulenme || 0).toLocaleString("fa-AF")} بازدید
-                      </div>
-                    </div>
-
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      <Link
-                        href={`/magaza/${magazaBilgileri.id}`}
-                        target="_blank"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        مشاهده مغازه
-                      </Link>
-                      <Link
-                        href="/magazam/duzenle"
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
-                      >
-                        <Settings className="w-4 h-4" />
-                        تنظیمات
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Upgrade gate */}
-            <div className="mt-6 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-3xl p-6 sm:p-8">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow">
-                  <Crown className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">آمار مغازه قفل است</h2>
-                  <p className="mt-1 text-sm text-gray-700">
-                    برای دیدن آمار (گراف‌ها، تحلیل‌ها و گزارش‌ها) باید مغازه را ارتقا دهید.
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Link
-                      href="/magaza-paket"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-black"
-                      style={{ background: "linear-gradient(135deg, #d4a537 0%, #f5d78e 60%, #d4a537 100%)" }}
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      ارتقا مغازه
-                    </Link>
-                    <Link
-                      href="/ilan-ver"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold bg-white border border-amber-200 text-gray-900 hover:bg-amber-50"
-                    >
-                      <Plus className="w-4 h-4" />
-                      آگهی جدید
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick links (still available) */}
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <Link href="/ilanlarim" className="rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-sm">
-                <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center mb-3">
-                  <Package className="w-6 h-6 text-white" />
-                </div>
-                <div className="font-bold text-gray-900 text-sm">آگهی‌های من</div>
-              </Link>
-              <Link href="/mesajlar" className="rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-sm">
-                <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center mb-3">
-                  <MessageSquare className="w-6 h-6 text-white" />
-                </div>
-                <div className="font-bold text-gray-900 text-sm">پیام‌ها</div>
-              </Link>
-              <Link href="/favoriler" className="rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-sm">
-                <div className="w-12 h-12 rounded-2xl bg-rose-600 flex items-center justify-center mb-3">
-                  <Heart className="w-6 h-6 text-white" />
-                </div>
-                <div className="font-bold text-gray-900 text-sm">علاقه‌مندی‌ها</div>
-              </Link>
-              <Link href="/magaza-paket" className="rounded-2xl border border-amber-200 bg-amber-50 p-5 hover:shadow-sm">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mb-3">
-                  <Crown className="w-6 h-6 text-white" />
-                </div>
-                <div className="font-bold text-gray-900 text-sm">پلن‌ها</div>
-              </Link>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+  const canSeeStats = !isBasic; // Ücretsizlerde (basic) istatistik/grafikler gizli
 
   const GOLD = "#d4a537";
   const GOLD2 = "#f5d78e";
@@ -364,8 +214,10 @@ export default function MagazamPage() {
 
   const donutColors = [GOLD, "rgba(245,215,142,0.35)", "rgba(212,165,55,0.22)", "rgba(245,215,142,0.18)"];
 
+  const darkBg = "radial-gradient(1200px 600px at 20% 10%, rgba(212,165,55,0.10) 0%, rgba(11,15,20,0) 55%), #0B0F14";
+
   return (
-    <div className="min-h-screen" dir="ltr" style={{ background: "radial-gradient(1200px 600px at 20% 10%, rgba(212,165,55,0.10) 0%, rgba(11,15,20,0) 55%), #0B0F14" }}>
+    <div className="min-h-screen" dir="ltr" style={{ background: darkBg }}>
       <div className="mx-auto max-w-[1400px] px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
           {/* Sidebar */}
@@ -468,6 +320,43 @@ export default function MagazamPage() {
             </div>
 
             {/* Row 1: line chart + gauges */}
+            {!canSeeStats ? (
+              <div id="analytics" className="rounded-3xl p-6 sm:p-8" style={panelStyle} dir="rtl">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow"
+                    style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD2} 55%, ${GOLD} 100%)` }}
+                  >
+                    <Crown className="w-6 h-6 text-black" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-lg sm:text-xl font-black" style={{ color: "rgba(255,255,255,0.92)" }}>
+                      İstatistikler kilitli
+                    </div>
+                    <div className="mt-1 text-sm" style={{ color: "rgba(255,255,255,0.70)" }}>
+                      Grafikler, analizler ve raporları görmek için Premium paket satın almalısın.
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link
+                        href="/magaza-paket"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black"
+                        style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD2} 55%, ${GOLD} 100%)`, color: "#0B0F14" }}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Mağaza yükseltmesi
+                      </Link>
+                      <Link
+                        href="/ilan-ver"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold"
+                        style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", color: "rgba(255,255,255,0.86)" }}
+                      >
+                        <Plus className="w-4 h-4" style={{ color: GOLD2 }} />
+                        Yeni reklam
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
             <div id="analytics" className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
               <div className="rounded-3xl p-5" style={panelStyle}>
                 <div className="flex items-center justify-between mb-4">
@@ -535,66 +424,86 @@ export default function MagazamPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 xl:grid-cols-1 gap-6">
-                {/* Total Revenue gauge */}
-                <div className="rounded-3xl p-5" style={panelStyle}>
-                  <div className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.70)" }}>Total Revenue</div>
-                  <div className="flex items-center justify-center" style={{ height: 140 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={gauge(kpiPctRevenue)}
-                          startAngle={210}
-                          endAngle={-30}
-                          innerRadius={46}
-                          outerRadius={58}
-                          dataKey="value"
-                          stroke="none"
-                        >
-                          <Cell fill={GOLD} />
-                          <Cell fill="rgba(255,255,255,0.08)" />
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="absolute text-center">
-                      <div className="text-xl font-black" style={{ color: "rgba(255,255,255,0.92)" }}>
-                        ${Number(kpis?.totalRevenue || 0).toLocaleString("en-US")}
+              {canSeeStats ? (
+                <div className="grid grid-cols-2 xl:grid-cols-1 gap-6">
+                  {/* Total Revenue gauge */}
+                  <div className="rounded-3xl p-5" style={panelStyle}>
+                    <div className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.70)" }}>Total Revenue</div>
+                    <div className="flex items-center justify-center" style={{ height: 140 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={gauge(kpiPctRevenue)}
+                            startAngle={210}
+                            endAngle={-30}
+                            innerRadius={46}
+                            outerRadius={58}
+                            dataKey="value"
+                            stroke="none"
+                          >
+                            <Cell fill={GOLD} />
+                            <Cell fill="rgba(255,255,255,0.08)" />
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute text-center">
+                        <div className="text-xl font-black" style={{ color: "rgba(255,255,255,0.92)" }}>
+                          ${Number(kpis?.totalRevenue || 0).toLocaleString("en-US")}
+                        </div>
+                        <div className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>Revenue</div>
                       </div>
-                      <div className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>Revenue</div>
                     </div>
                   </div>
-                </div>
 
-                {/* New VIP Members gauge */}
-                <div className="rounded-3xl p-5" style={panelStyle}>
-                  <div className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.70)" }}>New VIP Members</div>
-                  <div className="flex items-center justify-center" style={{ height: 140 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={gauge(kpiPctVip)}
-                          startAngle={210}
-                          endAngle={-30}
-                          innerRadius={46}
-                          outerRadius={58}
-                          dataKey="value"
-                          stroke="none"
-                        >
-                          <Cell fill={GOLD} />
-                          <Cell fill="rgba(255,255,255,0.08)" />
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="absolute text-center">
-                      <div className="text-xl font-black" style={{ color: "rgba(255,255,255,0.92)" }}>
-                        {Number(kpis?.newVipMembers || 0).toLocaleString("en-US")}
+                  {/* New VIP Members gauge */}
+                  <div className="rounded-3xl p-5" style={panelStyle}>
+                    <div className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.70)" }}>New VIP Members</div>
+                    <div className="flex items-center justify-center" style={{ height: 140 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={gauge(kpiPctVip)}
+                            startAngle={210}
+                            endAngle={-30}
+                            innerRadius={46}
+                            outerRadius={58}
+                            dataKey="value"
+                            stroke="none"
+                          >
+                            <Cell fill={GOLD} />
+                            <Cell fill="rgba(255,255,255,0.08)" />
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute text-center">
+                        <div className="text-xl font-black" style={{ color: "rgba(255,255,255,0.92)" }}>
+                          {Number(kpis?.newVipMembers || 0).toLocaleString("en-US")}
+                        </div>
+                        <div className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>Members</div>
                       </div>
-                      <div className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>Members</div>
                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="rounded-3xl p-5 flex flex-col justify-between" style={panelStyle} dir="rtl">
+                  <div>
+                    <div className="text-sm font-black" style={{ color: GOLD2 }}>آمار فروش قفل است</div>
+                    <div className="mt-2 text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
+                      برای دیدن آمار و گزارش‌های پیشرفته باید پلن Premium تهیه کنید.
+                    </div>
+                  </div>
+                  <Link
+                    href="/magaza-paket"
+                    className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-black"
+                    style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD2} 55%, ${GOLD} 100%)`, color: "#0B0F14" }}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Premium’a yükselt
+                  </Link>
+                </div>
+              )}
             </div>
+            )}
 
             {/* Row 2: table + AI */}
             <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
@@ -745,42 +654,61 @@ export default function MagazamPage() {
                 </div>
               </div>
 
-              <div className="rounded-3xl p-5" style={panelStyle}>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>Customer Segmentation</div>
-                  <div className="text-xl" style={{ color: "rgba(255,255,255,0.55)" }}>…</div>
-                </div>
+              {canSeeStats ? (
+                <div className="rounded-3xl p-5" style={panelStyle}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>Customer Segmentation</div>
+                    <div className="text-xl" style={{ color: "rgba(255,255,255,0.55)" }}>…</div>
+                  </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { title: "Category", pct: segToPct(segCategory), data: segCategory },
-                    { title: "City", pct: segToPct(segCity), data: segCity },
-                    { title: "Status", pct: segToPct(segStatus), data: segStatus },
-                  ].map((seg, i) => (
-                    <div key={seg.title} className="text-center">
-                      <div className="mx-auto" style={{ width: 92, height: 92 }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={seg.data?.length ? seg.data.slice(0, 3) : [{ name: seg.title, value: 1 }]}
-                              dataKey="value"
-                              innerRadius={28}
-                              outerRadius={40}
-                              stroke="none"
-                            >
-                              {(seg.data?.length ? seg.data.slice(0, 3) : [{ name: seg.title, value: 1 }]).map((_, idx) => (
-                                <Cell key={idx} fill={donutColors[(idx + i) % donutColors.length]} />
-                              ))}
-                            </Pie>
-                          </PieChart>
-                        </ResponsiveContainer>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { title: "Category", pct: segToPct(segCategory), data: segCategory },
+                      { title: "City", pct: segToPct(segCity), data: segCity },
+                      { title: "Status", pct: segToPct(segStatus), data: segStatus },
+                    ].map((seg, i) => (
+                      <div key={seg.title} className="text-center">
+                        <div className="mx-auto" style={{ width: 92, height: 92 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={seg.data?.length ? seg.data.slice(0, 3) : [{ name: seg.title, value: 1 }]}
+                                dataKey="value"
+                                innerRadius={28}
+                                outerRadius={40}
+                                stroke="none"
+                              >
+                                {(seg.data?.length ? seg.data.slice(0, 3) : [{ name: seg.title, value: 1 }]).map((_, idx) => (
+                                  <Cell key={idx} fill={donutColors[(idx + i) % donutColors.length]} />
+                                ))}
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                        <div className="mt-2 text-xs font-bold" style={{ color: GOLD2 }}>{seg.pct || 0}%</div>
+                        <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.55)" }}>{seg.title}</div>
                       </div>
-                      <div className="mt-2 text-xs font-bold" style={{ color: GOLD2 }}>{seg.pct || 0}%</div>
-                      <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.55)" }}>{seg.title}</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="rounded-3xl p-5 flex flex-col justify-between" style={panelStyle} dir="rtl">
+                  <div>
+                    <div className="text-sm font-black" style={{ color: GOLD2 }}>بخش‌بندی مشتریان قفل است</div>
+                    <div className="mt-2 text-xs" style={{ color: "rgba(255,255,255,0.62)" }}>
+                      این گزارش‌ها فقط در پلن Premium فعال هستند.
+                    </div>
+                  </div>
+                  <Link
+                    href="/magaza-paket"
+                    className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-sm font-black"
+                    style={{ background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD2} 55%, ${GOLD} 100%)`, color: "#0B0F14" }}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Premium’a yükselt
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Helper */}
