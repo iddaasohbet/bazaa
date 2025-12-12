@@ -1007,19 +1007,36 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
   if (isElite && magaza) {
     const membershipDuration = getMembershipDuration(magaza.created_at);
 
-    // Premium mağaza arka planı: Magazam dashboard ile aynı dark + gold radial
-    const premiumBg: CSSProperties = {
-      background:
-        "radial-gradient(1200px 600px at 20% 10%, rgba(212,165,55,0.10) 0%, rgba(11,15,20,0) 55%), #0B0F14",
+    // Pro ve Premium aynı VIP layout'u kullanır; renk aksanı pakete göre değişir:
+    // - Premium/Elite: Gold
+    // - Pro: Platinum Grey
+    const isPremiumVip = magaza.paket_turu === "premium" || magaza.store_level === "elite";
+    const A1 = isPremiumVip ? "#d4a537" : "#9ca3af"; // accent
+    const A2 = isPremiumVip ? "#f5d78e" : "#e5e7eb"; // highlight
+    const A3 = isPremiumVip ? "#8b6914" : "#4b5563"; // deep
+    const glowLow = isPremiumVip ? "rgba(212, 165, 55, 0.30)" : "rgba(156, 163, 175, 0.35)";
+    const glowHigh = isPremiumVip ? "rgba(212, 165, 55, 0.60)" : "rgba(156, 163, 175, 0.65)";
+    const topBorder = `linear-gradient(90deg, #0a0a0a 0%, ${A1} 20%, ${A2} 50%, ${A1} 80%, #0a0a0a 100%)`;
+    const heroFrame = `linear-gradient(#0a0a0a, #0a0a0a) padding-box, linear-gradient(135deg, ${A1} 0%, ${A2} 25%, ${A1} 50%, ${A3} 75%, ${A1} 100%) border-box`;
+    const accentGrad = `linear-gradient(135deg, ${A1} 0%, ${A2} 50%, ${A1} 100%)`;
+    const accentGrad90 = `linear-gradient(90deg, ${A1}, ${A2}, ${A1})`;
+    const accentDeep = `linear-gradient(135deg, ${A1}, ${A3})`;
+    const badgeGrad = `linear-gradient(135deg, ${A1} 0%, ${A2} 30%, ${A1} 60%, ${A3} 100%)`;
+    const titleGrad = `linear-gradient(135deg, ${A2} 0%, ${A1} 50%, ${A2} 100%)`;
+
+    const vipBg: CSSProperties = {
+      background: isPremiumVip
+        ? "radial-gradient(1200px 600px at 20% 10%, rgba(212,165,55,0.10) 0%, rgba(11,15,20,0) 55%), #0B0F14"
+        : "radial-gradient(1200px 600px at 20% 10%, rgba(156,163,175,0.10) 0%, rgba(11,15,20,0) 55%), #0B0F14",
     };
 
   return (
-      <div className="min-h-screen flex flex-col" style={premiumBg}>
+      <div className="min-h-screen flex flex-col" style={vipBg}>
       <Header />
         
         {/* ✨ Animated Gold Border Effect - Top */}
         <div className="h-1 w-full" style={{ 
-          background: 'linear-gradient(90deg, #0a0a0a 0%, #d4a537 20%, #f5d78e 50%, #d4a537 80%, #0a0a0a 100%)',
+          background: topBorder,
           animation: 'shimmer 3s ease-in-out infinite'
         }} />
         
@@ -1029,8 +1046,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
             50% { opacity: 1; }
           }
           @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(212, 165, 55, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(212, 165, 55, 0.6); }
+            0%, 100% { box-shadow: 0 0 20px ${glowLow}; }
+            50% { box-shadow: 0 0 40px ${glowHigh}; }
           }
           @keyframes float {
             0%, 100% { transform: translateY(0); }
@@ -1046,7 +1063,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
               className="relative mt-6 mb-8 h-[420px] sm:h-[480px] rounded-3xl overflow-hidden"
               style={{ 
                 border: '3px solid transparent',
-                background: 'linear-gradient(#0a0a0a, #0a0a0a) padding-box, linear-gradient(135deg, #d4a537 0%, #f5d78e 25%, #d4a537 50%, #8b6914 75%, #d4a537 100%) border-box'
+                background: heroFrame
               }}
             >
               {/* Background - Product Slider */}
@@ -1092,7 +1109,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       }`}
                       style={{
                         background: idx === heroSlideIndex 
-                          ? 'linear-gradient(90deg, #d4a537, #f5d78e, #d4a537)' 
+                          ? accentGrad90
                           : 'rgba(255,255,255,0.4)'
                       }}
                     />
@@ -1106,8 +1123,8 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   className="px-8 sm:px-16 py-10 sm:py-14 text-center mx-4 rounded-3xl"
                   style={{ 
                     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                    border: '3px solid #d4a537',
-                    boxShadow: '0 0 30px rgba(212, 165, 55, 0.3)'
+                    border: `3px solid ${A1}`,
+                    boxShadow: `0 0 30px ${glowLow}`
                   }}
                   dir="rtl"
                 >
@@ -1117,7 +1134,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     <div 
                       className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden"
                       style={{ 
-                        background: 'linear-gradient(135deg, #d4a537 0%, #f5d78e 50%, #d4a537 100%)',
+                        background: accentGrad,
                         padding: '4px',
                         animation: 'pulse-glow 2s ease-in-out infinite'
                       }}
@@ -1131,7 +1148,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             className="w-full h-full object-contain p-3"
                       />
                     ) : (
-                          <div className="w-full h-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4a537, #8b6914)' }}>
+                          <div className="w-full h-full flex items-center justify-center" style={{ background: accentDeep }}>
                             <Crown className="w-16 h-16 text-black" />
                       </div>
                     )}
@@ -1141,10 +1158,10 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       <div 
                         className="absolute top-2 right-2 z-20"
                         style={{ 
-                          background: 'linear-gradient(135deg, #d4a537 0%, #f5d78e 30%, #d4a537 60%, #8b6914 100%)',
+                          background: badgeGrad,
                           padding: '6px 12px',
                           borderRadius: '8px',
-                          boxShadow: '0 4px 15px rgba(212, 165, 55, 0.6)',
+                          boxShadow: `0 4px 15px ${glowHigh}`,
                           border: '2px solid rgba(255,255,255,0.4)'
                         }}
                       >
@@ -1160,7 +1177,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   <h1 
                     className="text-3xl sm:text-4xl md:text-5xl font-black mb-3"
                     style={{ 
-                      background: 'linear-gradient(135deg, #f5d78e 0%, #d4a537 50%, #f5d78e 100%)',
+                      background: titleGrad,
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
                       backgroundClip: 'text'
@@ -1189,9 +1206,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       <div 
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
                         style={glass(
-                          'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)',
+                          isPremiumVip
+                            ? 'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)'
+                            : 'linear-gradient(135deg, rgba(229,231,235,0.26) 0%, rgba(156,163,175,0.22) 100%)',
                           '#111827',
-                          'rgba(212,165,55,0.22)'
+                          isPremiumVip ? 'rgba(212,165,55,0.22)' : 'rgba(156,163,175,0.22)'
                         )}
                       >
                         <Crown className="w-4 h-4" />
@@ -1308,12 +1327,12 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     "#fff",
                     "rgba(0,0,0,0.35)"
                   ),
-                  border: "3px solid #d4a537",
+                  border: `3px solid ${A1}`,
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <TrendingUp className="w-5 h-5 text-amber-400" />
-                  <h3 className="text-lg font-bold text-amber-400">آمار مغازه</h3>
+                  <TrendingUp className="w-5 h-5" style={{ color: A2 }} />
+                  <h3 className="text-lg font-bold" style={{ color: A2 }}>آمار مغازه</h3>
                         </div>
                 <MagazaStatsPanel
                   variant="elite"
@@ -1333,24 +1352,26 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     "#fff",
                     "rgba(0,0,0,0.35)"
                   ),
-                  border: "3px solid #d4a537",
+                  border: `3px solid ${A1}`,
                 }}
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <Award className="w-5 h-5 text-amber-400" />
-                  <h3 className="text-lg font-bold text-amber-400">نشان‌های اعتماد</h3>
+                  <Award className="w-5 h-5" style={{ color: A2 }} />
+                  <h3 className="text-lg font-bold" style={{ color: A2 }}>نشان‌های اعتماد</h3>
                                 </div>
                 <div className="space-y-3">
                   {/* VIP Premium */}
                   <div
                     className="flex items-center gap-3 p-3 rounded-xl"
                     style={glass(
-                      "linear-gradient(135deg, rgba(212,165,55,0.22) 0%, rgba(212,165,55,0.10) 100%)",
+                      isPremiumVip
+                        ? "linear-gradient(135deg, rgba(212,165,55,0.22) 0%, rgba(212,165,55,0.10) 100%)"
+                        : "linear-gradient(135deg, rgba(156,163,175,0.22) 0%, rgba(156,163,175,0.10) 100%)",
                       "#fff",
-                      "rgba(212,165,55,0.14)"
+                      isPremiumVip ? "rgba(212,165,55,0.14)" : "rgba(156,163,175,0.14)"
                     )}
                   >
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #d4a537, #f5d78e)' }}>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: accentGrad }}>
                       <Crown className="w-5 h-5 text-black" />
                               </div>
                     <div>
