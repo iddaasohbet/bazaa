@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, Search, X, Plus, User, Heart, MessageSquare, ChevronDown, Store, Globe, MapPin, Grid, LogIn, ShoppingBag } from "lucide-react";
 import FeedbackWidget from "./FeedbackWidget";
 
@@ -24,6 +24,7 @@ export default function Header() {
   const [langOpen, setLangOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState<'dari' | 'pashto' | 'en'>('dari');
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const langCloseTimerRef = useRef<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,6 +43,22 @@ export default function Header() {
     if (searchQuery.trim()) {
       router.push(`/ara?q=${encodeURIComponent(searchQuery.trim())}`);
     }
+  };
+
+  const openLangDropdown = () => {
+    if (langCloseTimerRef.current) {
+      window.clearTimeout(langCloseTimerRef.current);
+      langCloseTimerRef.current = null;
+    }
+    setLangDropdownOpen(true);
+  };
+
+  const scheduleCloseLangDropdown = () => {
+    if (langCloseTimerRef.current) window.clearTimeout(langCloseTimerRef.current);
+    langCloseTimerRef.current = window.setTimeout(() => {
+      setLangDropdownOpen(false);
+      langCloseTimerRef.current = null;
+    }, 150);
   };
 
   useEffect(() => {
@@ -281,7 +298,11 @@ export default function Header() {
               </Link>
 
               {/* Language Dropdown - Logo yanında */}
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseEnter={openLangDropdown}
+                onMouseLeave={scheduleCloseLangDropdown}
+              >
                 <button
                   onClick={() => setLangDropdownOpen(!langDropdownOpen)}
                   className="flex items-center gap-1.5 h-9 px-2.5 rounded-lg hover:bg-gray-100 transition-all border border-gray-200"
@@ -293,16 +314,18 @@ export default function Header() {
                   <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {langDropdownOpen && (
-                  <div className="absolute top-11 right-0 bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/50 py-2 min-w-[120px] z-50">
-                    <button onClick={() => { setCurrentLang('dari'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'dari' ? 'bg-white/50' : ''}`}>
-                      دری
-                    </button>
-                    <button onClick={() => { setCurrentLang('pashto'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'pashto' ? 'bg-white/50' : ''}`}>
-                      پښتو
-                    </button>
-                    <button onClick={() => { setCurrentLang('en'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'en' ? 'bg-white/50' : ''}`}>
-                      English
-                    </button>
+                  <div className="absolute top-full right-0 pt-2 z-50">
+                    <div className="bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/50 py-2 min-w-[120px]">
+                      <button onClick={() => { setCurrentLang('dari'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'dari' ? 'bg-white/50' : ''}`}>
+                        دری
+                      </button>
+                      <button onClick={() => { setCurrentLang('pashto'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'pashto' ? 'bg-white/50' : ''}`}>
+                        پښتو
+                      </button>
+                      <button onClick={() => { setCurrentLang('en'); setLangDropdownOpen(false); }} className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold hover:bg-white/50 ${currentLang === 'en' ? 'bg-white/50' : ''}`}>
+                        English
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

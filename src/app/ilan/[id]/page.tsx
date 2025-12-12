@@ -67,6 +67,9 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
   const [showShareModal, setShowShareModal] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
+  const panelClass =
+    "rounded-3xl bg-white/80 backdrop-blur-md border border-white/60 shadow-[0_18px_55px_rgba(15,23,42,0.10)]";
+
   useEffect(() => {
     fetchIlan();
   }, [resolvedParams.id]);
@@ -135,7 +138,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 py-8">
-          <div className="container mx-auto px-4">
+          <div className="mx-auto w-full max-w-6xl px-4">
             <div className="animate-pulse space-y-6">
               <div className="h-96 border border-gray-200 rounded"></div>
               <div className="h-64 border border-gray-200 rounded"></div>
@@ -152,7 +155,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 py-8">
-          <div className="container mx-auto px-4 text-center py-20">
+          <div className="mx-auto w-full max-w-6xl px-4 text-center py-20">
             <div className="text-6xl mb-4">😕</div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">آگهی یافت نشد</h1>
             <p className="text-gray-600 mb-6">آگهی مورد نظر شما حذف شده یا دیگر موجود نیست.</p>
@@ -228,11 +231,11 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-slate-50">
       <Header />
       
       <main className="flex-1 py-6 md:py-10">
-        <div className="container mx-auto px-4">
+        <div className="mx-auto w-full max-w-6xl px-4">
           {/* Breadcrumb */}
           <div className="mb-6 text-sm" dir="rtl">
             <div className="flex items-center gap-2 text-gray-500">
@@ -246,11 +249,11 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid lg:grid-cols-[1.85fr_1fr] gap-6 lg:gap-8">
             {/* Left Column - Images and Details */}
             <div className="lg:col-span-2 space-y-6">
               {/* Image Gallery - Premium */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className={`${panelClass} overflow-hidden`}>
                 {/* Main Image */}
                 <div className="relative aspect-[4/3] md:aspect-video bg-gray-50">
                   {ilan.resimler && ilan.resimler.length > 0 ? (
@@ -322,7 +325,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
               </div>
 
               {/* Title & Info - Premium */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6">
+              <div className={`${panelClass} p-5 md:p-6`}>
                 <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-4">{ilan.baslik}</h1>
                 
                 <div className="flex flex-wrap gap-4 md:gap-6 mb-6 pb-6 border-b border-gray-100">
@@ -378,7 +381,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
             <div className="lg:col-span-1">
               <div className="sticky top-4 space-y-4">
                 {/* Price - Premium */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6">
+                <div className={`${panelClass} p-5 md:p-6`}>
                   <div className="text-sm text-gray-600 mb-3">قیمت</div>
                   
                   {/* İndirim Gösterimi - Sadece Pro ve Elite için */}
@@ -471,7 +474,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                 </div>
 
                 {/* Seller - Premium */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6">
+                <div className={`${panelClass} p-5 md:p-6`}>
                   <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
                       <User className="h-4 w-4 text-blue-600" />
@@ -596,7 +599,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                 </div>
 
                 {/* Actions - Premium */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+                <div className={`${panelClass} p-4`}>
                   <div className="grid grid-cols-2 gap-2">
                     <button 
                       onClick={async () => {
@@ -675,7 +678,7 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                 </div>
 
                 {/* Ad Info - Premium */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+                <div className={`${panelClass} p-4`}>
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-500">شماره آگهی</span>
