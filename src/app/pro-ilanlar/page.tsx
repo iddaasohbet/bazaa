@@ -8,6 +8,9 @@ import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
 import { getPremiumIlanlar } from "@/lib/ilan";
 
+// Build sırasında DB'ye bağlanma, sadece runtime'da
+export const dynamic = 'force-dynamic';
+
 export default async function ProIlanlarPage() {
   const all = await getPremiumIlanlar(50);
   const ilanlar = all.filter((ilan) => ilan.store_level === "pro");

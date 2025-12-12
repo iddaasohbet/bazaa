@@ -7,7 +7,8 @@ import OnecikanIlanlar from "@/components/OnecikanIlanlar";
 import PremiumAds from "@/components/PremiumAds";
 import AdList from "@/components/AdList";
 
-export const revalidate = 60;
+// Build sırasında DB'ye bağlanma, sadece runtime'da
+export const dynamic = 'force-dynamic';
 
 function SliderSkeleton() {
   return (
