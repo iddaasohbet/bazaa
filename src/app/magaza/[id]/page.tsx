@@ -1236,16 +1236,16 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
 
                   {/* Stats */}
                   <div className="flex items-center justify-center gap-6 sm:gap-10 mb-6 flex-wrap">
-                    <div className="flex items-center gap-2" style={{ color: '#f5d78e' }}>
+                    <div className="flex items-center gap-2" style={{ color: A2 }}>
                       <Package className="w-5 h-5" />
                       <span className="text-sm font-semibold">{magaza.ilan_sayisi} محصول</span>
                         </div>
-                    <div className="flex items-center gap-2" style={{ color: '#f5d78e' }}>
+                    <div className="flex items-center gap-2" style={{ color: A2 }}>
                       <Eye className="w-5 h-5" />
                       <span className="text-sm font-semibold">{magaza.goruntulenme} بازدید</span>
                         </div>
                         {magaza.il_ad && (
-                      <div className="flex items-center gap-2" style={{ color: '#f5d78e' }}>
+                      <div className="flex items-center gap-2" style={{ color: A2 }}>
                         <MapPin className="w-5 h-5" />
                         <span className="text-sm font-semibold">{magaza.il_ad}</span>
                           </div>
@@ -1280,9 +1280,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           href={`tel:${magaza.telefon}`}
                         className="flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105"
                         style={glass(
-                          'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)',
+                          isPremiumVip
+                            ? 'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)'
+                            : 'linear-gradient(135deg, rgba(229,231,235,0.28) 0%, rgba(156,163,175,0.22) 100%)',
                           '#111827',
-                          'rgba(212,165,55,0.22)'
+                          isPremiumVip ? 'rgba(212,165,55,0.22)' : 'rgba(156,163,175,0.22)'
                         )}
                       >
                         <Phone className="w-5 h-5" />
@@ -1451,14 +1453,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     "#fff",
                     "rgba(0,0,0,0.35)"
                   ),
-                  border: "3px solid #d4a537",
+                  border: `3px solid ${A1}`,
                 }}
               >
                 {/* Çalışma Saatleri */}
                       <div className="mb-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <Clock className="w-5 h-5 text-amber-400" />
-                    <h3 className="text-lg font-bold text-amber-400">ساعات کاری</h3>
+                    <Clock className="w-5 h-5" style={{ color: A2 }} />
+                    <h3 className="text-lg font-bold" style={{ color: A2 }}>ساعات کاری</h3>
                       </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
@@ -1483,16 +1485,19 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 {/* Konum & İletişim Bilgileri */}
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <MapPin className="w-5 h-5 text-amber-400" />
-                    <h3 className="text-lg font-bold text-amber-400">آدرس و تماس</h3>
+                    <MapPin className="w-5 h-5" style={{ color: A2 }} />
+                    <h3 className="text-lg font-bold" style={{ color: A2 }}>آدرس و تماس</h3>
                   </div>
                   
                   <div className="space-y-3">
                     {/* Şehir */}
                     {magaza.il_ad && (
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/20 flex-shrink-0 mt-0.5">
-                          <MapPin className="w-4 h-4 text-amber-400" />
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                          style={{ backgroundColor: isPremiumVip ? "rgba(245,215,142,0.14)" : "rgba(156,163,175,0.16)" }}
+                        >
+                          <MapPin className="w-4 h-4" style={{ color: A2 }} />
                         </div>
                         <div>
                           <p className="text-gray-500 text-xs">شهر</p>
@@ -1504,8 +1509,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     {/* Adres */}
                     {magaza.adres && (
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/20 flex-shrink-0 mt-0.5">
-                          <Store className="w-4 h-4 text-amber-400" />
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                          style={{ backgroundColor: isPremiumVip ? "rgba(245,215,142,0.14)" : "rgba(156,163,175,0.16)" }}
+                        >
+                          <Store className="w-4 h-4" style={{ color: A2 }} />
                       </div>
                         <div>
                           <p className="text-gray-500 text-xs">آدرس کامل</p>
@@ -1522,7 +1530,10 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 </div>
                         <div>
                           <p className="text-gray-500 text-xs">شماره تماس</p>
-                          <a href={`tel:${magaza.telefon}`} className="text-white text-sm hover:text-amber-400 transition-colors">
+                          <a
+                            href={`tel:${magaza.telefon}`}
+                            className={`text-white text-sm transition-colors ${isPremiumVip ? "hover:text-amber-400" : "hover:text-gray-300"}`}
+                          >
                             {magaza.telefon}
                           </a>
                       </div>
@@ -1537,7 +1548,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3 mt-4 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02]"
                     style={{ 
-                      background: 'linear-gradient(135deg, #d4a537, #8b6914)',
+                      background: accentDeep,
                       color: '#000'
                     }}
                   >
@@ -1558,28 +1569,36 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                     "#fff",
                     "rgba(0,0,0,0.30)"
                   ),
-                  border: "3px solid #d4a537",
+                  border: `3px solid ${A1}`,
                 }}
                 dir="rtl"
               >
                 <div className="flex items-center gap-3 mb-6">
                   <div 
                     className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ background: 'linear-gradient(135deg, #d4a537, #f5d78e)' }}
+                    style={{ background: accentGrad }}
                   >
                     <ShoppingBag className="w-6 h-6 text-black" />
                         </div>
                   <h2 
                     className="text-2xl font-bold"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #f5d78e, #d4a537)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent'
-                    }}
+                    style={
+                      isPremiumVip
+                        ? {
+                            background: `linear-gradient(135deg, ${A2}, ${A1})`,
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            backgroundClip: "text",
+                          }
+                        : {
+                            color: A2,
+                            textShadow: "0 1px 10px rgba(0,0,0,0.55)",
+                          }
+                    }
                   >
                     محصولات
                           </h2>
-                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <Sparkles className="w-5 h-5" style={{ color: A2 }} />
                         </div>
 
                 {/* Grid Container */}
@@ -1594,7 +1613,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             "#fff",
                             "rgba(0,0,0,0.22)"
                           ),
-                          border: "2px solid #d4a537",
+                          border: `2px solid ${A1}`,
                         }}
                       >
                         {/* Image */}
@@ -1606,7 +1625,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           {/* Premium Shine Effect on Hover */}
-                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, rgba(212,165,55,0.1) 0%, transparent 50%, rgba(212,165,55,0.1) 100%)' }} />
+                          <div
+                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            style={{
+                              background: isPremiumVip
+                                ? "linear-gradient(135deg, rgba(212,165,55,0.10) 0%, transparent 50%, rgba(212,165,55,0.10) 100%)"
+                                : "linear-gradient(135deg, rgba(156,163,175,0.10) 0%, transparent 50%, rgba(156,163,175,0.10) 100%)",
+                            }}
+                          />
                           </div>
 
                         {/* Content */}
@@ -1617,7 +1643,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           <div className="flex items-center justify-between">
                             <span 
                               className="font-bold text-lg"
-                              style={{ color: '#f5d78e' }}
+                              style={{ color: A2 }}
                             >
                               ${ilan.para_birimi === 'USD' && ilan.fiyat_usd ? ilan.fiyat_usd.toLocaleString() : ilan.fiyat.toLocaleString()}
                             </span>
@@ -1644,25 +1670,33 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                   "#fff",
                   "rgba(0,0,0,0.30)"
                 ),
-                border: "3px solid #d4a537",
+                border: `3px solid ${A1}`,
               }}
               dir="rtl"
             >
               <div className="flex items-center gap-3 mb-6">
                 <div 
                   className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #d4a537, #f5d78e)' }}
+                  style={{ background: accentGrad }}
                 >
                   <MessageCircle className="w-6 h-6 text-black" />
                   </div>
                 <div>
                   <h2 
                     className="text-2xl font-bold"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #f5d78e, #d4a537)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent'
-                    }}
+                    style={
+                      isPremiumVip
+                        ? {
+                            background: `linear-gradient(135deg, ${A2}, ${A1})`,
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            backgroundClip: "text",
+                          }
+                        : {
+                            color: A2,
+                            textShadow: "0 1px 10px rgba(0,0,0,0.55)",
+                          }
+                    }
                   >
                       نظرات مشتریان
                     </h2>
@@ -1672,7 +1706,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                            className={`w-4 h-4 ${i < Math.round(parseFloat(yorumStats.ortalama_puan)) ? 'fill-amber-400 text-amber-400' : 'text-zinc-600'}`}
+                            className={`w-4 h-4 ${
+                              i < Math.round(parseFloat(yorumStats.ortalama_puan))
+                                ? (isPremiumVip ? "fill-amber-400 text-amber-400" : "fill-zinc-300 text-zinc-300")
+                                : "text-zinc-600"
+                            }`}
                             />
                           ))}
                         </div>
@@ -1693,11 +1731,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       "#fff",
                       "rgba(0,0,0,0.22)"
                     ),
-                    border: "1px solid rgba(212,165,55,0.28)",
+                    border: `1px solid ${isPremiumVip ? "rgba(212,165,55,0.28)" : "rgba(156,163,175,0.28)"}`,
                   }}
                 >
                     <div className="mb-4">
-                    <label className="block text-amber-400 text-sm font-bold mb-2">امتیاز شما</label>
+                    <label className={`block text-sm font-bold mb-2 ${isPremiumVip ? "text-amber-400" : "text-zinc-200"}`}>امتیاز شما</label>
                       <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map((puan) => (
                           <button
@@ -1706,19 +1744,29 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                             onClick={() => setYeniYorum({ ...yeniYorum, puan })}
                             className="transition-transform hover:scale-110"
                           >
-                          <Star className={`w-8 h-8 ${puan <= yeniYorum.puan ? 'fill-amber-400 text-amber-400' : 'text-zinc-600'}`} />
+                          <Star
+                            className={`w-8 h-8 ${
+                              puan <= yeniYorum.puan
+                                ? (isPremiumVip ? "fill-amber-400 text-amber-400" : "fill-zinc-300 text-zinc-300")
+                                : "text-zinc-600"
+                            }`}
+                          />
                           </button>
                         ))}
                       </div>
                     </div>
 
                     <div className="mb-4">
-                    <label className="block text-amber-400 text-sm font-bold mb-2">نظر شما</label>
+                    <label className={`block text-sm font-bold mb-2 ${isPremiumVip ? "text-amber-400" : "text-zinc-200"}`}>نظر شما</label>
                       <textarea
                         value={yeniYorum.yorum}
                         onChange={(e) => setYeniYorum({ ...yeniYorum, yorum: e.target.value })}
                         rows={4}
-                      className="w-full px-4 py-3 rounded-xl border border-amber-500/30 text-white placeholder-gray-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                      className={`w-full px-4 py-3 rounded-xl border text-white placeholder-gray-500 focus:ring-1 transition-all ${
+                        isPremiumVip
+                          ? "border-amber-500/30 focus:border-amber-400 focus:ring-amber-400"
+                          : "border-gray-400/30 focus:border-gray-200 focus:ring-gray-200"
+                      }`}
                       style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
                       placeholder="تجربه خود از خرید از این مغازه را بنویسید..."
                         required
@@ -1730,8 +1778,10 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       disabled={yorumGonderiliyor}
                     className="flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-bold transition-all hover:scale-105 disabled:opacity-50"
                     style={{
-                      background: 'linear-gradient(135deg, #d4a537 0%, #b8860b 100%)',
-                      color: '#1a1a1a'
+                      background: isPremiumVip
+                        ? "linear-gradient(135deg, #d4a537 0%, #b8860b 100%)"
+                        : "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%)",
+                      color: '#111827'
                     }}
                     >
                       {yorumGonderiliyor ? (
@@ -1750,16 +1800,18 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 ) : (
                 <div 
                   className="mb-8 p-6 rounded-2xl text-center" 
-                  style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: '1px solid rgba(212,165,55,0.2)' }}
+                  style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: `1px solid ${isPremiumVip ? "rgba(212,165,55,0.2)" : "rgba(156,163,175,0.22)"}` }}
                 >
-                  <MessageCircle className="w-12 h-12 text-amber-400/50 mx-auto mb-3" />
+                  <MessageCircle className="w-12 h-12 mx-auto mb-3" style={{ color: isPremiumVip ? "rgba(245,215,142,0.55)" : "rgba(229,231,235,0.55)" }} />
                   <p className="text-gray-400 mb-4">برای ثبت نظر باید وارد حساب کاربری خود شوید</p>
                     <Link
                       href="/giris"
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold transition-all hover:scale-105"
                     style={{
-                      background: 'linear-gradient(135deg, #d4a537 0%, #b8860b 100%)',
-                      color: '#1a1a1a'
+                      background: isPremiumVip
+                        ? "linear-gradient(135deg, #d4a537 0%, #b8860b 100%)"
+                        : "linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%)",
+                      color: '#111827'
                     }}
                     >
                       ورود / ثبت نام
@@ -1779,11 +1831,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                       <div
                         key={yorum.id}
                       className="p-6 rounded-2xl"
-                      style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: '1px solid rgba(212,165,55,0.1)' }}
+                      style={{ backgroundColor: 'rgba(30, 30, 30, 0.5)', border: `1px solid ${isPremiumVip ? "rgba(212,165,55,0.1)" : "rgba(156,163,175,0.12)"}` }}
                       >
                         <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                          style={{ background: 'linear-gradient(135deg, #d4a537 0%, #b8860b 100%)' }}
+                          style={{ background: isPremiumVip ? 'linear-gradient(135deg, #d4a537 0%, #b8860b 100%)' : 'linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%)' }}
                         >
                           <span className="text-black font-bold text-lg">{yorum.kullanici_ad?.charAt(0) || 'K'}</span>
                           </div>
@@ -1795,7 +1847,14 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                                 </div>
                             <div className="flex gap-0.5">
                                 {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`w-4 h-4 ${i < yorum.puan ? 'fill-amber-400 text-amber-400' : 'text-zinc-600'}`} />
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${
+                                    i < yorum.puan
+                                      ? (isPremiumVip ? "fill-amber-400 text-amber-400" : "fill-zinc-300 text-zinc-300")
+                                      : "text-zinc-600"
+                                  }`}
+                                />
                               ))}
                             </div>
                           </div>
@@ -1817,7 +1876,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
             className="fixed bottom-0 left-0 right-0 z-50 p-4 lg:hidden"
             style={{ 
               background: 'linear-gradient(to top, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0.9) 100%)',
-              borderTop: '3px solid #d4a537'
+              borderTop: `3px solid ${A1}`
             }}
           >
             <div className="flex items-center justify-center gap-3 max-w-lg mx-auto">
@@ -1844,9 +1903,11 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
                 href={`tel:${magaza.telefon}`}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm"
                 style={glass(
-                  'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)',
+                  isPremiumVip
+                    ? 'linear-gradient(135deg, rgba(245,215,142,0.42) 0%, rgba(212,165,55,0.30) 100%)'
+                    : 'linear-gradient(135deg, rgba(229,231,235,0.28) 0%, rgba(156,163,175,0.22) 100%)',
                   '#111827',
-                  'rgba(212,165,55,0.22)'
+                  isPremiumVip ? 'rgba(212,165,55,0.22)' : 'rgba(156,163,175,0.22)'
                 )}
               >
                 <Phone className="w-5 h-5" />
