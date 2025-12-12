@@ -8,13 +8,11 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || 'Ciko5744**',
   database: process.env.DB_NAME || 'cihatcengiz_baza',
   waitForConnections: true,
-  connectionLimit: 5, // Reduced for Vercel serverless
+  connectionLimit: 5,
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  connectTimeout: 5000, // 5 seconds max to connect
-  acquireTimeout: 5000, // 5 seconds max to acquire connection from pool
-  timeout: 10000, // 10 seconds max for queries
+  connectTimeout: 10000,
   multipleStatements: false,
 };
 
