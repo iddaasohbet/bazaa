@@ -63,11 +63,17 @@ export async function GET(request: NextRequest) {
       throw error;
     }
   } catch (error: any) {
-    console.error('❌ API: Logo getirme hatası:', error);
-    return NextResponse.json(
-      { success: false, message: 'Logo bilgileri alınamadı: ' + error.message },
-      { status: 500 }
-    );
+    console.error('❌ API: Logo getirme hatası:', error.message);
+    
+    // Fallback - boş logo döndür, 500 hatası verme
+    const fallbackLogos = { header_logo: '', footer_logo: '' };
+    const response = NextResponse.json({
+      success: true,
+      data: fallbackLogos,
+      fallback: true
+    });
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    return response;
   }
 }
 

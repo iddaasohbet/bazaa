@@ -2,18 +2,19 @@ import mysql from 'mysql2/promise';
 
 // Veritabanı bağlantı yapılandırması
 const dbConfig = {
-  host: process.env.DB_HOST || '104.247.173.212', // Fallback IP
+  host: process.env.DB_HOST || '104.247.173.212',
   port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'cihatcengiz_cihatcengiz', // Fallback User
-  password: process.env.DB_PASSWORD || 'Ciko5744**', // Fallback Pass
-  database: process.env.DB_NAME || 'cihatcengiz_baza', // Fallback DB
+  user: process.env.DB_USER || 'cihatcengiz_cihatcengiz',
+  password: process.env.DB_PASSWORD || 'Ciko5744**',
+  database: process.env.DB_NAME || 'cihatcengiz_baza',
   waitForConnections: true,
-  connectionLimit: 15, // ⚡ Daha fazla concurrent connection
+  connectionLimit: 5, // Reduced for Vercel serverless
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  // ssl: undefined - CPanel MySQL SSL desteklemiyor, property kaldırıldı
-  connectTimeout: 10000, // ⚡ Daha hızlı timeout (10 saniye)
+  connectTimeout: 5000, // 5 seconds max to connect
+  acquireTimeout: 5000, // 5 seconds max to acquire connection from pool
+  timeout: 10000, // 10 seconds max for queries
   multipleStatements: false,
 };
 

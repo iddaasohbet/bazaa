@@ -18,16 +18,15 @@ const createTransporter = () => {
   });
 };
 
-const transporter = createTransporter();
+// Lazy initialization - sadece email gönderildiğinde bağlantı kurulur
+let transporter: any = null;
 
-// Bağlantıyı test et
-transporter.verify(function (error, success) {
-  if (error) {
-    console.error('❌ SMTP Bağlantı Hatası:', error);
-  } else {
-    console.log('✅ SMTP Sunucusu hazır');
+function getTransporter() {
+  if (!transporter) {
+    transporter = createTransporter();
   }
-});
+  return transporter;
+}
 
 // 6 haneli doğrulama kodu oluştur
 export function generateVerificationCode(): string {
@@ -98,7 +97,7 @@ export async function sendVerificationEmail(to: string, code: string, name: stri
       `
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const info = await getTransporter().sendMail(mailOptions);
     console.log('✅ Email gönderildi:', to);
     console.log('📧 Message ID:', info.messageId);
     return true;
@@ -155,7 +154,7 @@ export async function sendPasswordResetEmail(to: string, code: string, name: str
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    await getTransporter().sendMail(mailOptions);
     console.log('✅ Şifre sıfırlama emaili gönderildi:', to);
     return true;
   } catch (error) {
