@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+export const revalidate = 60;
+
+type CacheEntry = { expiresAt: number; data: any[] };
+const ilanCache = new Map<string, CacheEntry>();
+const TTL_MS = 60 * 1000;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,20 +16,28 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    console.log('📦 Mağaza ilanları API - Mağaza ID:', id);
+    const magazaId = parseInt(id);
+    if (!Number.isFinite(magazaId)) {
+      return NextResponse.json({ success: false, message: 'Geçersiz mağaza id' }, { status: 400 });
+    }
+
+    const cacheKey = `${magazaId}:${Number.isFinite(limit) ? limit : 50}`;
+    const cached = ilanCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      const res = NextResponse.json({ success: true, data: cached.data || [] });
+      res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+      return res;
+    }
 
     // Mağaza sahibini bul
     const magazaData = await query(
       'SELECT id, kullanici_id FROM magazalar WHERE id = ?',
-      [parseInt(id)]
+      [magazaId]
     );
 
     const magaza: any = Array.isArray(magazaData) && magazaData.length > 0 ? magazaData[0] : null;
 
-    console.log('🏪 Mağaza bilgisi:', magaza);
-
     if (!magaza) {
-      console.error('❌ Mağaza bulunamadı');
       return NextResponse.json(
         { success: false, message: 'Mağaza bulunamadı' },
         { status: 404 }
@@ -55,18 +69,17 @@ export async function GET(
       WHERE i.magaza_id = ? AND i.aktif = TRUE
       ORDER BY vitrin DESC, i.created_at DESC
       LIMIT ?`,
-      [parseInt(id), parseInt(id), limit]
+      [magazaId, magazaId, limit]
     );
 
-    console.log('✅ İlanlar yüklendi:', Array.isArray(ilanlar) ? ilanlar.length : 0, 'adet');
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: ilanlar || []
     });
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    ilanCache.set(cacheKey, { expiresAt: Date.now() + TTL_MS, data: (ilanlar as any[]) || [] });
+    return response;
   } catch (error: any) {
-    console.error('❌ Mağaza ilanları hatası:', error);
-    
     // Hata durumunda boş array dön
     return NextResponse.json(
       { success: true, data: [] }

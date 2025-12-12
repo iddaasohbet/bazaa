@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+export const revalidate = 15;
+
+type CacheEntry = { expiresAt: number; data: any };
+const yorumCache = new Map<number, CacheEntry>();
+const TTL_MS = 15 * 1000;
+
 // Yorumları getir
 export async function GET(request: NextRequest) {
   try {
@@ -12,6 +18,18 @@ export async function GET(request: NextRequest) {
         { success: false, message: 'Mağaza ID gerekli' },
         { status: 400 }
       );
+    }
+
+    const idNum = parseInt(magazaId);
+    if (!Number.isFinite(idNum)) {
+      return NextResponse.json({ success: false, message: 'Geçersiz mağaza id' }, { status: 400 });
+    }
+
+    const cached = yorumCache.get(idNum);
+    if (cached && cached.expiresAt > Date.now()) {
+      const res = NextResponse.json({ success: true, data: cached.data });
+      res.headers.set('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=300');
+      return res;
     }
 
     const yorumlar = await query(
@@ -31,7 +49,7 @@ export async function GET(request: NextRequest) {
         AND my.onaylandi = TRUE
       ORDER BY my.created_at DESC
       `,
-      [parseInt(magazaId)]
+      [idNum]
     );
 
     // Mağaza istatistiklerini getir
@@ -48,7 +66,7 @@ export async function GET(request: NextRequest) {
       FROM magaza_yorumlar
       WHERE magaza_id = ? AND aktif = TRUE AND onaylandi = TRUE
       `,
-      [parseInt(magazaId)]
+      [idNum]
     );
 
     const stats = statsResult[0] || {
@@ -61,23 +79,25 @@ export async function GET(request: NextRequest) {
       puan_1: 0
     };
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        yorumlar,
-        stats: {
-          ortalama_puan: parseFloat(stats.ortalama_puan).toFixed(1),
-          toplam_yorum: stats.toplam_yorum,
-          dagilim: {
-            5: stats.puan_5,
-            4: stats.puan_4,
-            3: stats.puan_3,
-            2: stats.puan_2,
-            1: stats.puan_1
-          }
+    const payload = {
+      yorumlar,
+      stats: {
+        ortalama_puan: parseFloat(stats.ortalama_puan).toFixed(1),
+        toplam_yorum: stats.toplam_yorum,
+        dagilim: {
+          5: stats.puan_5,
+          4: stats.puan_4,
+          3: stats.puan_3,
+          2: stats.puan_2,
+          1: stats.puan_1
         }
       }
-    });
+    };
+
+    const res = NextResponse.json({ success: true, data: payload });
+    res.headers.set('Cache-Control', 'public, s-maxage=15, stale-while-revalidate=300');
+    yorumCache.set(idNum, { expiresAt: Date.now() + TTL_MS, data: payload });
+    return res;
   } catch (error: any) {
     console.error('❌ Yorumlar yüklenirken hata:', error);
     return NextResponse.json(
@@ -136,6 +156,12 @@ export async function POST(request: NextRequest) {
       `,
       [magaza_id, kullanici_id, yorum, puan, true] // true = otomatik onay
     );
+
+    // invalidate cache
+    try {
+      const idNum = parseInt(String(magaza_id));
+      if (Number.isFinite(idNum)) yorumCache.delete(idNum);
+    } catch {}
 
     return NextResponse.json({
       success: true,

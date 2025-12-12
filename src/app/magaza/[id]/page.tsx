@@ -78,47 +78,58 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
         console.error('User parse error:', error);
       }
     }
-    
-    fetchMagaza();
-    fetchYorumlar();
+
+    const controller = new AbortController();
+    void fetchAll(controller.signal);
+
+    return () => controller.abort();
   }, [resolvedParams.id]);
 
-  const fetchMagaza = async () => {
+  const fetchAll = async (signal: AbortSignal) => {
     try {
       setLoading(true);
-      
-      const magazaResponse = await fetch(`/api/magazalar/${resolvedParams.id}`);
+
+      // 1) Mağaza bilgisi: sayfayı hızlı göstermek için önce bunu çekiyoruz
+      const magazaResponse = await fetch(`/api/magazalar/${resolvedParams.id}`, { signal });
       const magazaData = await magazaResponse.json();
-      
-      if (magazaData.success) {
-        setMagaza(magazaData.data);
-      }
+      if (magazaData?.success) setMagaza(magazaData.data);
 
-      const vitrinResponse = await fetch(`/api/vitrin?turu=magaza&magaza_id=${resolvedParams.id}&limit=10`);
-      const vitrinData = await vitrinResponse.json();
-      if (vitrinData.success) {
-        setVitrinIlanlar(vitrinData.data);
-      }
+      // Mağaza geldiyse loading'i bitir, kalanlar arkadan dolsun
+      setLoading(false);
 
-      const ilanlarResponse = await fetch(`/api/magazalar/${resolvedParams.id}/ilanlar`);
-      const ilanlarData = await ilanlarResponse.json();
-      if (ilanlarData.success) {
-        setIlanlar(ilanlarData.data);
+      // 2) Kalan veriler paralel
+      const [vitrinRes, ilanlarRes, yorumlarRes] = await Promise.allSettled([
+        fetch(`/api/vitrin?turu=magaza&magaza_id=${resolvedParams.id}&limit=10`, { signal }).then((r) => r.json()),
+        fetch(`/api/magazalar/${resolvedParams.id}/ilanlar`, { signal }).then((r) => r.json()),
+        fetch(`/api/magaza-yorumlar?magaza_id=${resolvedParams.id}`, { signal }).then((r) => r.json()),
+      ]);
+
+      if (vitrinRes.status === "fulfilled" && vitrinRes.value?.success) {
+        setVitrinIlanlar(vitrinRes.value.data || []);
+      }
+      if (ilanlarRes.status === "fulfilled" && ilanlarRes.value?.success) {
+        setIlanlar(ilanlarRes.value.data || []);
+      }
+      if (yorumlarRes.status === "fulfilled" && yorumlarRes.value?.success) {
+        setYorumlar(yorumlarRes.value.data?.yorumlar || []);
+        setYorumStats(yorumlarRes.value.data?.stats || null);
       }
     } catch (error) {
+      // Abort ise sessiz geç
+      if ((error as any)?.name === "AbortError") return;
       console.error('Mağaza yüklenirken hata:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchYorumlar = async () => {
+  const refreshYorumlar = async () => {
     try {
       const response = await fetch(`/api/magaza-yorumlar?magaza_id=${resolvedParams.id}`);
       const data = await response.json();
-      if (data.success) {
-        setYorumlar(data.data.yorumlar || []);
-        setYorumStats(data.data.stats || null);
+      if (data?.success) {
+        setYorumlar(data.data?.yorumlar || []);
+        setYorumStats(data.data?.stats || null);
       }
     } catch (error) {
       console.error('Yorumlar yüklenirken hata:', error);
@@ -159,7 +170,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
       if (data.success) {
         alert('✅ نظر شما با موفقیت ثبت شد');
         setYeniYorum({ yorum: '', puan: 5 });
-        await fetchYorumlar();
+        void refreshYorumlar();
       } else {
         alert(data.message || 'خطا در ثبت نظر');
       }

@@ -1,25 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+export const revalidate = 60;
+
+type CacheEntry = { expiresAt: number; data: any };
+const magazaCache = new Map<number, CacheEntry>();
+const TTL_MS = 60 * 1000;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const magazaId = parseInt(id);
+    if (!Number.isFinite(magazaId)) {
+      return NextResponse.json(
+        { success: false, message: 'Geçersiz mağaza id' },
+        { status: 400 }
+      );
+    }
 
-    console.log('🔍 API /magazalar/[id] - Mağaza ID:', id);
+    // Hot cache (warm instance)
+    const cached = magazaCache.get(magazaId);
+    if (cached && cached.expiresAt > Date.now()) {
+      const res = NextResponse.json({ success: true, data: cached.data });
+      res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+      return res;
+    }
     
     // Önce basit sorgu - hata varsa görelim
     let magazaData;
     try {
       magazaData = await query(
         `SELECT m.* FROM magazalar m WHERE m.id = ? AND m.aktif = TRUE LIMIT 1`,
-        [parseInt(id)]
+        [magazaId]
       );
-      console.log('📦 API /magazalar/[id] - Mağaza bulundu (basit):', magazaData);
     } catch (err: any) {
-      console.error('❌ API /magazalar/[id] - SQL HATASI:', err.message);
       throw err;
     }
 
@@ -58,7 +75,6 @@ export async function GET(
     console.log('✅ API /magazalar/[id] - Mağaza bulundu:', magaza ? 'Evet' : 'Hayır');
     
     if (!magaza) {
-      console.log('❌ API /magazalar/[id] - Mağaza bulunamadı veya pasif!');
       return NextResponse.json(
         { success: false, message: 'این مغازه موجود نیست یا غیرفعال شده است' },
         { status: 404 }
@@ -79,23 +95,23 @@ export async function GET(
     try {
       await query(
         'UPDATE magazalar SET goruntulenme = goruntulenme + 1 WHERE id = ?',
-        [parseInt(id)]
+        [magazaId]
       );
     } catch (err) {
-      console.log('⚠️ Görüntülenme sayısı artırılamadı');
     }
 
     const response = NextResponse.json({
       success: true,
       data: magaza
     });
-    
-    // Cache bypass - Her zaman güncel veriyi getir
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+
+    // Cache the response for fast public store page loads.
+    // Note: view count might lag due to caching; acceptable for UX.
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    magazaCache.set(magazaId, { expiresAt: Date.now() + TTL_MS, data: magaza });
     
     return response;
   } catch (error: any) {
-    console.error('❌ API /magazalar/[id] - HATA:', error);
     // Artık mock döndürme, hata döndür
     return NextResponse.json({
       success: false,

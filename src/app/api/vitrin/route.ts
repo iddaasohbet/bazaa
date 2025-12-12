@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+export const revalidate = 30;
+
+type CacheEntry = { expiresAt: number; data: any[] };
+const vitrinCache = new Map<string, CacheEntry>();
+const TTL_MS = 30 * 1000;
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -8,6 +14,14 @@ export async function GET(request: NextRequest) {
     const kategoriId = searchParams.get('kategori_id');
     const magazaId = searchParams.get('magaza_id');
     const limit = parseInt(searchParams.get('limit') || '8');
+
+    const cacheKey = `${turu}:${kategoriId || ""}:${magazaId || ""}:${Number.isFinite(limit) ? limit : 8}`;
+    const cached = vitrinCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      const res = NextResponse.json({ success: true, data: cached.data || [] });
+      res.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=300');
+      return res;
+    }
 
     let whereClause = 'v.aktif = TRUE AND v.bitis_tarihi > NOW()';
     let params: any[] = [];
@@ -65,10 +79,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: vitrinIlanlar
     });
+    response.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=300');
+    vitrinCache.set(cacheKey, { expiresAt: Date.now() + TTL_MS, data: (vitrinIlanlar as any[]) || [] });
+    return response;
   } catch (error: any) {
     console.error('❌ Vitrin ilanları hatası:', error);
     
