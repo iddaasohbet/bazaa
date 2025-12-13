@@ -21,13 +21,11 @@ export async function GET(
       );
     }
 
-    // Hot cache (warm instance)
-    const cached = magazaCache.get(magazaId);
-    if (cached && cached.expiresAt > Date.now()) {
-      const res = NextResponse.json({ success: true, data: cached.data });
-      res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-      return res;
-    }
+    // Cache devre dışı - güncellemeler hemen yansısın
+    // const cached = magazaCache.get(magazaId);
+    // if (cached && cached.expiresAt > Date.now()) {
+    //   return NextResponse.json({ success: true, data: cached.data });
+    // }
     
     // Önce basit sorgu - hata varsa görelim
     let magazaData;
@@ -88,7 +86,8 @@ export async function GET(
     console.log('📊 API /magazalar/[id] - İstatistikler:', {
       ilan_sayisi: magaza.ilan_sayisi,
       goruntulenme: magaza.goruntulenme,
-      il_ad: magaza.il_ad
+      il_ad: magaza.il_ad,
+      tema_renk: magaza.tema_renk
     });
 
     // Görüntülenme sayısını artır (hata olsa bile devam et)
@@ -105,10 +104,8 @@ export async function GET(
       data: magaza
     });
 
-    // Cache the response for fast public store page loads.
-    // Note: view count might lag due to caching; acceptable for UX.
-    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-    magazaCache.set(magazaId, { expiresAt: Date.now() + TTL_MS, data: magaza });
+    // Cache kaldırıldı - tema rengi güncellemelerinin hemen yansıması için
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     
     return response;
   } catch (error: any) {

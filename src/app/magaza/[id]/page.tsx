@@ -90,7 +90,7 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
       setLoading(true);
 
       // 1) Mağaza bilgisi: sayfayı hızlı göstermek için önce bunu çekiyoruz
-      const magazaResponse = await fetch(`/api/magazalar/${resolvedParams.id}`, { signal });
+      const magazaResponse = await fetch(`/api/magazalar/${resolvedParams.id}`, { signal, cache: 'no-store' });
       const magazaData = await magazaResponse.json();
       if (magazaData?.success) setMagaza(magazaData.data);
 
