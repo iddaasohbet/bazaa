@@ -291,9 +291,6 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
             <h1 className="text-2xl md:text-4xl font-black text-gray-900 leading-snug">
               {ilan.baslik}
             </h1>
-            <p className="text-gray-500 text-sm mt-2">
-              الهام گرفته از طراحی‌های پریمیوم (نمایش بزرگ تصویر + کارت فروشنده)
-            </p>
           </motion.div>
 
           {/* Main Content Grid */}
