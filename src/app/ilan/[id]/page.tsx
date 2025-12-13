@@ -749,13 +749,13 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                     <span className="text-xs text-gray-500">پیام</span>
                   </button>
                   
-                  <button
-                    onClick={() => setShowShareModal(true)}
+                  <a
+                    href={`mailto:?subject=${encodeURIComponent(ilan.baslik)}&body=${encodeURIComponent(`این آگهی را ببینید: ${ilan.baslik}\n\nلینک: ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
                     className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
                   >
                     <Mail className="h-6 w-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
                     <span className="text-xs text-gray-500">ایمیل</span>
-                  </button>
+                  </a>
                   
                   <a
                     href={showPhone ? `tel:${ilan.kullanici_telefon}` : '#'}
