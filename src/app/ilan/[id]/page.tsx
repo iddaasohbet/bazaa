@@ -293,11 +293,11 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
             </h1>
           </motion.div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6 lg:gap-8">
+          {/* Main Content Grid - RTL: Kart sağda, Resim solda */}
+          <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-6 lg:gap-8" dir="rtl">
             
-            {/* Left Column - Image Gallery */}
-            <div className="space-y-6 order-1">
+            {/* Image Gallery - Mobilde üstte, Desktop'ta solda */}
+            <div className="space-y-6 order-1 lg:order-2">
               {/* Main Image Container */}
               <div className="relative bg-gradient-to-br from-gray-950 via-gray-900 to-black rounded-3xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.35)] ring-1 ring-white/10">
                 <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.18),transparent_45%),radial-gradient(circle_at_80%_40%,rgba(16,185,129,0.16),transparent_45%)]" />
@@ -476,8 +476,8 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
               </div>
             </div>
 
-            {/* Right Column - Info Card */}
-            <div className="lg:sticky lg:top-4 lg:self-start space-y-4 order-2">
+            {/* Info Card - Mobilde altta, Desktop'ta sağda */}
+            <div className="lg:sticky lg:top-4 lg:self-start space-y-4 order-2 lg:order-1">
               {/* Price Card */}
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
