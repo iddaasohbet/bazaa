@@ -636,33 +636,63 @@ export default function IlanDetay({ params }: { params: Promise<{ id: string }> 
                   </div>
                 ) : (
                   <div className="mb-6">
-                    <div className="flex items-center gap-3 p-4 rounded-2xl bg-gray-50 border border-gray-200">
+                    <Link 
+                      href={`/kullanici/${ilan.kullanici_id}`}
+                      className="flex items-center gap-3 p-4 rounded-2xl bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 transition-all"
+                    >
                       <div className="w-10 h-10 rounded-xl bg-gray-200 flex items-center justify-center">
                         <User className="h-5 w-5 text-gray-600" />
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <div className="font-bold text-gray-800">{ilan.kullanici_ad}</div>
                         <div className="text-sm text-gray-500">فروشنده عادی</div>
                       </div>
-                    </div>
+                      <ChevronLeft className="h-5 w-5 text-gray-400" />
+                    </Link>
                   </div>
                 )}
 
-                {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <button
-                    onClick={() => setShowPhone(true)}
-                    className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 font-semibold text-gray-700 transition-all"
+                {/* Action Buttons - 3 Column */}
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {/* Telefon */}
+                  {showPhone ? (
+                    <a
+                      href={`tel:${ilan.kullanici_telefon}`}
+                      className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border border-emerald-500 bg-emerald-50 hover:bg-emerald-100 transition-all"
+                    >
+                      <Phone className="h-5 w-5 text-emerald-600" />
+                      <span className="text-xs font-medium text-emerald-700 truncate w-full text-center">{ilan.kullanici_telefon}</span>
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => setShowPhone(true)}
+                      className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all"
+                    >
+                      <Phone className="h-5 w-5 text-gray-600" />
+                      <span className="text-xs font-medium text-gray-700">تماس</span>
+                    </button>
+                  )}
+                  
+                  {/* WhatsApp */}
+                  <a
+                    href={`https://wa.me/${ilan.kullanici_telefon?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('سلام، در مورد آگهی "' + ilan.baslik + '" سوال داشتم.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border border-green-500 bg-green-50 hover:bg-green-100 transition-all"
                   >
-                    <Phone className="h-5 w-5" />
-                    {showPhone ? ilan.kullanici_telefon : 'تماس'}
-                  </button>
+                    <svg className="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    </svg>
+                    <span className="text-xs font-medium text-green-700">واتساپ</span>
+                  </a>
+                  
+                  {/* Mesaj */}
                   <button
                     onClick={() => setShowMessageModal(true)}
-                    className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-semibold transition-all shadow-lg shadow-teal-500/25"
+                    className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 transition-all shadow-md"
                   >
-                    <MessageSquare className="h-5 w-5" />
-                    پیام
+                    <MessageSquare className="h-5 w-5 text-white" />
+                    <span className="text-xs font-medium text-white">پیام</span>
                   </button>
                 </div>
 

@@ -197,7 +197,11 @@ export async function PUT(
     
     await query(updateQuery, params_list);
 
-    console.log('✅ Mağaza güncellendi!');
+    // Cache'i temizle
+    const magazaId = parseInt(id);
+    magazaCache.delete(magazaId);
+    
+    console.log('✅ Mağaza güncellendi! Cache temizlendi.');
 
     return NextResponse.json({
       success: true,

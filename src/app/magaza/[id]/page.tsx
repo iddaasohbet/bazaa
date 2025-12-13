@@ -1035,10 +1035,13 @@ export default function MagazaSayfasi({ params }: { params: Promise<{ id: string
     const badgeGrad = `linear-gradient(135deg, ${A1} 0%, ${A2} 30%, ${A1} 60%, ${A3} 100%)`;
     const titleGrad = `linear-gradient(135deg, ${A2} 0%, ${A1} 50%, ${A2} 100%)`;
 
+    // Kullanıcının seçtiği tema rengi veya varsayılan
+    const userBgColor = magaza.tema_renk || '#0B0F14';
+    
     const vipBg: CSSProperties = {
       background: isPremiumVip
-        ? "radial-gradient(1200px 600px at 20% 10%, rgba(212,165,55,0.10) 0%, rgba(11,15,20,0) 55%), #0B0F14"
-        : "radial-gradient(1200px 600px at 20% 10%, rgba(156,163,175,0.10) 0%, rgba(11,15,20,0) 55%), #0B0F14",
+        ? `radial-gradient(1200px 600px at 20% 10%, rgba(212,165,55,0.10) 0%, rgba(11,15,20,0) 55%), ${userBgColor}`
+        : `radial-gradient(1200px 600px at 20% 10%, rgba(156,163,175,0.10) 0%, rgba(11,15,20,0) 55%), ${userBgColor}`,
     };
 
   return (
