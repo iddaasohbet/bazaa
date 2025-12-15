@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Star, Eye, Heart } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
+import { safeFetchJson } from "@/lib/safeFetch";
 
 interface Ilan {
   id: number;
@@ -51,13 +52,13 @@ export default function OnecikanIlanlar() {
       const user = JSON.parse(userStr);
       if (!user?.id) return;
       
-      const response = await fetch('/api/favoriler', {
+      const data = await safeFetchJson<{ success: boolean; data: any[] }>(`/api/favoriler`, {
+        timeoutMs: 10_000,
+        retries: 0,
         headers: {
-          'x-user-id': user.id.toString()
-        }
+          'x-user-id': user.id.toString(),
+        },
       });
-
-      const data = await response.json();
       
       if (data.success) {
         const favoriIds = (data.data || []).map((f: any) => f.ilan_id);
@@ -70,11 +71,15 @@ export default function OnecikanIlanlar() {
 
   const fetchOnecikanIlanlar = async () => {
     try {
-      const response = await fetch('/api/ilanlar/onecikan', { cache: 'force-cache' });
-      const data = await response.json();
-      if (data.success) {
-        setIlanlar(data.data);
-      }
+      const data = await safeFetchJson<{ success: boolean; data: Ilan[] }>(`/api/ilanlar/onecikan`, {
+      timeoutMs: 15_000,
+      retries: 0,
+      cacheKey: "onecikan",
+      cacheTtlMs: 60 * 1000,
+    });
+    if (data?.success && Array.isArray(data.data)) {
+      setIlanlar(data.data);
+    }
     } catch (error) {
       console.error('Öne çıkan ilanlar yüklenirken hata:', error);
     } finally {

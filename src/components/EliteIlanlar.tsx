@@ -8,6 +8,7 @@ import { Crown, MapPin, Eye, Heart, Sparkles, Store, TrendingUp } from "lucide-r
 import { useRouter } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
+import { safeFetchJson } from "@/lib/safeFetch";
 
 interface Ilan {
   id: number;
@@ -55,13 +56,13 @@ export default function EliteIlanlar() {
       const user = JSON.parse(userStr);
       if (!user?.id) return;
       
-      const response = await fetch('/api/favoriler', {
+      const data = await safeFetchJson<{ success: boolean; data: any[] }>(`/api/favoriler`, {
+        timeoutMs: 10_000,
+        retries: 0,
         headers: {
-          'x-user-id': user.id.toString()
-        }
+          'x-user-id': user.id.toString(),
+        },
       });
-
-      const data = await response.json();
       
       if (data.success) {
         const favoriIds = (data.data || []).map((f: any) => f.ilan_id);
@@ -75,11 +76,13 @@ export default function EliteIlanlar() {
   const fetchEliteIlanlar = async () => {
     try {
       // ⚡ OPTIMIZE: Sadece 6 Elite ilan çek
-      const response = await fetch('/api/ilanlar?store_level=elite&limit=6', {
-        cache: 'force-cache',
+      const data = await safeFetchJson<{ success: boolean; data: Ilan[] }>(`/api/ilanlar?store_level=elite&limit=6`, {
+        timeoutMs: 15_000,
+        retries: 0,
+        cacheKey: "elite-ilanlar",
+        cacheTtlMs: 60 * 1000,
       });
-      const data = await response.json();
-      if (data.success) {
+      if (data?.success && Array.isArray(data.data)) {
         setIlanlar(data.data);
       }
     } catch (error) {

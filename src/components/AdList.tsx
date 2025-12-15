@@ -7,6 +7,7 @@ import { Heart, Crown, Zap, Eye, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
 import PriceDisplay from "@/components/PriceDisplay";
+import { safeFetchJson } from "@/lib/safeFetch";
 
 interface Ilan {
   id: number;
@@ -62,20 +63,34 @@ export default function AdList() {
       const user = JSON.parse(userStr);
       if (!user?.id) return;
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       const response = await fetch('/api/favoriler', {
+        signal: controller.signal,
         headers: {
           'x-user-id': user.id.toString()
         }
       });
-
-      const data = await response.json();
       
-      if (data.success) {
-        const favoriIds = (data.data || []).map((f: any) => f.ilan_id);
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) return;
+      
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        return;
+      }
+      
+      if (data.success && Array.isArray(data.data)) {
+        const favoriIds = data.data.map((f: any) => f.ilan_id);
         setFavoriler(favoriIds);
       }
     } catch (error) {
-      console.error('Favoriler yüklenirken hata:', error);
+      // Sessizce fail et, favori önemli değil
     }
   };
 
@@ -88,28 +103,30 @@ export default function AdList() {
       }
 
       const currentOffset = loadMore ? offset : 0;
-      const response = await fetch(`/api/ilanlar?limit=15&offset=${currentOffset}`, {
-        cache: 'force-cache',
-      });
-      const data = await response.json();
-      
-      if (data.success) {
+      const data = await safeFetchJson<{ success: boolean; data: Ilan[]; total?: number }>(
+        `/api/ilanlar?limit=15&offset=${currentOffset}`,
+        {
+          timeoutMs: 15_000,
+          retries: 0,
+        }
+      );
+
+      if (data?.success && Array.isArray(data.data)) {
         if (loadMore) {
-          setIlanlar(prev => [...prev, ...data.data]);
+          setIlanlar((prev) => [...prev, ...data.data]);
         } else {
           setIlanlar(data.data);
         }
-        
+
         setOffset(currentOffset + 15);
         setHasMore(data.data.length === 15);
-        
-        // Toplam ilan sayısını al
-        if (data.total) {
-          setToplamIlan(data.total);
-        }
+        if (data.total) setToplamIlan(data.total);
       }
     } catch (error) {
       console.error('خطا در بارگذاری آگهی ها:', error);
+      // Fail closed: don't spam retries, just stop loading
+      if (!loadMore) setIlanlar([]);
+      setHasMore(false);
     } finally {
       setLoading(false);
       setLoadingMore(false);

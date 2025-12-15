@@ -38,6 +38,7 @@ import {
   Store,
   Calendar
 } from "lucide-react";
+import { safeFetchJson } from "@/lib/safeFetch";
 
 interface Kategori {
   id: number;
@@ -171,13 +172,21 @@ export default function Sidebar() {
 
   const fetchKategoriler = async () => {
     try {
-      const response = await fetch('/api/kategoriler');
-      const data = await response.json();
-      if (data.success) {
+      const data = await safeFetchJson<{ success: boolean; data: any[] }>(`/api/kategoriler`, {
+        timeoutMs: 10_000,
+        retries: 0,
+        cacheKey: "kategoriler",
+        cacheTtlMs: 5 * 60 * 1000,
+      });
+
+      if (data?.success && Array.isArray(data.data)) {
         setKategoriler(data.data);
+      } else {
+        setKategoriler([]);
       }
     } catch (error) {
       console.error('خطا در بارگذاری دسته بندی ها:', error);
+      setKategoriler([]);
     } finally {
       setLoading(false);
     }
@@ -185,13 +194,27 @@ export default function Sidebar() {
 
   const fetchIstatistikler = async () => {
     try {
-      const response = await fetch('/api/istatistikler');
-      const data = await response.json();
-      if (data.success) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const response = await fetch('/api/istatistikler', { signal: controller.signal });
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) return;
+      
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        return;
+      }
+      
+      if (data.success && data.data) {
         setIstatistikler(data.data);
       }
     } catch (error) {
-      console.error('خطا در بارگذاری آمار:', error);
+      // Sessizce fail et
     }
   };
 

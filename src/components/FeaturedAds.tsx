@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { safeFetchJson } from "@/lib/safeFetch";
 
 interface Slider {
   id: number;
@@ -41,15 +42,22 @@ export default function FeaturedAds() {
 
   const fetchSliders = async () => {
     try {
-      const response = await fetch('/api/slider', { cache: 'force-cache' });
-      const data = await response.json();
-      if (data.success) {
-        // Resmi olan slider'ları filtrele
+      const data = await safeFetchJson<{ success: boolean; data: Slider[] }>(`/api/slider`, {
+        timeoutMs: 10_000,
+        retries: 0,
+        cacheKey: "slider",
+        cacheTtlMs: 60 * 1000,
+      });
+
+      if (data?.success && Array.isArray(data.data)) {
         const validSliders = data.data.filter((s: Slider) => s.resim && s.resim.trim() !== '');
         setSliders(validSliders);
+      } else {
+        setSliders([]);
       }
     } catch (error) {
       console.error('خطا در بارگذاری اسلایدر:', error);
+      setSliders([]);
     } finally {
       setLoading(false);
     }
