@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Vazirmatn } from "next/font/google";
 import "./globals.css";
-import HumanVerification from "@/components/HumanVerification";
 
 const vazirmatn = Vazirmatn({
   variable: "--font-sans",
@@ -68,9 +67,7 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl">
       <body className={`${vazirmatn.variable} antialiased`} suppressHydrationWarning>
-        <HumanVerification>
-          {children}
-        </HumanVerification>
+        {children}
       </body>
     </html>
   );
