@@ -13,7 +13,6 @@ const dbConfig = {
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
   connectTimeout: 30000,
-  acquireTimeout: 30000,
   multipleStatements: false,
 };
 
