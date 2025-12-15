@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSlider } from '@/lib/ilan';
 
 export const maxDuration = 30;
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 // GET - Aktif slider'ları getir
 export async function GET() {

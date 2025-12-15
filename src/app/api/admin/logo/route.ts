@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-// Cache: 1 saat (logo sık değişmez)
-export const revalidate = 3600;
 export const maxDuration = 30;
+export const dynamic = 'force-dynamic';
 
 // In-memory cache for logos
 let logoCache: { data: any; timestamp: number } | null = null;

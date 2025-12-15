@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
 export const maxDuration = 30;
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 // Mock data - fallback için
 const mockKategoriler = [
