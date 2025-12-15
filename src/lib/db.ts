@@ -8,11 +8,12 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || 'Ciko5744**',
   database: process.env.DB_NAME || 'cihatcengiz_baza',
   waitForConnections: true,
-  connectionLimit: 5,
+  connectionLimit: 3,
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  connectTimeout: 10000,
+  connectTimeout: 30000,
+  acquireTimeout: 30000,
   multipleStatements: false,
 };
 
