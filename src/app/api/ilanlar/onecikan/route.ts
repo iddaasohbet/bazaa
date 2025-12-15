@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+export const maxDuration = 30;
+export const revalidate = 60;
+
 export async function GET() {
   const headers = {
     'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
@@ -53,10 +56,12 @@ export async function GET() {
     }, { headers });
   } catch (error: any) {
     console.error('❌ Öne çıkan ilanlar hatası:', error);
-    return NextResponse.json(
-      { success: false, message: error.message },
-      { status: 500, headers }
-    );
+    // Fallback - boş array döndür, 500 hatası verme
+    return NextResponse.json({
+      success: true,
+      data: [],
+      fallback: true
+    }, { headers });
   }
 }
 

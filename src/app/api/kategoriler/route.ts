@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+export const maxDuration = 30;
+export const revalidate = 300;
+
 // Mock data - fallback için
 const mockKategoriler = [
   { id: 1, ad: 'Araçlar', ad_dari: 'وسایل نقلیه', slug: 'araclar', ikon: 'car', aktif: true, sira: 1, ilan_sayisi: 0 },

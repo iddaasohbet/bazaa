@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getIlanlar } from '@/lib/ilan';
 import { query } from '@/lib/db';
 
+export const maxDuration = 30;
+export const revalidate = 60;
+
 // Mock data - veritabanı olmadan çalışması için
 const baseIlanlar = [
   {

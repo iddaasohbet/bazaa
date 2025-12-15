@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getSlider } from '@/lib/ilan';
 
+export const maxDuration = 30;
+export const revalidate = 60;
+
 // GET - Aktif slider'ları getir
 export async function GET() {
   // Cache ile hızlı yanıt
@@ -17,10 +20,12 @@ export async function GET() {
     }, { headers });
   } catch (error: any) {
     console.error('Slider yükleme hatası:', error);
-    return NextResponse.json(
-      { success: false, message: error.message },
-      { status: 500 }
-    );
+    // Fallback - boş array döndür, 500 hatası verme
+    return NextResponse.json({
+      success: true,
+      data: [],
+      fallback: true
+    }, { headers });
   }
 }
 
